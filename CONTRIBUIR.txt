@@ -1,0 +1,30 @@
+Contribuir a Fábula
+
+Usa Windows x64 y Node.js 24 o posterior. Ejecuta npm ci, npm run format:check, npm test y npm run build antes de proponer cambios. Para cambios de audio, extracción o IPC, ejecuta también las pruebas de integración pertinentes de GUIA_DE_USO.txt.
+
+Mantén la interfaz en español, con controles etiquetados y diálogos accesibles. Valida los datos IPC en el proceso principal; la interfaz no debe obtener acceso directo a Node. Las tareas pesadas se ejecutan fuera del proceso principal. No incluyas texto personal, grabaciones reales, modelos de voz, secretos ni dependencias descargadas en una contribución.
+
+Los proveedores de voces externas deben resolver IDs contra el registro de voces, no ejecutar rutas enviadas por la interfaz. Conserva las narraciones antiguas y sus metadatos al cambiar esquemas. Los modelos y servicios ajenos tienen sus propias condiciones, que deben documentarse en TERCEROS.txt.
+
+No subas ejecutables al historial de Git: distribúyelos como archivos de una versión publicada, junto con su fuente correspondiente. Por ahora el empaquetado no firma ejecutables; firma y actualización automática requieren configuración de publicación independiente.
+
+Las contribuciones se distribuyen bajo GPL-3.0-or-later, igual que el proyecto.
+
+PROPONER UN CAMBIO
+Abre un issue para describir problemas o propuestas amplias antes de cambiar
+varias funciones. Para colaborar desde otra cuenta, crea un fork y una rama
+con un nombre descriptivo. Mantén cada pull request enfocada en un problema
+y explica el comportamiento resultante y las pruebas ejecutadas.
+
+No modifiques la biblioteca personal al preparar ejemplos. Utiliza los perfiles
+aislados de tools y casos ficticios. Conserva las guías detalladas en TXT; la
+portada y los archivos de integración de GitHub usan Markdown para que la
+plataforma pueda mostrarlos correctamente.
+
+Para vulnerabilidades consulta SEGURIDAD.txt. La participación en el repositorio
+se rige por CONVIVENCIA.txt.
+
+FORMATO
+Ejecuta npm run format para aplicar el formato compartido del código y de los
+archivos de GitHub. Las guías TXT, avisos originales y el archivo de bloqueo
+quedan excluidos del formateador.

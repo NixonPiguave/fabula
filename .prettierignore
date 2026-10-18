@@ -1,0 +1,10 @@
+node_modules/
+.tools/
+.build/
+out/
+dist/
+release/
+samples/
+assets/licenses/
+package-lock.json
+*.txt

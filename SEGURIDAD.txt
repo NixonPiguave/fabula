@@ -1,0 +1,33 @@
+SEGURIDAD DE FÁBULA
+
+ALCANCE
+Los informes de seguridad deben referirse al código de la rama principal o
+indicar la etiqueta o commit afectado. Incluye versión de Windows, proveedor de
+voz y módulos pertinentes. No se promete un plazo fijo de respuesta ni existe
+un programa de recompensas asociado al proyecto.
+
+COMUNICAR UNA VULNERABILIDAD
+Utiliza el canal privado de GitHub del repositorio:
+https://github.com/NixonPiguave/fabula/security/advisories/new
+
+Describe el impacto, los requisitos y los pasos mínimos de reproducción.
+Utiliza archivos de ejemplo ficticios. No publiques una vulnerabilidad sin
+corregir en un issue abierto ni incluyas credenciales, textos privados,
+grabaciones personales o una copia de la biblioteca del usuario.
+
+Si el formulario privado no está disponible, evita publicar detalles de
+explotación; solicita un canal privado sin adjuntar información sensible.
+Los errores ordinarios de funcionamiento se pueden reportar mediante Issues.
+
+REVISIÓN
+Los mantenedores pueden solicitar un ejemplo reducido para reproducir el
+problema, evaluar el impacto y coordinar una corrección y su divulgación.
+Un informe no garantiza que el proyecto pueda reproducirlo o corregirlo en
+un plazo determinado.
+
+LÍMITES DEL PROYECTO
+Las voces en línea, descargas y modelos de terceros tienen sus propias
+condiciones y canales de seguridad. No realices pruebas contra servicios o
+sistemas ajenos sin autorización. Los cambios de seguridad deben preservar
+la validación de entradas IPC, el aislamiento de la ventana y los controles
+sobre documentos comprimidos, rutas y descargas.

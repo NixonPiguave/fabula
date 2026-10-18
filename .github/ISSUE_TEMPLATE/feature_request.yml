@@ -1,0 +1,24 @@
+name: Proponer una mejora
+description: Explica una necesidad de lectura, narración o transcripción.
+title: '[Propuesta]: '
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: Necesidad o problema
+      description: Describe una situación concreta de uso.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Propuesta
+      description: Explica el comportamiento que te ayudaría y cómo lo utilizarías.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas o contexto
+      description: Incluye alternativas consideradas, ejemplos ficticios o referencias relevantes.

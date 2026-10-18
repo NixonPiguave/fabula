@@ -1,0 +1,71 @@
+DISTRIBUCIÓN DE FÁBULA
+
+ALCANCE DE LA PUBLICACIÓN
+El repositorio público contiene el código fuente, recursos, pruebas y avisos
+que permiten desarrollar y compilar la aplicación. Los ejecutables no se
+incluyen en Git. La disponibilidad de paquetes para usuarios se indica en
+README.md y en Releases. El repositorio no contiene documentos de usuarios,
+modelos descargados ni la carpeta de datos personal.
+
+PREPARAR UNA VERSIÓN
+1. Instala las dependencias fijadas con npm ci.
+2. Ejecuta npm test, npm run build y las pruebas de integración pertinentes
+   de CALIDAD.txt. Comprueba los paquetes en Windows x64.
+3. Revisa PRIVACIDAD.txt, AVISOS_DE_USO.txt, TERCEROS.txt y las licencias de
+   componentes contra las dependencias y el comportamiento de esa compilación.
+4. Actualiza la versión en package.json y package-lock.json. Asegura que la
+   identificación de la aplicación y las comprobaciones coincidan.
+5. Genera los paquetes con npm run package:all. Los EXE y sus archivos SHA-256
+   quedan en la raíz; los archivos intermedios se guardan en .build.
+6. Publica una etiqueta que identifique exactamente el código compilado.
+   Adjunta los paquetes revisados a una Release con instrucciones claras,
+   requisitos, licencias, fuentes correspondientes y limitaciones conocidas.
+
+CONDICIONES DE COMPONENTES Y SERVICIOS
+La GPL del código propio no sustituye las obligaciones de componentes, modelos
+ni servicios ajenos. Antes de distribuir binarios:
+
+- Conserva LICENSE.txt, TERCEROS.txt y LICENCIAS_DE_COMPONENTES.txt. Incluye
+  también los avisos originales de Electron, Chromium y otros componentes.
+- Identifica el binario exacto de FFmpeg y ofrece el código fuente
+  correspondiente completo, incluidos los cambios y guiones de construcción
+  que exija su licencia. Las referencias se encuentran en TERCEROS.txt y en
+  ffmpeg.exe.README del paquete ffmpeg-static. Este repositorio no contiene
+  todavía un archivo completo de esas fuentes.
+- Revisa las dependencias nativas de canvas que enumera
+  assets/licenses/canvas-sbom.json. El inventario no sustituye sus avisos ni
+  las obligaciones de código fuente. Resuelve los requisitos de redistribución
+  de la compilación que vayas a adjuntar.
+- La integración de lectura de Edge es independiente. No incorpora una
+  autorización contractual del proveedor para ofrecer una API de terceros.
+  Verifica las condiciones aplicables al uso y distribución previstos. No
+  anuncies acceso permanente, cuotas ilimitadas ni derechos sobre sus voces.
+  Si el uso previsto no está autorizado, utiliza un proveedor que lo permita
+  o una distribución configurada para procesamiento local.
+- No adjuntes voces propietarias ni modelos ajenos sin revisar sus permisos.
+  Conserva MODEL_CARD y los avisos de cualquier modelo que redistribuyas.
+
+PAQUETES Y DATOS
+Fabula.exe funciona sin instalación. Fabula-Instalador.exe ofrece un asistente
+para Windows x64, elección de carpeta y accesos directos. Ambos usan
+%APPDATA%/Fábula y deben ejecutarse de uno en uno. Desinstalar conserva esa
+carpeta. Los archivos exportados permanecen donde los guarde cada usuario.
+Los paquetes de desarrollo no están firmados digitalmente; la firma requiere
+un certificado del editor y una configuración propia de distribución.
+
+VERIFICACIÓN DE UNA RELEASE
+Comprueba instalación, arranque, reproducción, exportación y desinstalación
+en un entorno Windows limpio, preferiblemente una máquina virtual. Verifica
+los SHA-256 contra los archivos publicados. Describe lo comprobado y los
+límites pendientes; no atribuyas al proyecto certificaciones que no posee.
+No adjuntes datos de pruebas ni informes que contengan información personal.
+
+El ZIP automático de GitHub contiene los archivos del repositorio, no las
+fuentes de todos los binarios externos. Mantén disponibles las fuentes y los
+avisos que deban acompañar a los paquetes. Marca como preliminares las
+publicaciones que todavía necesiten revisión o validación adicional.
+
+DOCUMENTACIÓN DE REFERENCIA
+https://www.gnu.org/licenses/gpl-3.0.html
+https://ffmpeg.org/legal.html
+https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository

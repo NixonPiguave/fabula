@@ -1,0 +1,20 @@
+NORMAS DE CONVIVENCIA
+
+El proyecto busca un espacio de colaboración respetuoso para personas con
+distintos conocimientos y necesidades de lectura, narración y accesibilidad.
+Estas normas se aplican a Issues, pull requests y demás espacios del repositorio.
+
+- Comenta sobre el problema o la propuesta con claridad y respeto.
+- Aporta ejemplos reproducibles y acepta preguntas o revisiones de buena fe.
+- Evita insultos, acoso, discriminación, amenazas y ataques personales.
+- No compartas datos personales, documentos ni grabaciones de otras personas
+  sin autorización. Utiliza ejemplos ficticios para reportar problemas.
+- No publiques spam ni desvíes conversaciones técnicas hacia conflictos personales.
+
+Los mantenedores pueden solicitar cambios de tono, moderar contenido o limitar
+la participación cuando sea necesario para proteger la colaboración. Para
+reportar contenido abusivo, utiliza las opciones de reporte del comentario o
+las herramientas de GitHub. No respondas publicando información privada.
+
+Estas reglas de participación no modifican los derechos que concede la licencia
+del software. Las vulnerabilidades deben comunicarse mediante SEGURIDAD.txt.

@@ -1,0 +1,50 @@
+name: Reportar un problema
+description: Describe un error reproducible de la aplicación.
+title: '[Error]: '
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Usa ejemplos ficticios. No adjuntes textos privados, grabaciones personales, credenciales ni la carpeta de datos de Fábula. Para vulnerabilidades, utiliza el canal privado de seguridad.
+  - type: input
+    id: version
+    attributes:
+      label: Versión o commit de Fábula
+      placeholder: Etiqueta, commit o rama utilizada
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: Versión de Windows
+      placeholder: Windows 11 x64
+    validations:
+      required: true
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Proveedor de voz relacionado
+      options:
+        - No corresponde
+        - Windows SAPI
+        - Piper
+        - Voces en línea de Edge
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducirlo
+      description: Incluye un ejemplo de texto ficticio o un archivo de demostración si hace falta.
+      placeholder: "1. Abrir…\n2. Seleccionar…\n3. Observar…"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Resultado esperado y resultado observado
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Información adicional
+      description: Mensaje de error o captura sin información personal.

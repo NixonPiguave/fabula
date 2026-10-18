@@ -1,0 +1,84 @@
+CALIDAD Y COMPROBACIÓN DE FÁBULA
+
+Requisitos: Windows x64, Node.js 24 o posterior y npm.
+Ejecuta los comandos desde la carpeta del proyecto.
+
+COMPROBACIÓN BÁSICA
+npm ci
+npm run format:check
+npm test
+npm run build
+npm audit --omit=dev
+
+Las pruebas unitarias cubren fragmentación Unicode, SSML, capítulos, proyectos,
+contraste, documentos, descargas, márgenes PDF y encabezados/pies de página.
+La compilación incluye comprobación estricta de tipos TypeScript.
+
+PERFILES DE VOZ E INTERFAZ
+npm run test:profiles
+
+Esta prueba abre una instancia aislada, con datos ficticios dentro de .tools.
+Verifica crear y editar perfiles, nombres duplicados, cancelar cambios, voces
+no disponibles, copiar y aplicar ajustes, confirmación de borrado, persistencia
+y muestra de audio. Utiliza una voz SAPI instalada para la muestra sin conexión.
+También comprueba los documentos legales, temas claro/oscuro y anchura mínima.
+Las capturas generadas sirven para revisar la interfaz; no son datos de usuarios.
+
+NARRACIÓN, DOCUMENTOS Y BIBLIOTECA
+npm run fixtures
+npm run smoke
+npm run test:desktop
+npm run test:library
+
+Las pruebas generan textos ficticios y verifican narración, reproducción,
+exportación, organización por proyectos y conservación de la biblioteca.
+Las pruebas del proveedor en línea necesitan Internet. El borrado de prueba
+envía exclusivamente carpetas ficticias a la Papelera de Windows.
+
+OCR, TRANSCRIPCIÓN Y VOCES EXTERNAS
+node tools/fetch-test-modules.mjs
+npm run test:advanced
+node tools/fetch-voice-fixtures.mjs
+npm run test:voices-pdf
+
+Estas pruebas descargan módulos y modelos de fuentes oficiales. Comprueban
+OCR, importación de documentos y PDF, Whisper, voces locales y en línea.
+El micrófono se simula con un archivo de audio: no se captura el micrófono físico.
+Las voces y sus modelos de prueba no se incluyen en los ejecutables de Fábula.
+
+VERIFICAR EL PAQUETE
+npm run package:all
+
+Para usar el código y las dependencias incluidos en el archivo ASAR:
+$env:FABULA_CHECK_ASAR = (Join-Path (Get-Location) '.build/win-unpacked/resources/app.asar')
+npm run test:profiles
+Remove-Item Env:FABULA_CHECK_ASAR
+
+node tools/portable-check.mjs
+
+La comprobación portable usa un perfil aislado y puede ejecutarse sin
+node_modules, out o .build, siempre que Node esté disponible para el comprobador.
+El usuario final no necesita Node ni esos archivos para ejecutar Fábula.
+
+INSTALADOR
+tools/installer-check.ps1 es una comprobación para PowerShell 7. Cierra Fábula
+antes de ejecutarla. Se niega a continuar si encuentra una instalación o accesos
+directos existentes; en ese caso, utiliza una máquina virtual Windows limpia.
+Instala en .tools/installer-check/application, comprueba el registro y el arranque
+con un perfil aislado, y después desinstala esa copia de prueba. Contrasta los
+archivos de la biblioteca personal antes y después. No borra esa biblioteca.
+El asistente visual, actualizaciones del sistema y alertas de firma también deben
+revisarse en una máquina limpia antes de distribuir un lanzamiento público.
+
+CI Y DISTRIBUCIÓN
+.github/workflows/quality.yml ejecuta pruebas, compilación y auditoría de
+dependencias de producción en Windows. Las comprobaciones que descargan voces
+o módulos se ejecutan por separado. Guarda los informes de tu CI en los artefactos
+del trabajo; no añadas perfiles ni registros de usuarios al repositorio.
+DISTRIBUCION.txt describe los requisitos de distribución y licencias.
+
+LIMPIEZA
+node_modules, out, .build y .tools son generados y se excluyen de Git. Puedes
+retirarlos con la aplicación y las pruebas cerradas, después de comprobar los
+ejecutables. Conserva el código fuente, los recursos, archivos de configuración,
+package-lock.json y la documentación. No limpies %APPDATA%/Fábula: es la biblioteca.

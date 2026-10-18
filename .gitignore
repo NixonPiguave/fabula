@@ -1,0 +1,17 @@
+.tools/
+__pycache__/
+node_modules/
+dist/
+release/
+.build/
+out/
+samples/
+Fabula.exe
+Fabula.exe.sha256
+*.log
+.env
+.env.*
+Fabula-Instalador.exe
+Fabula-Instalador.exe.sha256
+Fabula-*.exe
+Fabula-*.exe.sha256

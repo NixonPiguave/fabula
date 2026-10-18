@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Guía de uso
+    url: https://github.com/NixonPiguave/fabula/blob/main/GUIA_DE_USO.txt
+    about: Consulta importación, voces, proyectos, reproducción y transcripción.
+  - name: Comunicar una vulnerabilidad
+    url: https://github.com/NixonPiguave/fabula/security/advisories/new
+    about: Usa el canal privado para problemas de seguridad.

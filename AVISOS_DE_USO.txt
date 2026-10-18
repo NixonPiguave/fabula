@@ -1,0 +1,48 @@
+FÁBULA — LICENCIA Y AVISOS DE USO
+Versión 0.5.0 · 17 de octubre de 2026
+
+LICENCIA DEL PROGRAMA
+El código propio de Fábula se ofrece bajo GNU GPL, versión 3 o cualquier versión
+posterior (GPL-3.0-or-later). LICENSE.txt contiene el texto íntegro. Puedes usar,
+estudiar, modificar y redistribuir el programa conforme a esa licencia, incluso
+para fines comerciales. Este aviso explicativo no añade restricciones a la GPL
+ni exige aceptar un contrato adicional para ejercer los derechos de la licencia.
+Los avisos de componentes y modelos de terceros se encuentran en TERCEROS.txt.
+
+GARANTÍAS
+La GPL contiene las cláusulas sobre ausencia de garantía y límites de
+responsabilidad, en la medida permitida por la legislación aplicable. Este
+documento no elimina derechos obligatorios que esa legislación reconozca.
+Revisa la extracción de documentos y las transcripciones: pueden contener
+errores de reconocimiento, orden o puntuación.
+
+TEXTOS, VOCES Y AUDIO
+La licencia del programa no concede derechos sobre libros, documentos,
+grabaciones, modelos de voz, marcas ni contenido de otras personas. Importar
+un archivo o generar un MP3 no acredita permiso para publicar ese contenido.
+Verifica los derechos y condiciones aplicables al material y a la voz elegida,
+especialmente si vas a distribuir el resultado o utilizarlo comercialmente.
+Las voces instaladas de Windows y los modelos Piper mantienen sus licencias.
+Conserva la ficha MODEL_CARD y los avisos que acompañen a cada modelo.
+
+SERVICIOS EN LÍNEA
+La integración con las voces de lectura de Microsoft Edge es independiente y
+no constituye una API contratada por Fábula ni implica respaldo de Microsoft.
+Que funcione sin una clave de pago no garantiza autorización para todos los
+usos, acceso permanente, una cuota ilimitada ni derechos comerciales sobre
+las voces. La licencia MIT de la biblioteca de conexión no sustituye las
+condiciones del servicio. Consulta las condiciones y la privacidad de Microsoft:
+https://www.microsoft.com/servicesagreement
+https://privacy.microsoft.com/es-es/privacystatement
+La disponibilidad y compatibilidad pueden cambiar. Las voces locales son una
+alternativa cuando no deseas enviar el texto a un servicio externo.
+
+REDISTRIBUCIÓN
+Al distribuir una versión, conserva las licencias y avisos y proporciona el
+código fuente correspondiente, incluidos los componentes que lo exijan, de
+la forma prevista por sus licencias. Publicar solo el código de la interfaz
+no resuelve automáticamente las obligaciones de todos los binarios incluidos.
+Consulta docs/DISTRIBUCION.txt para preparar una distribución verificable.
+
+Estos avisos documentan el funcionamiento y las licencias; no constituyen una
+certificación de cumplimiento para cualquier jurisdicción o modalidad de uso.

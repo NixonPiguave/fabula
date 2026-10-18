@@ -1,0 +1,13 @@
+Arquitectura
+
+Electron, React y TypeScript estricto. La ventana usa sandbox, aislamiento de contexto y una API preload explícita; bloquea navegación y ventanas externas. El proceso principal valida entradas con Zod, restringe operaciones a la ventana principal y conserva las escrituras en orden.
+
+Los workers de narración, importación y transcripción realizan las tareas pesadas. La narración se divide por capítulos/párrafos y fragmentos de SSML limitados por bytes. Sus hashes incluyen texto, voz y ajustes; cambiar una pausa no vuelve a solicitar el audio idéntico. Los proyectos viven en un almacén aparte para que un worker de audio no sobrescriba cambios de organización.
+
+La importación PDF conserva líneas con coordenadas normalizadas de PDF.js o del OCR. La vista previa aplica márgenes, números de página y repetición en márgenes sin modificar el original hasta confirmar. Los documentos comprimidos tienen límites de expansión y las entradas XML no permiten entidades externas.
+
+Los proveedores de narración son Edge, Windows SAPI y Piper. Las síntesis en línea se conservan en una caché local. Windows se consulta mediante un script incluido de System.Speech, tanto en PowerShell de 64 como de 32 bits. Piper importa modelo/configuración con ID derivado de su contenido y hablante. El proceso principal resuelve todas las voces antes de iniciar un trabajo. Las rutas de modelos nunca llegan desde el renderer a un comando ejecutable.
+
+Los procesos se lanzan sin shell, con ventanas ocultas y seguimiento de PID para cancelar. El motor Piper usa rutas relativas dentro de los datos administrados para evitar problemas de su CLI C++ con caracteres Unicode. FFmpeg normaliza voces locales a MP3 mono de 24 kHz y une los capítulos. El protocolo local de reproducción valida IDs y admite peticiones por rangos.
+
+Las descargas opcionales fijan URL, tamaño y SHA-256. Los modelos de pruebas no se distribuyen con Fábula. Los datos de usuario se guardan aparte del código; los perfiles de pruebas permanecen dentro de .tools. Retirar una narración o voz usa la Papelera de Windows, previa confirmación y comprobación de ruta.

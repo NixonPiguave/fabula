@@ -1,0 +1,116 @@
+Fábula · Tus textos, con voz
+
+Aplicación de escritorio en español para escuchar novelas, relatos, documentos y audiolibros, y para transcribir grabaciones. Windows 10/11 x64. Código bajo GPL-3.0-or-later; los servicios y modelos de terceros conservan sus propias condiciones.
+
+Abrir la aplicación
+
+Ejecuta Fabula.exe, directamente en esta carpeta, o utiliza Fabula-Instalador.exe para instalarla. Cierra cualquier otra instancia de Fábula antes de abrirla. No necesita instalador, Node, Python ni FFmpeg instalados en el equipo.
+
+El ejecutable es portable en el sentido de que funciona sin instalación. La biblioteca, preferencias, modelos y borradores se guardan en %APPDATA%/Fábula, no dentro del EXE. Para llevar los datos a otro equipo, copia también esa carpeta con la aplicación cerrada. Esta distribución de desarrollo no está firmada digitalmente.
+
+Funciones
+
+- Texto pegado y documentos PDF, TXT, Markdown, DOCX, EPUB, HTML, ODT y RTF.
+- PDF con vista previa: incluir o excluir encabezados/pies, ajustar márgenes superior e inferior, quitar números de página y detectar títulos repetidos. Las opciones se guardan y se pueden revisar antes de importar. Un encabezado de capítulo que sí pertenece al cuerpo se conserva mientras quede dentro de la zona elegida.
+- OCR en español para imágenes y PDF escaneados, con las mismas opciones de márgenes sobre las líneas reconocidas.
+- Quince voces neurales en español, entre ellas Jorge, Dalia, Álvaro, Elvira, Tomás, Elena, Luis, Andrea, Gonzalo, Salomé, Alex, Camila, Lorenzo, Catalina y Ximena.
+- Voces Windows SAPI de 32 y 64 bits, detectadas desde Explorar voces.
+- Modelos Piper importados para síntesis local y sin conexión.
+- Velocidad, tono, volumen, pausas, perfiles guardados y diccionario de pronunciación.
+- Voces distintas por párrafo, capítulos y regeneración con reutilización del audio sin cambios.
+- Reproductor con búsqueda, marcadores y posición de escucha guardada. MP3 completo o por capítulo.
+- Proyectos con varias narraciones. Borrado con confirmación y envío a la Papelera de Windows; borrar un proyecto conserva sus narraciones.
+- Temas, seis paletas y colores personalizados para fondo, barra lateral, paneles, reproductor y botones. El texto adapta su contraste.
+- Transcripción local de audio/video y dictado con Whisper. Exportación TXT, DOCX, SRT y VTT.
+
+Los textos largos se dividen automáticamente. La aplicación no impone un máximo fijo de caracteres: los límites prácticos dependen de memoria, disco y proveedor. La extracción de PDF con columnas o diseños complejos necesita revisión.
+
+Voces: Internet, Windows y Piper
+
+Las voces neurales en línea usan Microsoft Edge mediante una integración independiente, sin clave de API de pago. Necesitan Internet y envían el texto a Microsoft. El acceso y las cuotas dependen del proveedor; la biblioteca generada se puede escuchar sin conexión.
+
+Las voces compatibles instaladas en Windows pueden detectarse desde «Explorar voces → Buscar voces de Windows», también en 32 bits. Su disponibilidad y calidad dependen del motor y de su licencia.
+
+Para importar una voz Piper:
+
+1. En Explorar voces, instala el motor Piper (22.5 MB, una sola vez).
+2. Descarga un modelo Piper compatible, su archivo .onnx.json y su ficha MODEL_CARD. Catálogo de voces: https://huggingface.co/rhasspy/piper-voices y documentación de modelos: https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/VOICES.md.
+3. Pulsa «Importar voz Piper» y selecciona el .onnx. La configuración se encuentra automáticamente si se llama igual más .json; de lo contrario, se solicita por separado.
+4. El hablante 0 es el habitual. Otros índices solo sirven para modelos con varias voces.
+5. Elige la voz importada y escucha una muestra antes de narrar el documento completo.
+
+Fábula copia el modelo y configuración a sus datos locales y conserva MODEL_CARD cuando está junto al modelo. Cada voz tiene su licencia; importar una voz no concede derechos adicionales. Se admiten modelos Piper VITS/espeak con configuración compatible, hasta 500 MB; no cualquier archivo ONNX. Un MP3/WAV no es un modelo de síntesis y no se convierte automáticamente en una voz. Retirar un modelo conserva los audios ya generados.
+
+El motor opcional usa la distribución C++ oficial 2023.11.14-2, fijada por tamaño y SHA-256. El proyecto actual de Piper continúa en OHF-Voice; esta integración no requiere instalar Python. En voces locales, el tono se aplica como efecto de audio y no tiene exactamente la misma respuesta que el control del servicio en línea.
+
+OCR y transcripción
+
+Preferencias permite descargar OCR español (2.3 MB) y Whisper Base con motor CPU (157 MB). Después de instalarse, trabajan sin conexión y no suben los archivos para reconocerlos. Las descargas son cancelables y verifican su integridad.
+
+El dictado admite hasta 15 minutos por grabación; para grabaciones más largas, importa un archivo. Cambiar de sección detiene el dictado y transcribe lo grabado. Cerrar durante una grabación solicita confirmar el descarte. Los resultados se guardan, se pueden corregir y sus tiempos se conservan al exportar subtítulos.
+
+Desarrollar desde el código fuente
+
+Requisitos: Windows x64, Node.js 24 o posterior y npm. Desde esta carpeta:
+
+npm ci
+npm run dev
+
+La instalación descarga los runtimes de Electron y FFmpeg. Si se omitieron scripts de instalación, ejecuta npm run setup:desktop para Electron y npm rebuild ffmpeg-static para FFmpeg.
+
+npm test
+npm run build
+npm run package
+
+package genera Fabula.exe en la raíz, su SHA-256 y archivos intermedios en .build/. Los EXE no se incluyen en Git. La disponibilidad de paquetes públicos se indica en README.md y en la sección Releases del repositorio. Para generar un instalador opcional con elección de carpeta y acceso directo:
+
+npm run package:installer
+
+Para generar ambos formatos en una sola operación: npm run package:all.
+
+El instalador se copia a Fabula-Instalador.exe en esta raíz, con su SHA-256, y conserva los datos al desinstalar. Se ofrecen ambas opciones; el instalador es útil para usuarios que prefieran accesos directos y una entrada de desinstalación.
+
+Pruebas de integración
+
+Las pruebas usan perfiles aislados y datos ficticios dentro de .tools. Para prepararlas desde una copia limpia:
+
+npm test
+npm run build
+npm run fixtures
+npm run smoke
+npm run test:desktop
+npm run test:library
+npm run test:profiles
+node tools/fetch-test-modules.mjs
+npm run test:advanced
+node tools/fetch-voice-fixtures.mjs
+npm run test:voices-pdf
+
+Las pruebas de voz en línea necesitan Internet. La prueba avanzada utiliza un archivo como micrófono simulado; no captura el micrófono físico. Las pruebas de borrado envían únicamente sus carpetas ficticias a la Papelera real de Windows. Para cargar el código y dependencias del paquete:
+
+$env:FABULA_CHECK_ASAR = (Join-Path (Get-Location) '.build/win-unpacked/resources/app.asar')
+npm run test:voices-pdf
+npm run test:advanced
+Remove-Item Env:FABULA_CHECK_ASAR
+
+El conjunto básico cubre fragmentación Unicode, SSML, capítulos, proyectos, contraste de colores, documentos, descargas y opciones PDF. Las comprobaciones de escritorio verifican reproducción/exportación, OCR, transcripción, proveedores de voz y persistencia. Las instrucciones de comprobación están en docs/CALIDAD.txt.
+
+La configuración .github/workflows/quality.yml ejecuta pruebas, compilación y auditoría de dependencias de producción en Windows al subir cambios o abrir una propuesta de cambios. Las pruebas de integración con voces y descargas se ejecutan aparte según las instrucciones anteriores.
+
+Capturas
+
+Captura: Opciones y vista previa de PDF — docs/screenshots/pdf-preview.png
+
+Captura: Voces externas y neurales — docs/screenshots/external-voices.png
+
+Captura: Perfiles de voz — docs/screenshots/profiles.png
+
+Archivos que se conservan
+
+src/, assets/, tests/, tools/, docs/, los archivos de configuración, package-lock.json, esta guía y los avisos legales constituyen el proyecto reproducible. node_modules/, out/, .tools/ y .build/ son generados y están excluidos de Git. Se pueden quitar después de generar el portable, con la aplicación y pruebas cerradas. No borres %APPDATA%/Fábula al limpiar el código: contiene tus narraciones.
+
+Los perfiles se crean y editan en Preferencias: elige voz, velocidad, tono, volumen y pausas, escucha una muestra y guarda. «Usar en el estudio» aplica esa combinación a la próxima narración. No modifica los MP3 ya generados.
+
+Privacidad y licencias están disponibles también desde «Acerca de Fábula» dentro de la aplicación. Consulta PRIVACIDAD.txt, AVISOS_DE_USO.txt y docs/DISTRIBUCION.txt antes de distribuir una versión.
+
+Arquitectura: docs/ARQUITECTURA.txt. Contribuciones: CONTRIBUIR.txt. Licencias: LICENSE.txt, TERCEROS.txt y LICENCIAS_DE_COMPONENTES.txt. La compilación regenera los avisos de componentes a partir de las dependencias instaladas.

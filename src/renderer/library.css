@@ -1,0 +1,665 @@
+.app-shell[data-accent='rose'] {
+  --mint: #f4b7cc;
+  --accent-ink: #9d3c62;
+}
+.app-shell[data-accent='amber'] {
+  --mint: #f2ce8e;
+  --accent-ink: #886011;
+}
+.app-shell[data-accent='teal'] {
+  --mint: #9ce0d6;
+  --accent-ink: #20756c;
+}
+.project-section-heading,
+.appearance-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+.project-section-heading h2,
+.appearance-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 16px;
+  font-weight: 550;
+  margin: 0;
+}
+.project-section-heading h2 > span {
+  font-size: 10px;
+  color: #8b9d92;
+  font-weight: 400;
+  margin-left: 3px;
+}
+.project-collection {
+  margin: 26px 0 8px;
+}
+.project-filters {
+  display: flex;
+  gap: 8px;
+  margin: 19px 0 14px;
+}
+.project-filters > button {
+  border: 1px solid #34463b;
+  border-radius: 20px;
+  padding: 8px 13px;
+  font-size: 11px;
+  color: #afc4b7;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+}
+.project-filters span {
+  font-size: 9px;
+  opacity: 0.7;
+}
+.project-filters > .selected {
+  background: #243d2d;
+  border-color: #698c73;
+  color: var(--mint);
+}
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
+  gap: 12px;
+  max-height: 290px;
+  overflow: auto;
+  padding: 2px;
+}
+.project-card {
+  border: 1px solid #32483a;
+  background: #17221b;
+  border-radius: 8px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px;
+}
+.project-card.selected {
+  border-color: var(--mint);
+}
+.project-card-open {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  text-align: left;
+  padding: 11px;
+  min-width: 0;
+}
+.project-card-open > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+.project-card b {
+  font-size: 12px;
+  font-weight: 550;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.project-card small {
+  font-size: 10px;
+  color: #8aa292;
+}
+.project-folder {
+  display: flex;
+}
+.project-card-actions {
+  display: flex;
+  flex-direction: column;
+}
+.project-card-actions > .icon-button {
+  width: 26px;
+  height: 26px;
+}
+.project-empty-note {
+  font-size: 11px;
+  color: #89a391;
+  margin: 20px 0;
+  line-height: 1.8;
+}
+.narration-project {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 12px;
+  color: #8aa593;
+}
+.narration-project select {
+  max-width: 220px;
+  min-width: 100px;
+  font-size: 10px;
+  background: #19291e;
+  border: 1px solid #334d3d;
+  border-radius: 4px;
+  padding: 4px 7px;
+  color: #b3cebf;
+}
+.library-item .track-description {
+  min-width: 0;
+}
+.track-description h3 {
+  overflow-wrap: anywhere;
+}
+.library-tools > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.library-heading h1 {
+  overflow-wrap: anywhere;
+  max-width: 700px;
+}
+.danger-action:hover:not(:disabled) {
+  background: #623c3c !important;
+  color: #ffe4de !important;
+}
+.project-dialog {
+  width: 450px;
+  max-width: 94vw;
+}
+.project-dialog form > label {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 13px 0 23px;
+  font-size: 12px;
+}
+.project-dialog .project-color {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+.project-dialog input[type='color'],
+.color-setting input[type='color'] {
+  width: 40px;
+  height: 32px;
+  padding: 2px !important;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.project-dialog .button-row {
+  justify-content: flex-end;
+  margin-top: 25px;
+}
+.draft-project-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.draft-project-row > label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #99b6a3;
+  font-size: 11px;
+}
+.draft-project-row select {
+  background: #1b2b20;
+  border: 1px solid #3f5846;
+  border-radius: 5px;
+  color: #c7dece;
+  padding: 7px 11px;
+  max-width: 300px;
+  min-width: 140px;
+  font-size: 11px;
+}
+.draft-project-row .text-button {
+  font-size: 10px;
+}
+.appearance-heading {
+  align-items: flex-start;
+}
+.appearance-card h2 {
+  font-size: 19px;
+}
+.appearance-heading .secondary-button {
+  flex-shrink: 0;
+}
+.appearance-heading p {
+  margin-bottom: 0;
+}
+.palette-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  margin: 25px 0;
+}
+.palette-option {
+  text-align: left;
+  border: 1px solid #3f5747;
+  border-radius: 7px;
+  padding: 9px;
+  background: #142319;
+}
+.palette-option.selected {
+  border-color: var(--mint);
+}
+.palette-swatches {
+  display: flex;
+  height: 35px;
+  overflow: hidden;
+  border: 1px solid #ffffff30;
+  border-radius: 4px;
+}
+.palette-swatches i {
+  flex: 1;
+}
+.palette-option > span:last-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 11px;
+}
+.custom-color-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  margin: 22px 0;
+}
+.custom-color-toggle input {
+  accent-color: var(--mint);
+}
+.color-settings {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.color-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px;
+  background: #192c20;
+  border: 1px solid #385340;
+  border-radius: 6px;
+  font-size: 11px;
+}
+.color-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.color-value code {
+  font-size: 10px;
+  color: #9abda6;
+}
+.app-shell[data-theme='light'] .project-card,
+.app-shell[data-theme='light'] .palette-option,
+.app-shell[data-theme='light'] .color-setting {
+  background: #f8fbf5;
+  border-color: #c2d1bb;
+  color: #2b4b34;
+}
+.app-shell[data-theme='light'] .project-filters > button,
+.app-shell[data-theme='light'] .draft-project-row > label {
+  color: #4c7053;
+  border-color: #b8cbb0;
+}
+.app-shell[data-theme='light'] .project-filters > .selected {
+  background: #e0eed9;
+  color: var(--accent-ink);
+}
+.app-shell[data-theme='light'] .project-card.selected {
+  border-color: var(--accent-ink);
+}
+.app-shell[data-theme='light'] .narration-project select,
+.app-shell[data-theme='light'] .draft-project-row select {
+  background: #eef5e9;
+  color: #335b3b;
+  border-color: #b9cdb0;
+}
+.app-shell[data-theme='light'] .color-value code {
+  color: #486c50;
+}
+/* Arbitrary colors keep independent readable foregrounds for each surface. */
+.app-shell[data-custom-colors='true'] {
+  color: var(--background-text);
+  background: var(--custom-background);
+  --feature-muted: var(--panel-muted);
+  --accent-ink: var(--panel-accent);
+}
+.app-shell[data-custom-colors='true'] .workspace {
+  background: var(--custom-background);
+  color: var(--background-text);
+}
+.app-shell[data-custom-colors='true'] .sidebar {
+  background: var(--custom-sidebar);
+  color: var(--sidebar-text);
+  border-color: var(--sidebar-line);
+}
+.app-shell[data-custom-colors='true']
+  :is(.feature-card, .panel, .voice-card, .project-card, .feature-modal, .modal, .reading-panel) {
+  background: var(--custom-panel);
+  color: var(--panel-text);
+  border-color: var(--panel-line);
+}
+.app-shell[data-custom-colors='true'] .player {
+  background: var(--custom-player);
+  color: var(--player-text);
+  border-color: var(--player-line);
+}
+.app-shell[data-custom-colors='true']
+  :is(.brand, .recent-item b, .profile b, .side-empty p, .sidebar .nav-item) {
+  color: var(--sidebar-text);
+}
+.app-shell[data-custom-colors='true']
+  :is(
+    .sidebar-caption,
+    .recent-item small,
+    .profile small,
+    .local-note,
+    .side-empty,
+    .side-empty > span,
+    .sidebar .icon-button,
+    .profile > svg
+  ) {
+  color: var(--sidebar-muted);
+}
+.app-shell[data-custom-colors='true'] .nav-item.active {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-accent);
+}
+.app-shell[data-custom-colors='true']
+  :is(.nav-item:hover, .recent-item:hover, .profile-avatar, .nav-count) {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text);
+}
+.app-shell[data-custom-colors='true'] .side-divider {
+  background: var(--sidebar-line);
+}
+.app-shell[data-custom-colors='true'] .profile {
+  border-color: var(--sidebar-line);
+}
+.app-shell[data-custom-colors='true'] :is(.brand-symbol, .brand-dot) {
+  color: var(--sidebar-accent);
+}
+.app-shell[data-custom-colors='true'] :is(.topbar, .library-tools, .library-item) {
+  border-color: var(--background-line);
+}
+.app-shell[data-custom-colors='true']
+  :is(
+    .page-heading p,
+    .breadcrumbs,
+    .cloud-badge,
+    .autosave,
+    .track-number,
+    .track-description p,
+    .library-item time,
+    .library-tools > span,
+    .project-empty-note,
+    .bottom-note,
+    .studio-tool-row > span
+  ) {
+  color: var(--background-muted);
+}
+.app-shell[data-custom-colors='true']
+  :is(
+    .breadcrumbs strong,
+    .section-heading h2,
+    .track-description h3,
+    .project-section-heading h2,
+    .page-heading h1
+  ) {
+  color: var(--background-text);
+}
+.app-shell[data-custom-colors='true']
+  :is(
+    .library-list .icon-button,
+    .library-list .secondary-button,
+    .draft-project-row > label,
+    .draft-project-row .text-button,
+    .studio-tool-row .secondary-button,
+    .project-section-heading .secondary-button,
+    .project-section-heading h2 > span,
+    .topbar .small-new
+  ) {
+  color: var(--background-text);
+  border-color: var(--background-line);
+}
+.app-shell[data-custom-colors='true']
+  :is(
+    .project-filters > button,
+    .draft-project-row select,
+    .narration-project select,
+    .search-box
+  ) {
+  background: var(--background-hover);
+  color: var(--background-text);
+  border-color: var(--background-line);
+}
+.app-shell[data-custom-colors='true'] .search-box input {
+  color: var(--background-text);
+}
+.app-shell[data-custom-colors='true'] .project-filters > .selected {
+  border-color: var(--background-accent);
+  color: var(--background-accent);
+}
+.app-shell[data-custom-colors='true']
+  :is(
+    .panel-toolbar,
+    .document-rule,
+    .controls-divider,
+    .profile-entry,
+    .dictionary-list > div,
+    .feature-tabs,
+    .chapter-list > div,
+    .chapter-seek,
+    .bookmark-entry,
+    .transcript-segments
+  ) {
+  border-color: var(--panel-line);
+}
+.app-shell[data-custom-colors='true']
+  :is(
+    .panel-label,
+    .title-input,
+    .document-body textarea,
+    .selected-voice b,
+    .feature-card h2,
+    .feature-card h3,
+    .feature-modal h2,
+    .feature-modal h3,
+    .chapter-list b,
+    .project-card b,
+    .voice-card-title h2,
+    .reading-heading,
+    .reading-panel > p
+  ) {
+  color: var(--panel-text);
+}
+.app-shell[data-custom-colors='true']
+  :is(
+    .field-label,
+    .mini-label,
+    .slider-heading,
+    .range-labels,
+    .selected-voice span,
+    .document-footer,
+    .feature-note,
+    .feature-empty,
+    .feature-card p,
+    .setting-line,
+    .pause-control,
+    .pronunciation-form > label,
+    .transcript-name,
+    .transcript-history,
+    .transcription-controls > label,
+    .voice-card p,
+    .voice-card-title > span,
+    .voice-locale,
+    .project-card small,
+    .color-value code,
+    .module-card p,
+    .tool-section > p,
+    .paragraph-detail > label,
+    .paragraph-list span,
+    .paragraph-list small,
+    .modal p,
+    .reading-panel h3,
+    .chapter-seek small
+  ) {
+  color: var(--panel-muted);
+}
+.app-shell[data-custom-colors='true']
+  :is(
+    .feature-card input:not([type='range']):not([type='checkbox']):not([type='color']),
+    .feature-card select,
+    .voice-panel select,
+    .feature-modal select,
+    .feature-modal textarea,
+    .feature-modal input:not([type='color']),
+    .transcript-segments textarea,
+    .preference-font-preview,
+    .module-card,
+    .palette-option,
+    .color-setting,
+    .cleanup-preview pre,
+    .paragraph-list > button.selected,
+    .feature-tabs .selected
+  ) {
+  background: var(--panel-hover);
+  color: var(--panel-text);
+  border-color: var(--panel-line);
+}
+.app-shell[data-custom-colors='true']
+  :is(
+    .feature-card .secondary-button,
+    .feature-card .text-button,
+    .feature-card .icon-button,
+    .sample-button,
+    .import-button,
+    .ocr-import-button,
+    .feature-modal .secondary-button,
+    .feature-modal .icon-button,
+    .project-card .icon-button,
+    .reading-panel .secondary-button,
+    .reading-panel .icon-button,
+    .chapter-seek,
+    .bookmark-entry > button
+  ) {
+  color: var(--panel-text);
+  border-color: var(--panel-line);
+}
+.app-shell[data-custom-colors='true']
+  :is(
+    .setting-line strong,
+    .module-card > svg,
+    .installed-badge,
+    .voice-chosen,
+    .voice-choose,
+    .slider-heading strong
+  ) {
+  color: var(--panel-accent);
+}
+.app-shell[data-custom-colors='true'] .slider-heading strong {
+  background: var(--panel-hover);
+}
+.app-shell[data-custom-colors='true'] .primary-button {
+  background: var(--custom-accent);
+  color: var(--button-ink);
+}
+.app-shell[data-custom-colors='true'] :is(.project-card.selected, .palette-option.selected) {
+  border-color: var(--panel-accent);
+}
+.app-shell[data-custom-colors='true'] .generate-row {
+  background: var(--custom-panel);
+  border-color: var(--panel-line);
+}
+.app-shell[data-custom-colors='true'] .generate-row b {
+  color: var(--panel-text);
+}
+.app-shell[data-custom-colors='true'] :is(.generate-row small, .editor-note) {
+  color: var(--panel-muted);
+}
+.app-shell[data-custom-colors='true'] .editor-note {
+  background: var(--panel-hover);
+  border-color: var(--panel-line);
+}
+.app-shell[data-custom-colors='true']
+  :is(.now-playing b, .player .icon-button, .player-actions, .playback-speed, .export-button) {
+  color: var(--player-text);
+}
+.app-shell[data-custom-colors='true'] :is(.now-playing span, .timeline > span) {
+  color: var(--player-muted);
+}
+.app-shell[data-custom-colors='true'] .play-toggle {
+  background: var(--player-text);
+  color: var(--custom-player);
+}
+.app-shell[data-custom-colors='true'] :is(.global-task, .generation-progress) {
+  background: var(--custom-panel);
+  color: var(--panel-text);
+  border-color: var(--panel-line);
+}
+.app-shell[data-custom-colors='true']
+  :is(
+    .document-body textarea::placeholder,
+    .feature-card input::placeholder,
+    .search-box input::placeholder
+  ) {
+  color: inherit;
+  opacity: 0.65;
+}
+@media (max-width: 1200px) {
+  .palette-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .color-settings {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .project-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+  .narration-project select {
+    max-width: 170px;
+  }
+  .library-item > time {
+    display: none;
+  }
+  .appearance-heading {
+    flex-wrap: wrap;
+  }
+  .draft-project-row select {
+    max-width: 220px;
+  }
+}
+
+.app-shell[data-theme='light']
+  :is(.profile-editor, .saved-profile, .profile-empty, .legal-text, .legal-tabs button) {
+  background: #f8fbf5;
+  border-color: #c2d1bb;
+  color: #2b4b34;
+}
+.app-shell[data-theme='light']
+  :is(.profile-controls output, .profile-empty h4, .legal-tabs button.selected) {
+  color: var(--accent-ink);
+}
+.app-shell[data-custom-colors='true']
+  :is(.profile-editor, .saved-profile, .profile-empty, .legal-text, .legal-tabs button) {
+  background: var(--custom-panel);
+  color: var(--panel-text);
+  border-color: var(--panel-line);
+}
+.app-shell[data-custom-colors='true'] .profile-editor {
+  background: var(--panel-hover);
+}
+.app-shell[data-custom-colors='true']
+  :is(.profile-controls output, .profile-empty h4, .legal-tabs button.selected) {
+  color: var(--panel-accent);
+}
+.app-shell[data-custom-colors='true'] .saved-profile.editing {
+  border-color: var(--panel-accent);
+}
+.app-shell[data-custom-colors='true'] .profile-controls small {
+  color: var(--panel-muted);
+}

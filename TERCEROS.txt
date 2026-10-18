@@ -1,0 +1,40 @@
+Componentes de terceros
+
+Fábula utiliza Electron (MIT), React (MIT), lucide-react (ISC), msedge-tts (MIT), PDF.js (Apache-2.0) y Zod (MIT). LICENCIAS_DE_COMPONENTES.txt conserva los avisos originales de los paquetes de producción, también cuando su código se integra en la interfaz compilada. El proceso de compilación regenera ese archivo y rechaza paquetes sin un aviso conservado. Las voces y el servicio en línea pertenecen a Microsoft; msedge-tts es una biblioteca independiente.
+
+El ejecutable de FFmpeg se distribuye como componente separado, mediante ffmpeg-static 5.3.0 (GPL-3.0-or-later). Sus avisos originales se conservan en resources/app.asar.unpacked/node_modules/ffmpeg-static/, incluyendo ffmpeg.exe.LICENSE y ffmpeg.exe.README. Este último identifica la compilación Windows 6.1.1-essentials_build-www.gyan.dev y el código FFmpeg en el commit e38092ef93 (https://github.com/FFmpeg/FFmpeg/commit/e38092ef93). Esa compilación enlaza otras bibliotecas; quien redistribuya el binario debe comprobar también sus fuentes, avisos y condiciones, además de los guiones de construcción aplicables. Este proyecto no adjunta todavía un archivo completo de esas fuentes. La información del distribuidor, descargas y acceso al código fuente correspondiente están en:
+
+- https://github.com/eugeneware/ffmpeg-static
+- https://github.com/eugeneware/ffmpeg-static/releases/tag/b6.1.1
+- https://ffmpeg.org/legal.html
+
+PDF.js incluye dependencias opcionales para fuentes y gráficos. Los avisos originales de los paquetes se conservan en LICENCIAS_DE_COMPONENTES.txt. assets/licenses/canvas-sbom.json conserva el inventario de dependencias nativas suministrado por el paquete Windows de canvas; ese inventario no sustituye los avisos ni las obligaciones de código fuente de cada componente. Una distribución pública debe revisar también esas dependencias y conservar los avisos correspondientes.
+
+La extracción y el reconocimiento utilizan Tesseract.js y Tesseract.js Core (Apache-2.0), fflate (MIT), fast-xml-parser (MIT), html-to-text (MIT), rtf-parser (ISC), docx (MIT) y @napi-rs/canvas (MIT). Las licencias se conservan en sus paquetes.
+
+Los módulos opcionales se descargan por separado y no se incluyen en el ejecutable portable:
+
+- OCR español: spa.traineddata, tessdata_fast 4.1.0, Apache-2.0: https://github.com/tesseract-ocr/tessdata_fast/tree/4.1.0
+- Motor Whisper CPU para Windows x64: whisper.cpp b5454, MIT: https://github.com/ggml-org/whisper.cpp/releases/tag/b5454
+- Modelo Whisper Base multilingüe, MIT: https://huggingface.co/ggerganov/whisper.cpp
+
+El manifiesto de src/main/modules.ts fija las versiones, tamaños y hashes SHA-256 de estas descargas. Los modelos quedan en la carpeta de datos del usuario.
+
+El uso del servicio TTS en línea no requiere una clave de API de pago en esta implementación. Esto no implica una garantía de acceso permanente, una cuota ilimitada o una licencia sobre una voz ajena. La disponibilidad depende del proveedor.
+
+Voces locales
+
+El motor Piper se descarga opcionalmente desde la distribución C++ oficial 2023.11.14-2, fijada por tamaño y SHA-256. Su código está bajo MIT; sus componentes incluyen ONNX Runtime (MIT), piper-phonemize (MIT) y eSpeak NG (GPL-3.0-or-later), entre otros avisos de sus proyectos. No se incluyen voces ni el motor en el EXE de Fábula. Fuentes correspondientes y avisos:
+
+- https://github.com/rhasspy/piper/tree/2023.11.14-2
+- https://github.com/rhasspy/piper/releases/tag/2023.11.14-2
+- https://github.com/rhasspy/piper-phonemize
+- https://github.com/espeak-ng/espeak-ng
+- https://github.com/microsoft/onnxruntime
+- Desarrollo actual: https://github.com/OHF-Voice/piper1-gpl
+
+Las voces Piper importadas tienen licencias independientes, documentadas en sus fichas MODEL_CARD. Cada modelo puede tener condiciones distintas.
+
+El puente SAPI usa System.Speech de Windows. Fábula no distribuye paquetes de voces de Windows ni voces propietarias, no instala paquetes propietarios y no concede licencias sobre ellos. Solo enumera las voces instaladas compatibles y permite invocar su síntesis local.
+
+El código propio de Fábula se publica bajo GPL-3.0-or-later; esta licencia no sustituye las licencias de modelos, servicios ni componentes de terceros.
