@@ -862,7 +862,8 @@ export default function App() {
                 )}
                 <span>
                   <BookOpen size={13} />
-                  {chapterCount} {t('capítulos detectados')}
+                  {chapterCount}{' '}
+                  {chapterCount === 1 ? t('capítulo detectado') : t('capítulos detectados')}
                 </span>
                 <button className="secondary-button" onClick={() => setToolsOpen(true)}>
                   <WandSparkles size={14} />
@@ -922,9 +923,10 @@ export default function App() {
                     />
                     <div className="document-footer">
                       <span>
-                        {number.format(draft.text.length)} {t('caracteres')}
+                        {number.format(draft.text.length)}{' '}
+                        {draft.text.length === 1 ? t('carácter') : t('caracteres')}
                         <span className="counter-dot">·</span>
-                        {number.format(words)} {t('palabras')}
+                        {number.format(words)} {words === 1 ? t('palabra') : t('palabras')}
                       </span>
                       <span>
                         <Clock3 size={12} />

@@ -766,6 +766,9 @@ export const english = {
     'Could not complete the operation. Check the file, connection and permissions, then try again.',
   'No se pudieron leer las preferencias. Conserva preferences.json antes de intentar repararlo.':
     'Could not read preferences. Keep a copy of preferences.json before attempting to repair it.',
-  Cancelado: 'Cancelled'
+  Cancelado: 'Cancelled',
+  'capítulo detectado': 'chapter detected',
+  palabra: 'word',
+  carácter: 'character'
 } as const
 export type MessageKey = keyof typeof english
