@@ -1,3 +1,4 @@
+import { t } from './i18n'
 import { z } from 'zod'
 import type { VoiceSettings } from './types'
 import { settingsSchema } from './validation'
@@ -10,6 +11,7 @@ export const pronunciationSchema = z.object({
   spoken: z.string().trim().min(1).max(200)
 })
 export const preferencesSchema = z.object({
+  language: z.enum(['es', 'en']).default('es'),
   pdfImport: pdfOptionsSchema.default(DEFAULT_PDF_OPTIONS),
   theme: z.enum(['dark', 'light']).default('dark'),
   accent: z.enum(['mint', 'violet', 'blue', 'rose', 'amber', 'teal']).default('mint'),
@@ -45,8 +47,13 @@ export const DEFAULT_PREFERENCES = preferencesSchema.parse({})
 export type BlockOverride = { voice?: VoiceSettings['voice']; pauseMs?: number }
 export type NarrationOptions = { pauseMs?: number; blockOverrides?: Record<string, BlockOverride> }
 export type Paragraph = { id: string; text: string; start: number; end: number; chapter: number }
-export type Chapter = { title: string; start: number; end: number }
-export type AudioChapter = { title: string; file: string; startSeconds: number }
+export type Chapter = { title: string; start: number; end: number; synthetic?: boolean }
+export type AudioChapter = {
+  title: string
+  file: string
+  startSeconds: number
+  synthetic?: boolean
+}
 export type PlaybackState = {
   currentId: string | null
   positions: Record<string, number>
@@ -89,14 +96,16 @@ function textId(text: string) {
 export function chaptersOf(text: string): Chapter[] {
   const headings = [
     ...text.matchAll(
-      /^(?:[ \t]*#{1,4}[ \t]+)?[ \t]*(?:(?:cap[ií]tulo|chapter|episodio|parte|volumen)\s+(?:\d+|[IVXLCDM]+)\b[^\n]*|(?:pr[oó]logo|ep[ií]logo)(?:\s*[:.\-—][^\n]*)?)[ \t]*$/gimu
+      /^(?:[ \t]*#{1,4}[ \t]+)?[ \t]*(?:(?:cap[ií]tulo|chapter|episode|episodio|part|parte|volume|volumen)\s+(?:\d+|[IVXLCDM]+)\b[^\n]*|(?:prologue|epilogue|pr[oó]logo|ep[ií]logo)(?:\s*[:.\-—][^\n]*)?)[ \t]*$/gimu
     )
   ]
   if (!headings.length)
-    return text.trim() ? [{ title: 'Historia completa', start: 0, end: text.length }] : []
+    return text.trim()
+      ? [{ title: t('Historia completa'), synthetic: true, start: 0, end: text.length }]
+      : []
   const chapters: Chapter[] = []
   if (text.slice(0, headings[0].index).trim())
-    chapters.push({ title: 'Introducción', start: 0, end: headings[0].index! })
+    chapters.push({ title: t('Introducción'), synthetic: true, start: 0, end: headings[0].index! })
   headings.forEach((heading, index) =>
     chapters.push({
       title: heading[0].trim().replace(/^#+\s*/, ''),

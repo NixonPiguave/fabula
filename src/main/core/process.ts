@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n'
 import { spawn } from 'node:child_process'
 
 export async function command(
@@ -39,8 +40,9 @@ export async function command(
     child.once('close', (code) => {
       options.signal?.removeEventListener('abort', abort)
       options.onPid?.(undefined)
-      if (options.signal?.aborted) reject(new Error('Operación cancelada.'))
-      else if (code !== 0) reject(new Error(`El proceso terminó con código ${code}: ${stderr}`))
+      if (options.signal?.aborted) reject(new Error(t('Operación cancelada.')))
+      else if (code !== 0)
+        reject(new Error(t('El proceso terminó con código {0}: {1}', code ?? 'unknown', stderr)))
       else resolve(stdout)
     })
   })

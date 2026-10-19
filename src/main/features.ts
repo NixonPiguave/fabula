@@ -1,3 +1,4 @@
+import { t, setLanguage, getLanguage, type Language } from '../shared/i18n'
 import { dialog, type BrowserWindow } from 'electron'
 import { mkdir, writeFile, readdir } from 'node:fs/promises'
 import { join, basename, extname } from 'node:path'
@@ -115,15 +116,26 @@ export class Features {
     this.writes = this.writes.catch(() => {}).then(() => atomicJson(join(this.root, name), value))
     return this.writes
   }
-  async load() {
+  async load(language: Language = 'es') {
+    this.preferences = { ...structuredClone(DEFAULT_PREFERENCES), language }
     try {
       this.preferences = preferencesSchema.parse(
         await readJson(join(this.root, 'preferences.json'))
       )
-    } catch {}
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT')
+        await this.persist('preferences.json', this.preferences)
+      else
+        throw new Error(
+          t(
+            'No se pudieron leer las preferencias. Conserva preferences.json antes de intentar repararlo.'
+          )
+        )
+    }
     try {
       this.playback = playbackSchema.parse(await readJson(join(this.root, 'playback.json')))
     } catch {}
+    setLanguage(this.preferences.language)
     await this.modules.load()
     const ids = await readdir(join(this.root, 'transcriptions')).catch(() => [])
     for (const id of ids) {
@@ -138,14 +150,22 @@ export class Features {
     }
     this.transcripts.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
   }
-  private async workerTask(kind: TaskProgress['kind'], file: string, data: unknown): Promise<any> {
+  private async workerTask(
+    kind: TaskProgress['kind'],
+    file: string,
+    data: Record<string, unknown>
+  ): Promise<any> {
     if (this.task)
-      throw new Error('Hay una importación o transcripción en curso. Espera o cancélala primero.')
+      throw new Error(
+        t('Hay una importación o transcripción en curso. Espera o cancélala primero.')
+      )
     return new Promise((resolve, reject) => {
-      const worker = new Worker(join(this.here, file), { workerData: data })
+      const worker = new Worker(join(this.here, file), {
+        workerData: { ...data, uiLanguage: getLanguage() }
+      })
       const task = { worker, reject, kind, cancelled: false, pid: undefined as number | undefined }
       this.task = task
-      this.send('task:changed', { kind, phase: 'Preparando…', progress: 0, status: 'running' })
+      this.send('task:changed', { kind, phase: t('Preparando…'), progress: 0, status: 'running' })
       let settled = false
       const finish = (error: Error | null, result?: unknown) => {
         if (settled || task.cancelled) return
@@ -153,7 +173,7 @@ export class Features {
         if (this.task === task) this.task = null
         this.send('task:changed', {
           kind,
-          phase: error ? 'No se pudo completar' : 'Completado',
+          phase: error ? t('No se pudo completar') : t('Completado'),
           progress: error ? 0 : 1,
           status: error ? 'failed' : 'completed',
           error: error?.message
@@ -181,7 +201,7 @@ export class Features {
       )
       worker.once('exit', (code) => {
         if (!settled)
-          finish(new Error(`El proceso terminó antes de completar la operación (${code}).`))
+          finish(new Error(t('El proceso terminó antes de completar la operación ({0}).', code)))
       })
     })
   }
@@ -196,10 +216,10 @@ export class Features {
       } catch {}
     }
     await task.worker.terminate()
-    task.reject(new Error('Operación cancelada.'))
+    task.reject(new Error(t('Operación cancelada.')))
     this.send('task:changed', {
       kind: task.kind,
-      phase: 'Cancelado',
+      phase: t('Cancelado'),
       progress: 0,
       status: 'cancelled'
     })
@@ -216,9 +236,11 @@ export class Features {
     await this.persist('playback.json', structuredClone(this.playback))
   }
   register(handle: (channel: string, callback: (...args: any[]) => unknown) => void) {
-    handle('preferences:save', (value: unknown) => {
-      this.preferences = preferencesSchema.parse(value)
-      return this.persist('preferences.json', this.preferences)
+    handle('preferences:save', async (value: unknown) => {
+      const next = preferencesSchema.parse(value)
+      await this.persist('preferences.json', next)
+      this.preferences = next
+      setLanguage(next.language)
     })
     handle('playback:save', (value: unknown) => {
       this.playback = playbackSchema.parse(value)
@@ -235,7 +257,8 @@ export class Features {
     })
     handle('preferences:export-folder', async () => {
       const result = await dialog.showOpenDialog(this.window()!, {
-        title: 'Carpeta de exportación predeterminada',
+        buttonLabel: t('Abrir'),
+        title: t('Carpeta de exportación predeterminada'),
         properties: ['openDirectory', 'createDirectory']
       })
       return result.canceled ? null : result.filePaths[0]
@@ -251,18 +274,19 @@ export class Features {
     })
     handle('document:import', async (raw: unknown = {}) => {
       const options = z.object({ ocr: z.boolean().optional() }).parse(raw)
-      if (this.task) throw new Error('Ya hay una operación en curso.')
+      if (this.task) throw new Error(t('Ya hay una operación en curso.'))
       if (options.ocr && !this.modules.ready('ocr'))
-        throw new Error('Instala primero el módulo OCR en Preferencias.')
+        throw new Error(t('Instala primero el módulo OCR en Preferencias.'))
       const result = await dialog.showOpenDialog(this.window()!, {
-        title: options.ocr ? 'Importar con OCR' : 'Importar una historia',
+        buttonLabel: t('Abrir'),
+        title: options.ocr ? t('Importar con OCR') : t('Importar una historia'),
         properties: ['openFile'],
-        filters: [{ name: 'Documentos e imágenes', extensions }]
+        filters: [{ name: t('Documentos e imágenes'), extensions }]
       })
       if (result.canceled) return null
       const path = result.filePaths[0],
         extension = extname(path).slice(1).toLowerCase()
-      if (!extensions.includes(extension)) throw new Error('Formato no admitido.')
+      if (!extensions.includes(extension)) throw new Error(t('Formato no admitido.'))
       const output = await this.workerTask('import', 'import-worker.js', {
         path,
         ocrPath: this.modules.ready('ocr') ? this.modules.path('ocr') : undefined
@@ -276,7 +300,7 @@ export class Features {
     })
     const transcribe = async (path: string, language: string) => {
       if (!this.modules.ready('transcription'))
-        throw new Error('Instala el módulo Voz a texto en Preferencias.')
+        throw new Error(t('Instala el módulo Voz a texto en Preferencias.'))
       const id = randomUUID(),
         dir = join(this.root, 'transcriptions', id)
       await mkdir(dir, { recursive: true })
@@ -294,15 +318,16 @@ export class Features {
     }
     handle('transcription:file', async (raw: unknown) => {
       const language = languages.parse(raw)
-      if (this.task) throw new Error('Ya hay una operación en curso.')
+      if (this.task) throw new Error(t('Ya hay una operación en curso.'))
       if (!this.modules.ready('transcription'))
-        throw new Error('Instala el módulo Voz a texto en Preferencias.')
+        throw new Error(t('Instala el módulo Voz a texto en Preferencias.'))
       const result = await dialog.showOpenDialog(this.window()!, {
-        title: 'Transcribir audio o video',
+        buttonLabel: t('Abrir'),
+        title: t('Transcribir audio o video'),
         properties: ['openFile'],
         filters: [
           {
-            name: 'Audio y video',
+            name: t('Audio y video'),
             extensions: ['mp3', 'wav', 'm4a', 'flac', 'ogg', 'mp4', 'webm', 'mkv']
           }
         ]
@@ -313,10 +338,10 @@ export class Features {
       const language = languages.parse(rawLanguage)
       if (!(raw instanceof Uint8Array) || !raw.byteLength || raw.byteLength > 100 * 1024 * 1024)
         throw new Error(
-          'La grabación está vacía o supera 100 MB. Importa grabaciones largas como archivo.'
+          t('La grabación está vacía o supera 100 MB. Importa grabaciones largas como archivo.')
         )
       if (!this.modules.ready('transcription'))
-        throw new Error('Instala el módulo Voz a texto en Preferencias.')
+        throw new Error(t('Instala el módulo Voz a texto en Preferencias.'))
       const dir = join(this.root, 'recordings')
       await mkdir(dir, { recursive: true })
       const path = join(dir, `Dictado-${randomUUID()}.webm`)
@@ -328,7 +353,8 @@ export class Features {
         format = z.enum(['txt', 'docx', 'srt', 'vtt']).parse(rawFormat)
       const title = safeName(transcript.title)
       const result = await dialog.showSaveDialog(this.window()!, {
-        title: 'Exportar transcripción',
+        buttonLabel: t('Guardar'),
+        title: t('Exportar transcripción'),
         defaultPath: join(this.preferences.exportFolder, `${title}.${format}`),
         filters: [{ name: format.toUpperCase(), extensions: [format] }]
       })

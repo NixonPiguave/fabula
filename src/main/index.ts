@@ -1,5 +1,14 @@
 import {
+  t,
+  setLanguage,
+  getLanguage,
+  subscribeLanguage,
+  initialLanguage,
+  userError
+} from '../shared/i18n'
+import {
   app,
+  Menu,
   BrowserWindow,
   ipcMain,
   dialog,
@@ -42,7 +51,7 @@ const projects = new ProjectStore(join(root, 'library.json'), (value) => {
   if (win && !win.isDestroyed()) win.webContents.send('library:changed', value)
 })
 const warnings: string[] = []
-let draft: Draft = { title: 'Mi nueva historia', text: '', settings: { ...DEFAULT_SETTINGS } }
+let draft: Draft = { title: t('Mi nueva historia'), text: '', settings: { ...DEFAULT_SETTINGS } }
 let draftWrites = Promise.resolve()
 let draftTimer: ReturnType<typeof setTimeout> | undefined
 let draftWaiters: { resolve: () => void; reject: (error: unknown) => void }[] = []
@@ -90,19 +99,27 @@ function emit(job: JobRecord) {
 }
 function assertSender(event: IpcMainInvokeEvent) {
   if (!win || event.sender !== win.webContents || event.senderFrame !== win.webContents.mainFrame)
-    throw new Error('Solicitud no permitida.')
+    throw new Error(t('Solicitud no permitida.'))
 }
 function handle(channel: string, fn: (...args: any[]) => unknown) {
   ipcMain.handle(channel, async (event, ...args) => {
     assertSender(event)
-    return fn(...args)
+    try {
+      return await fn(...args)
+    } catch (error) {
+      if (error instanceof z.ZodError)
+        throw new Error(
+          t('Los datos recibidos no son válidos. Revisa los campos e inténtalo de nuevo.')
+        )
+      throw new Error(userError(error))
+    }
   })
 }
 function getJob(rawId: unknown) {
   const id = idSchema.parse(rawId)
   const job = jobs.get(id)
-  if (!job) throw new Error('No se encontró la narración.')
-  if (deleting.has(id)) throw new Error('La narración se está moviendo a la Papelera.')
+  if (!job) throw new Error(t('No se encontró la narración.'))
+  if (deleting.has(id)) throw new Error(t('La narración se está moviendo a la Papelera.'))
   return job
 }
 function flushDraft() {
@@ -124,14 +141,22 @@ function flushDraft() {
 
 async function load() {
   await mkdir(jobsRoot, { recursive: true })
-  await features.load()
+  const installerDefaults = app.isPackaged
+    ? ((await readJson(join(process.resourcesPath, 'default-language.json')).catch(() => null)) as {
+        language?: unknown
+      } | null)
+    : null
+  await features.load(initialLanguage(undefined, installerDefaults?.language, app.getLocale()))
+  draft = { ...draft, title: t('Mi nueva historia') }
   await voices.load()
   try {
     await projects.load()
   } catch {
-    warnings.push('No se pudo leer la organización por proyectos. El archivo original se conserva.')
+    warnings.push(
+      t('No se pudo leer la organización por proyectos. El archivo original se conserva.')
+    )
     throw new Error(
-      'No se pudo leer library.json. Conserva el archivo antes de intentar repararlo.'
+      t('No se pudo leer library.json. Conserva el archivo antes de intentar repararlo.')
     )
   }
   try {
@@ -151,18 +176,30 @@ async function load() {
           raw.status
         )
       )
-        throw new Error('Invalid manifest')
+        throw new Error(t('Invalid manifest'))
       const job: JobRecord = { ...raw, ...parsed, preview: !!raw.preview }
+      for (const chapter of job.chapters ?? []) {
+        if (
+          chapter.synthetic === undefined &&
+          ['Historia completa', 'Introducción', 'Full story', 'Introduction'].includes(
+            chapter.title
+          )
+        )
+          chapter.synthetic = true
+      }
       if (['generating', 'merging'].includes(job.status)) {
         job.status = 'interrupted'
-        job.error = 'La aplicación se cerró antes de terminar. Puedes reanudar la narración.'
+        job.error = t('La aplicación se cerró antes de terminar. Puedes reanudar la narración.')
         await atomicJson(jobPath(id), job)
       }
       if (job.status === 'completed') await stat(join(jobsRoot, id, 'narration.mp3'))
       jobs.set(id, job)
     } catch {
       warnings.push(
-        `No se pudo cargar una narración guardada (${id.slice(0, 8)}). Sus archivos siguen en el disco.`
+        t(
+          'No se pudo cargar una narración guardada ({0}). Sus archivos siguen en el disco.',
+          id.slice(0, 8)
+        )
       )
     }
   }
@@ -171,17 +208,18 @@ async function load() {
 function voiceSources(job: Pick<JobRecord, 'settings' | 'blockOverrides'>) {
   const sources = voices.runtime(job)
   if (sources.some((voice) => voice.provider === 'piper') && !features.modules.ready('piper'))
-    throw new Error('Instala el motor Piper desde Explorar voces para usar modelos importados.')
+    throw new Error(t('Instala el motor Piper desde Explorar voces para usar modelos importados.'))
   return sources
 }
 function run(job: JobRecord) {
-  if (active) throw new Error('Ya hay una narración en curso. Espera a que termine o cancélala.')
-  if (!ffmpegPath) throw new Error('No se encontró el codificador MP3.')
+  if (active) throw new Error(t('Ya hay una narración en curso. Espera a que termine o cancélala.'))
+  if (!ffmpegPath) throw new Error(t('No se encontró el codificador MP3.'))
   const worker = new Worker(
     join(here, job.chunkVersion === 2 ? 'narration-worker.js' : 'speech-worker.js'),
     {
       workerData: {
         job,
+        uiLanguage: getLanguage(),
         dir: join(jobsRoot, job.id),
         cache: join(root, 'audio-cache'),
         voices: voiceSources(job),
@@ -210,7 +248,7 @@ function run(job: JobRecord) {
     const current = jobs.get(job.id)!
     if (current.status === 'generating' || current.status === 'merging') {
       current.status = 'interrupted'
-      current.error = 'El proceso terminó antes de completar el audio. Puedes reanudarlo.'
+      current.error = t('El proceso terminó antes de completar el audio. Puedes reanudarlo.')
       await atomicJson(jobPath(job.id), current)
       emit(current)
     }
@@ -240,6 +278,17 @@ async function stop(status: 'cancelled' | 'interrupted') {
 
 function registerIpc() {
   features.register(handle)
+  handle('app:confirm', async (message: unknown) => {
+    const result = await dialog.showMessageBox(win!, {
+      type: 'question',
+      title: t('Confirmar'),
+      message: z.string().min(1).max(4000).parse(message),
+      buttons: [t('Cancelar'), t('Continuar')],
+      defaultId: 0,
+      cancelId: 0
+    })
+    return result.response === 1
+  })
   handle('app:boot', () => ({
     draft,
     jobs: [...jobs.values()].map(summary).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
@@ -264,7 +313,7 @@ function registerIpc() {
       (job.settings.voice === id ||
         Object.values(job.blockOverrides ?? {}).some((value) => value.voice === id))
     )
-      throw new Error('Espera a que termine la narración antes de retirar esta voz.')
+      throw new Error(t('Espera a que termine la narración antes de retirar esta voz.'))
     return voices.remove(win!, id)
   })
   handle('project:save', (input: unknown) => projects.save(input))
@@ -275,13 +324,13 @@ function registerIpc() {
   handle('project:delete', async (rawId: unknown) => {
     const id = idSchema.parse(rawId),
       project = projects.snapshot().projects.find((item) => item.id === id)
-    if (!project) throw new Error('El proyecto ya no existe.')
+    if (!project) throw new Error(t('El proyecto ya no existe.'))
     const answer = await dialog.showMessageBox(win!, {
       type: 'question',
-      title: 'Eliminar proyecto',
-      message: `¿Eliminar el proyecto «${project.name}»?`,
-      detail: 'Sus narraciones se conservarán en la biblioteca, sin proyecto.',
-      buttons: ['Cancelar', 'Eliminar proyecto'],
+      title: t('Eliminar proyecto'),
+      message: t('¿Eliminar el proyecto «{0}»?', project.name),
+      detail: t('Sus narraciones se conservarán en la biblioteca, sin proyecto.'),
+      buttons: [t('Cancelar'), t('Eliminar proyecto')],
       defaultId: 0,
       cancelId: 0
     })
@@ -300,29 +349,30 @@ function registerIpc() {
   handle('job:delete', async (rawId: unknown) => {
     const job = getJob(rawId)
     if (active?.id === job.id || ['generating', 'merging'].includes(job.status))
-      throw new Error('Cancela la narración en curso antes de borrarla.')
+      throw new Error(t('Cancela la narración en curso antes de borrarla.'))
     deleting.add(job.id)
     try {
       const answer = await dialog.showMessageBox(win!, {
         type: 'warning',
-        title: 'Borrar narración',
-        message: `¿Mover «${job.title}» a la Papelera de reciclaje?`,
-        detail:
-          'Se quitará de Fábula junto con su texto y audio guardados. Los MP3 que hayas exportado se conservan. Puedes recuperar la carpeta desde la Papelera de Windows con Fábula cerrada.',
-        buttons: ['Cancelar', 'Mover a la Papelera'],
+        title: t('Borrar narración'),
+        message: t('¿Mover «{0}» a la Papelera de reciclaje?', job.title),
+        detail: t(
+          'Se quitará de Fábula junto con su texto y audio guardados. Los MP3 que hayas exportado se conservan. Puedes recuperar la carpeta desde la Papelera de Windows con Fábula cerrada.'
+        ),
+        buttons: [t('Cancelar'), t('Mover a la Papelera')],
         defaultId: 0,
         cancelId: 0
       })
       if (answer.response !== 1) return false
       const folder = resolve(jobsRoot, job.id)
       if (dirname(folder) !== resolve(jobsRoot) || (await lstat(folder)).isSymbolicLink())
-        throw new Error('La ubicación de la narración no es válida.')
+        throw new Error(t('La ubicación de la narración no es válida.'))
       await shell.trashItem(folder)
       jobs.delete(job.id)
       if (win && !win.isDestroyed()) win.webContents.send('job:removed', job.id)
       // Membership is retained so restoring the folder from Windows also restores its project.
       await features.forgetJob(job.id).catch(() => {
-        warnings.push('No se pudo limpiar la posición de una narración borrada.')
+        warnings.push(t('No se pudo limpiar la posición de una narración borrada.'))
       })
       return true
     } finally {
@@ -339,7 +389,7 @@ function registerIpc() {
     return saved
   })
   handle('job:start', async (input: unknown) => {
-    if (active || creating) throw new Error('Ya hay una narración en curso.')
+    if (active || creating) throw new Error(t('Ya hay una narración en curso.'))
     creating = true
     try {
       const parsed = startSchema.parse(input)
@@ -347,7 +397,7 @@ function registerIpc() {
       projects.requireProject(parsed.projectId)
       const text = parsed.text.replace(/\r\n?/g, '\n')
       if (!normalizeText(text))
-        throw new Error('El texto no contiene contenido que se pueda narrar.')
+        throw new Error(t('El texto no contiene contenido que se pueda narrar.'))
       const job: JobRecord = {
         id: randomUUID(),
         title: parsed.title,
@@ -382,8 +432,8 @@ function registerIpc() {
     const job = getJob(id)
     voiceSources(job)
     if (!['cancelled', 'failed', 'interrupted'].includes(job.status))
-      throw new Error('Esta narración no necesita reanudarse.')
-    if (active || creating) throw new Error('Ya hay una narración en curso.')
+      throw new Error(t('Esta narración no necesita reanudarse.'))
+    if (active || creating) throw new Error(t('Ya hay una narración en curso.'))
     creating = true
     try {
       job.status = 'generating'
@@ -409,9 +459,10 @@ function registerIpc() {
   handle('job:export-chapters', async (id: unknown) => {
     const job = getJob(id)
     if (job.status !== 'completed' || !job.chapters?.length)
-      throw new Error('Genera la narración con capítulos primero.')
+      throw new Error(t('Genera la narración con capítulos primero.'))
     const result = await dialog.showOpenDialog(win!, {
-      title: 'Guardar MP3 por capítulos',
+      buttonLabel: t('Abrir'),
+      title: t('Guardar MP3 por capítulos'),
       properties: ['openDirectory', 'createDirectory']
     })
     if (result.canceled) return null
@@ -419,7 +470,8 @@ function registerIpc() {
     await mkdir(folder, { recursive: true })
     for (let index = 0; index < job.chapters.length; index++) {
       const chapter = job.chapters[index]
-      if (!/^chapter-\d+\.mp3$/.test(chapter.file)) throw new Error('Archivo de capítulo inválido.')
+      if (!/^chapter-\d+\.mp3$/.test(chapter.file))
+        throw new Error(t('Archivo de capítulo inválido.'))
       await copyFile(
         join(jobsRoot, job.id, chapter.file),
         join(folder, `${String(index + 1).padStart(3, '0')} - ${safeName(chapter.title)}.mp3`)
@@ -429,16 +481,46 @@ function registerIpc() {
   })
   handle('job:export', async (id: unknown) => {
     const job = getJob(id)
-    if (job.status !== 'completed') throw new Error('Primero termina de generar la narración.')
+    if (job.status !== 'completed') throw new Error(t('Primero termina de generar la narración.'))
     const result = await dialog.showSaveDialog(win!, {
-      title: 'Exportar narración',
+      buttonLabel: t('Guardar'),
+      title: t('Exportar narración'),
       defaultPath: join(features.preferences.exportFolder, `${safeName(job.title)}.mp3`),
-      filters: [{ name: 'Audio MP3', extensions: ['mp3'] }]
+      filters: [{ name: t('Audio MP3'), extensions: ['mp3'] }]
     })
     if (result.canceled || !result.filePath) return null
     await copyFile(join(jobsRoot, job.id, 'narration.mp3'), result.filePath)
     return result.filePath
   })
+}
+
+function setMenu() {
+  Menu.setApplicationMenu(
+    Menu.buildFromTemplate([
+      { label: t('Archivo'), submenu: [{ label: t('Salir'), role: 'quit' }] },
+      {
+        label: t('Edición'),
+        submenu: [
+          { label: t('Deshacer'), role: 'undo' },
+          { label: t('Rehacer'), role: 'redo' },
+          { type: 'separator' },
+          { label: t('Cortar'), role: 'cut' },
+          { label: t('Copiar'), role: 'copy' },
+          { label: t('Pegar'), role: 'paste' },
+          { label: t('Seleccionar todo'), role: 'selectAll' }
+        ]
+      },
+      {
+        label: t('Ver'),
+        submenu: [
+          { label: t('Tamaño real'), role: 'resetZoom' },
+          { label: t('Acercar'), role: 'zoomIn' },
+          { label: t('Alejar'), role: 'zoomOut' },
+          { label: t('Pantalla completa'), role: 'togglefullscreen' }
+        ]
+      }
+    ])
+  )
 }
 
 function createWindow() {
@@ -450,7 +532,7 @@ function createWindow() {
     show: process.env.FABULA_TEST_MODE !== '1',
     icon: join(here, '../../assets/icon.png'),
     backgroundColor: '#0c0e0e',
-    title: 'Fábula — Estudio de narración',
+    title: t('Fábula — Estudio de narración'),
     autoHideMenuBar: true,
     webPreferences: {
       preload: join(here, '../preload/index.cjs'),
@@ -466,11 +548,12 @@ function createWindow() {
   win.webContents.on('will-prevent-unload', (event) => {
     const response = dialog.showMessageBoxSync(win!, {
       type: 'question',
-      title: 'Dictado en curso',
-      message: 'Todavía hay una grabación en curso.',
-      detail:
-        'Termina el dictado en la pantalla Voz a texto para conservarlo. Si cierras ahora, esta grabación sin terminar se descartará.',
-      buttons: ['Seguir grabando', 'Cerrar sin guardar este dictado'],
+      title: t('Dictado en curso'),
+      message: t('Todavía hay una grabación en curso.'),
+      detail: t(
+        'Termina el dictado en la pantalla Voz a texto para conservarlo. Si cierras ahora, esta grabación sin terminar se descartará.'
+      ),
+      buttons: [t('Seguir grabando'), t('Cerrar sin guardar este dictado')],
       defaultId: 0,
       cancelId: 0
     })
@@ -543,13 +626,18 @@ app
       }
     })
     registerIpc()
+    setMenu()
+    subscribeLanguage(() => {
+      setMenu()
+      win?.setTitle(t('Fábula — Estudio de narración'))
+    })
     createWindow()
     app.on('activate', () => {
       if (!win) createWindow()
     })
   })
   .catch((error) => {
-    dialog.showErrorBox('No se pudo iniciar Fábula', String(error))
+    dialog.showErrorBox(t('No se pudo iniciar Fábula'), String(error))
     app.quit()
   })
 

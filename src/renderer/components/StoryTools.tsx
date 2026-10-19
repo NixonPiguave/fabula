@@ -1,3 +1,4 @@
+import { t, getLanguage } from '../../shared/i18n'
 import { useMemo, useState, useRef } from 'react'
 import { X, Check, WandSparkles, BookOpen, RotateCcw } from 'lucide-react'
 import { chaptersOf, paragraphsOf, cleanText } from '../../shared/studio'
@@ -29,7 +30,7 @@ export default function StoryTools({
   })
   const [selected, setSelected] = useState(0)
   const paragraphs = useMemo(() => paragraphsOf(draft.text), [draft.text]),
-    chapters = useMemo(() => chaptersOf(draft.text), [draft.text])
+    chapters = useMemo(() => chaptersOf(draft.text), [draft.text, getLanguage()])
   const cleaned = useMemo(() => cleanText(draft.text, options), [draft.text, options])
   const paragraph = paragraphs[Math.min(selected, paragraphs.length - 1)]
   const override = paragraph ? draft.blockOverrides?.[paragraph.id] : undefined
@@ -66,10 +67,10 @@ export default function StoryTools({
       >
         <div className="feature-modal-heading">
           <div>
-            <span className="eyebrow">PREPARA CADA DETALLE</span>
-            <h2 id="story-tools-title">Herramientas de la historia</h2>
+            <span className="eyebrow">{t('PREPARA CADA DETALLE')}</span>
+            <h2 id="story-tools-title">{t('Herramientas de la historia')}</h2>
           </div>
-          <button className="icon-button" aria-label="Cerrar herramientas" onClick={close}>
+          <button className="icon-button" aria-label={t('Cerrar herramientas')} onClick={close}>
             <X size={19} />
           </button>
         </div>
@@ -78,7 +79,8 @@ export default function StoryTools({
             className={tab === 'chapters' ? 'selected' : ''}
             onClick={() => setTab('chapters')}
           >
-            Capítulos ({chapters.length})
+            {t('Capítulos (')}
+            {chapters.length})
           </button>
           <button
             className={tab === 'paragraphs' ? 'selected' : ''}
@@ -87,17 +89,18 @@ export default function StoryTools({
               select(0)
             }}
           >
-            Párrafos y personajes
+            {t('Párrafos y personajes')}
           </button>
           <button className={tab === 'cleanup' ? 'selected' : ''} onClick={() => setTab('cleanup')}>
-            Limpiar texto
+            {t('Limpiar texto')}
           </button>
         </div>
         {tab === 'chapters' && (
           <div className="tool-section">
             <p>
-              Los títulos como «Capítulo 1», «Parte II», «Prólogo» y «Epílogo» se detectan
-              automáticamente. Al narrar, podrás exportar un MP3 completo o uno por capítulo.
+              {t(
+                'Los títulos como «Capítulo 1», «Parte II», «Prólogo» y «Epílogo» se detectan automáticamente. Al narrar, podrás exportar un MP3 completo o uno por capítulo.'
+              )}
             </p>
             <div className="chapter-list">
               {chapters.map((chapter, index) => (
@@ -107,7 +110,7 @@ export default function StoryTools({
                     <b>{chapter.title}</b>
                     <small>
                       {draft.text.slice(chapter.start, chapter.end).trim().split(/\s+/).length}{' '}
-                      palabras
+                      {t('palabras')}
                     </small>
                   </span>
                   <span>{String(index + 1).padStart(2, '0')}</span>
@@ -115,7 +118,7 @@ export default function StoryTools({
               ))}
             </div>
             {!chapters.length && (
-              <p className="feature-empty">Escribe o importa una historia primero.</p>
+              <p className="feature-empty">{t('Escribe o importa una historia primero.')}</p>
             )}
           </div>
         )}
@@ -128,13 +131,15 @@ export default function StoryTools({
                   className={paragraph?.id === entry.id ? 'selected' : ''}
                   onClick={() => select(index)}
                 >
-                  <b>Párrafo {index + 1}</b>
+                  <b>
+                    {t('Párrafo')} {index + 1}
+                  </b>
                   <span>{entry.text.slice(0, 100)}</span>
                   <small>
                     {draft.blockOverrides?.[entry.id]?.voice
                       ? voices.find((voice) => voice.id === draft.blockOverrides?.[entry.id]?.voice)
                           ?.name
-                      : 'Voz general'}
+                      : t('Voz general')}
                   </small>
                 </button>
               ))}
@@ -142,7 +147,7 @@ export default function StoryTools({
             {paragraph ? (
               <div className="paragraph-detail">
                 <label className="field-label" htmlFor="paragraph-edit">
-                  TEXTO DEL PÁRRAFO
+                  {t('TEXTO DEL PÁRRAFO')}
                 </label>
                 <textarea
                   id="paragraph-edit"
@@ -150,9 +155,9 @@ export default function StoryTools({
                   onChange={(event) => setReplacement(event.target.value)}
                 />
                 <label>
-                  Voz de este fragmento
+                  {t('Voz de este fragmento')}
                   <select
-                    aria-label="Voz del personaje o fragmento"
+                    aria-label={t('Voz del personaje o fragmento')}
                     value={override?.voice ?? ''}
                     onChange={(event) =>
                       update({
@@ -167,7 +172,7 @@ export default function StoryTools({
                       })
                     }
                   >
-                    <option value="">Usar la voz general</option>
+                    <option value="">{t('Usar la voz general')}</option>
                     {voices.map((voice) => (
                       <option value={voice.id} key={voice.id}>
                         {voice.name} · {voice.country}
@@ -176,9 +181,9 @@ export default function StoryTools({
                   </select>
                 </label>
                 <label>
-                  Pausa después del fragmento
+                  {t('Pausa después del fragmento')}
                   <select
-                    aria-label="Pausa del fragmento"
+                    aria-label={t('Pausa del fragmento')}
                     value={override?.pauseMs ?? ''}
                     onChange={(event) =>
                       update({
@@ -193,11 +198,11 @@ export default function StoryTools({
                       })
                     }
                   >
-                    <option value="">Usar pausa general</option>
-                    <option value="0">Sin pausa adicional</option>
-                    <option value="350">Breve · 350 ms</option>
-                    <option value="750">Media · 750 ms</option>
-                    <option value="1500">Larga · 1.5 s</option>
+                    <option value="">{t('Usar pausa general')}</option>
+                    <option value="0">{t('Sin pausa adicional')}</option>
+                    <option value="350">{t('Breve · 350 ms')}</option>
+                    <option value="750">{t('Media · 750 ms')}</option>
+                    <option value="1500">{t('Larga · 1.5 s')}</option>
                   </select>
                 </label>
                 <div className="button-row">
@@ -207,7 +212,7 @@ export default function StoryTools({
                     onClick={() => applyParagraph(false)}
                   >
                     <Check size={14} />
-                    Aplicar cambio
+                    {t('Aplicar cambio')}
                   </button>
                   <button
                     className="primary-button"
@@ -215,16 +220,17 @@ export default function StoryTools({
                     onClick={() => applyParagraph(true)}
                   >
                     <RotateCcw size={14} />
-                    Guardar y regenerar
+                    {t('Guardar y regenerar')}
                   </button>
                 </div>
                 <p className="feature-note">
-                  Se creará una nueva versión. Los fragmentos idénticos y sus ajustes se reutilizan;
-                  solo el audio que cambió se vuelve a solicitar.
+                  {t(
+                    'Se creará una nueva versión. Los fragmentos idénticos y sus ajustes se reutilizan; solo el audio que cambió se vuelve a solicitar.'
+                  )}
                 </p>
               </div>
             ) : (
-              <p>Tu historia todavía no tiene párrafos.</p>
+              <p>{t('Tu historia todavía no tiene párrafos.')}</p>
             )}
           </div>
         )}
@@ -233,9 +239,9 @@ export default function StoryTools({
             <div className="cleanup-options">
               {(
                 [
-                  ['pageNumbers', 'Quitar números de página'],
-                  ['joinLines', 'Unir saltos dentro de párrafos'],
-                  ['repeatedLines', 'Quitar líneas repetidas 3 veces o más']
+                  ['pageNumbers', t('Quitar números de página')],
+                  ['joinLines', t('Unir saltos dentro de párrafos')],
+                  ['repeatedLines', t('Quitar líneas repetidas 3 veces o más')]
                 ] as const
               ).map(([key, label]) => (
                 <label key={key}>
@@ -251,16 +257,19 @@ export default function StoryTools({
               ))}
             </div>
             <p>
-              Revisa la propuesta antes de aplicarla. La eliminación de líneas repetidas puede
-              afectar estribillos o diálogos intencionales.
+              {t(
+                'Revisa la propuesta antes de aplicarla. La eliminación de líneas repetidas puede afectar estribillos o diálogos intencionales.'
+              )}
             </p>
             <div className="cleanup-preview">
               <div>
-                <h3>Original</h3>
+                <h3>{t('Original')}</h3>
                 <pre>{draft.text}</pre>
               </div>
               <div>
-                <h3>Propuesta · {cleaned.removed.length} líneas retiradas</h3>
+                <h3>
+                  {t('Propuesta ·')} {cleaned.removed.length} {t('líneas retiradas')}
+                </h3>
                 <pre>{cleaned.text}</pre>
               </div>
             </div>
@@ -273,7 +282,7 @@ export default function StoryTools({
               }}
             >
               <WandSparkles size={15} />
-              Aplicar limpieza revisada
+              {t('Aplicar limpieza revisada')}
             </button>
           </div>
         )}

@@ -1,3 +1,4 @@
+import { t } from '../shared/i18n'
 import { mkdir, readFile, writeFile, rename, stat, rm } from 'node:fs/promises'
 import { createWriteStream } from 'node:fs'
 import { join, basename, dirname, resolve, sep } from 'node:path'
@@ -84,7 +85,7 @@ export class ModuleManager {
             !resolve(this.path(kind), name).startsWith(resolve(this.path(kind)) + sep) ||
             (await stat(join(this.path(kind), name))).size !== expected.size
           )
-            throw new Error('Incomplete module')
+            throw new Error(t('Incomplete module'))
         }
         // Explicit required files prevent an empty or stale marker from appearing installed.
         await stat(
@@ -104,9 +105,9 @@ export class ModuleManager {
     this.controller?.abort()
   }
   async install(kind: ModuleKind) {
-    if (this.controller) throw new Error('Ya hay una descarga en curso.')
+    if (this.controller) throw new Error(t('Ya hay una descarga en curso.'))
     if (kind !== 'ocr' && (process.platform !== 'win32' || process.arch !== 'x64'))
-      throw new Error('Este módulo está preparado para Windows de 64 bits.')
+      throw new Error(t('Este módulo está preparado para Windows de 64 bits.'))
     this.controller = new AbortController()
     const signal = this.controller.signal,
       folder = this.path(kind),
@@ -130,7 +131,7 @@ export class ModuleManager {
         if (!cached) {
           const response = await fetch(asset.url, { signal })
           if (!response.ok || !response.body)
-            throw new Error(`La descarga respondió HTTP ${response.status}.`)
+            throw new Error(t('La descarga respondió HTTP {0}.', response.status))
           const hash = createHash('sha256')
           let received = 0,
             lastUpdate = 0
@@ -138,7 +139,7 @@ export class ModuleManager {
             transform: (bytes, _encoding, callback) => {
               received += bytes.length
               if (received > asset.size) {
-                callback(new Error('La descarga tiene un tamaño inesperado.'))
+                callback(new Error(t('La descarga tiene un tamaño inesperado.')))
                 return
               }
               hash.update(bytes)
@@ -155,7 +156,7 @@ export class ModuleManager {
           this.update(kind, { status: 'verifying' })
           if (received !== asset.size || hash.digest('hex') !== asset.sha256) {
             await rm(temp, { force: true })
-            throw new Error('La verificación de integridad falló. Se descartó la descarga.')
+            throw new Error(t('La verificación de integridad falló. Se descartó la descarga.'))
           }
           await rename(temp, target)
         }
@@ -172,13 +173,13 @@ export class ModuleManager {
               continue
             const output = resolve(folder, relative)
             if (!output.startsWith(resolve(folder) + sep))
-              throw new Error('El módulo contiene una ruta inválida.')
+              throw new Error(t('El módulo contiene una ruta inválida.'))
             await mkdir(dirname(output), { recursive: true })
             await writeFile(output, bytes)
             files[relative] = { size: bytes.length }
           }
           if (!files['piper.exe'] || !files['onnxruntime.dll'] || !files['espeak-ng.dll'])
-            throw new Error('El motor Piper está incompleto.')
+            throw new Error(t('El motor Piper está incompleto.'))
         } else if (asset.name === 'runtime.zip') {
           const entries = unzipSync(await readFile(target))
           for (const [name, bytes] of Object.entries(entries)) {
@@ -191,7 +192,7 @@ export class ModuleManager {
             files[file] = { size: bytes.length }
           }
           if (!files['whisper-cli.exe'] || !files['whisper.dll'] || !files['ggml.dll'])
-            throw new Error('El runtime descargado está incompleto.')
+            throw new Error(t('El runtime descargado está incompleto.'))
         } else files[asset.name] = { size: asset.size }
         completed += asset.size
         this.update(kind, { status: 'downloading', progress: completed / total })
@@ -200,7 +201,7 @@ export class ModuleManager {
       this.update(kind, { installed: true, status: 'ready', progress: 1 })
     } catch (error) {
       const message = signal.aborted
-        ? 'Descarga cancelada. Puedes volver a iniciarla.'
+        ? t('Descarga cancelada. Puedes volver a iniciarla.')
         : error instanceof Error
           ? error.message
           : String(error)

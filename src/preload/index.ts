@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 import type { DesktopApi, JobSummary } from '../shared/types'
 
 const api: DesktopApi = {
+  confirm: (message) => ipcRenderer.invoke('app:confirm', message),
   boot: () => ipcRenderer.invoke('app:boot'),
   refreshVoices: () => ipcRenderer.invoke('voices:refresh'),
   importVoice: (input) => ipcRenderer.invoke('voices:import', input),

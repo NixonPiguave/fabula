@@ -1,3 +1,4 @@
+import { t, getLanguage, formatNumber, localizeMessage } from '../../shared/i18n'
 import { useState } from 'react'
 import { Check, Pencil, Play, Plus, Trash2 } from 'lucide-react'
 import type { Preferences } from '../../shared/studio'
@@ -47,7 +48,7 @@ export default function VoiceProfiles({
   async function commit() {
     const name = editor.name.trim()
     if (!name) {
-      setMessage('Escribe un nombre para reconocer estos ajustes.')
+      setMessage(t('Escribe un nombre para reconocer estos ajustes.'))
       return
     }
     if (
@@ -55,15 +56,15 @@ export default function VoiceProfiles({
         (item) => item.id !== editing && item.name.toLocaleLowerCase() === name.toLocaleLowerCase()
       )
     ) {
-      setMessage('Ya hay un perfil con ese nombre. Elige otro.')
+      setMessage(t('Ya hay un perfil con ese nombre. Elige otro.'))
       return
     }
     if (!editing && profiles.length >= 100) {
-      setMessage('Puedes guardar hasta 100 perfiles. Edita o elimina uno para continuar.')
+      setMessage(t('Puedes guardar hasta 100 perfiles. Edita o elimina uno para continuar.'))
       return
     }
     if (!voice) {
-      setMessage('Esta voz ya no está disponible. Elige otra antes de guardar.')
+      setMessage(t('Esta voz ya no está disponible. Elige otra antes de guardar.'))
       return
     }
     const profile = { ...editor, name, settings: { ...editor.settings } }
@@ -78,8 +79,8 @@ export default function VoiceProfiles({
       reset()
       notify(
         editing
-          ? 'Cambios del perfil guardados.'
-          : 'Perfil guardado. Ya puedes usarlo en el estudio.'
+          ? t('Cambios del perfil guardados.')
+          : t('Perfil guardado. Ya puedes usarlo en el estudio.')
       )
     } catch (reason) {
       error(reason)
@@ -89,16 +90,19 @@ export default function VoiceProfiles({
   }
   async function remove(profile: Profile) {
     if (
-      !window.confirm(
-        `¿Eliminar el perfil «${profile.name}»? Las narraciones que hayas creado se conservarán.`
-      )
+      !(await window.fabula!.confirm(
+        t(
+          '¿Eliminar el perfil «{0}»? Las narraciones que hayas creado se conservarán.',
+          profile.name
+        )
+      ))
     )
       return
     setPending(true)
     try {
       await save(profiles.filter((item) => item.id !== profile.id))
       if (editing === profile.id) reset()
-      notify('Perfil eliminado.')
+      notify(t('Perfil eliminado.'))
     } catch (reason) {
       error(reason)
     } finally {
@@ -109,15 +113,16 @@ export default function VoiceProfiles({
     <section className="feature-card full-width voice-profiles" aria-labelledby="profiles-title">
       <div className="profiles-heading">
         <div>
-          <h2 id="profiles-title">Perfiles de voz</h2>
+          <h2 id="profiles-title">{t('Perfiles de voz')}</h2>
           <p>
-            Un perfil es una combinación de voz y ritmo que puedes reutilizar en cualquier
-            narración.
+            {t(
+              'Un perfil es una combinación de voz y ritmo que puedes reutilizar en cualquier narración.'
+            )}
           </p>
         </div>
         <button className="secondary-button" disabled={pending} onClick={reset}>
           <Plus size={14} />
-          Nuevo perfil
+          {t('Nuevo perfil')}
         </button>
       </div>
       <div className="profiles-layout">
@@ -129,16 +134,16 @@ export default function VoiceProfiles({
             void commit()
           }}
         >
-          <h3>{editing ? 'Editar perfil' : 'Crear un perfil'}</h3>
+          <h3>{editing ? t('Editar perfil') : t('Crear un perfil')}</h3>
           <p className="profile-help">
-            Elige los ajustes, escucha cómo suenan y guárdalos con un nombre.
+            {t('Elige los ajustes, escucha cómo suenan y guárdalos con un nombre.')}
           </p>
           <fieldset disabled={pending}>
             <label>
-              Nombre del perfil
+              {t('Nombre del perfil')}
               <input
-                aria-label="Nombre del perfil"
-                placeholder="Por ejemplo: Lectura tranquila"
+                aria-label={t('Nombre del perfil')}
+                placeholder={t('Por ejemplo: Lectura tranquila')}
                 maxLength={60}
                 value={editor.name}
                 onChange={(event) => {
@@ -148,28 +153,38 @@ export default function VoiceProfiles({
               />
             </label>
             <label>
-              Voz
+              {t('Voz')}
               <select
-                aria-label="Voz del perfil"
+                aria-label={t('Voz del perfil')}
                 value={editor.settings.voice}
                 onChange={(event) => change({ voice: event.target.value })}
               >
                 {!voice && (
-                  <option value={editor.settings.voice}>Voz no disponible · elige otra</option>
+                  <option value={editor.settings.voice}>
+                    {t('Voz no disponible · elige otra')}
+                  </option>
                 )}
                 {voices.map((item) => (
                   <option key={item.id} value={item.id}>
-                    {item.name} · {item.country} · {item.provider === 'edge' ? 'en línea' : 'local'}
+                    {item.name} · {item.country} ·{' '}
+                    {item.provider === 'edge' ? t('en línea') : 'local'}
                   </option>
                 ))}
               </select>
             </label>
             <div className="profile-controls">
               <label>
-                Velocidad <output>{editor.settings.speed.toFixed(2)}×</output>
+                {t('Velocidad')}{' '}
+                <output>
+                  {formatNumber(editor.settings.speed, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })}
+                  ×
+                </output>
                 <input
                   className="range"
-                  aria-label="Velocidad del perfil"
+                  aria-label={t('Velocidad del perfil')}
                   type="range"
                   min="0.5"
                   max="1.75"
@@ -177,17 +192,17 @@ export default function VoiceProfiles({
                   value={editor.settings.speed}
                   onChange={(event) => change({ speed: +event.target.value })}
                 />
-                <small>Más lenta ← → Más rápida</small>
+                <small>{t('Más lenta ← → Más rápida')}</small>
               </label>
               <label>
-                Tono{' '}
+                {t('Tono')}{' '}
                 <output>
                   {editor.settings.pitch > 0 ? '+' : ''}
                   {editor.settings.pitch} Hz
                 </output>
                 <input
                   className="range"
-                  aria-label="Tono del perfil"
+                  aria-label={t('Tono del perfil')}
                   type="range"
                   min="-30"
                   max="30"
@@ -195,13 +210,13 @@ export default function VoiceProfiles({
                   value={editor.settings.pitch}
                   onChange={(event) => change({ pitch: +event.target.value })}
                 />
-                <small>Más grave ← → Más agudo</small>
+                <small>{t('Más grave ← → Más agudo')}</small>
               </label>
               <label>
-                Volumen <output>{Math.round(editor.settings.volume * 100)} %</output>
+                {t('Volumen')} <output>{Math.round(editor.settings.volume * 100)} %</output>
                 <input
                   className="range"
-                  aria-label="Volumen del perfil"
+                  aria-label={t('Volumen del perfil')}
                   type="range"
                   min="0.3"
                   max="1"
@@ -211,11 +226,11 @@ export default function VoiceProfiles({
                 />
               </label>
               <label>
-                Pausa entre párrafos{' '}
-                <output>{(editor.pauseMs / 1000).toLocaleString('es')} s</output>
+                {t('Pausa entre párrafos')}{' '}
+                <output>{(editor.pauseMs / 1000).toLocaleString(getLanguage())} s</output>
                 <input
                   className="range"
-                  aria-label="Pausa del perfil"
+                  aria-label={t('Pausa del perfil')}
                   type="range"
                   min="0"
                   max="3000"
@@ -227,12 +242,14 @@ export default function VoiceProfiles({
             </div>
             <p className="profile-help">
               {voice?.provider === 'edge'
-                ? 'La muestra usa una voz en línea: el texto se envía a Microsoft.'
-                : 'Esta voz se procesa en tu equipo. El tono se ajusta mediante un efecto de audio.'}
+                ? t('La muestra usa una voz en línea: el texto se envía a Microsoft.')
+                : t(
+                    'Esta voz se procesa en tu equipo. El tono se ajusta mediante un efecto de audio.'
+                  )}
             </p>
             {message && (
               <p role="alert" className="form-error">
-                {message}
+                {localizeMessage(message)}
               </p>
             )}
             <div className="button-row">
@@ -243,14 +260,14 @@ export default function VoiceProfiles({
                 onClick={() => preview(editor)}
               >
                 <Play size={14} />
-                Escuchar muestra
+                {t('Escuchar muestra')}
               </button>
               <button type="submit" className="primary-button">
-                {pending ? 'Guardando…' : editing ? 'Guardar cambios' : 'Guardar perfil'}
+                {pending ? t('Guardando…') : editing ? t('Guardar cambios') : t('Guardar perfil')}
               </button>
               {editing && (
                 <button type="button" className="text-button" onClick={reset}>
-                  Cancelar edición
+                  {t('Cancelar edición')}
                 </button>
               )}
             </div>
@@ -265,28 +282,31 @@ export default function VoiceProfiles({
                 })
                 setMessage('')
                 notify(
-                  'Ajustes del estudio copiados al formulario. Puedes revisarlos antes de guardar.'
+                  t(
+                    'Ajustes del estudio copiados al formulario. Puedes revisarlos antes de guardar.'
+                  )
                 )
               }}
             >
-              Copiar los ajustes actuales del estudio
+              {t('Copiar los ajustes actuales del estudio')}
             </button>
           </fieldset>
         </form>
         <div className="profile-library">
           <h3>
-            Tus perfiles guardados <span>{profiles.length}</span>
+            {t('Tus perfiles guardados')} <span>{profiles.length}</span>
           </h3>
           <p className="profile-help">
-            «Usar en el estudio» prepara la próxima narración con esos ajustes.
+            {t('«Usar en el estudio» prepara la próxima narración con esos ajustes.')}
           </p>
           {!profiles.length && (
             <div className="profile-empty">
               <Check size={25} />
-              <h4>Guarda tu primera combinación</h4>
+              <h4>{t('Guarda tu primera combinación')}</h4>
               <p>
-                Por ejemplo, «Lectura tranquila»: una voz a velocidad reducida y con pausas largas.
-                Después podrás elegirla desde el estudio.
+                {t(
+                  'Por ejemplo, «Lectura tranquila»: una voz a velocidad reducida y con pausas largas. Después podrás elegirla desde el estudio.'
+                )}
               </p>
             </div>
           )}
@@ -301,27 +321,27 @@ export default function VoiceProfiles({
                 <p className="profile-voice">
                   {available
                     ? `${available.name} · ${available.country}`
-                    : 'Voz no disponible · edita el perfil para elegir otra'}
+                    : t('Voz no disponible · edita el perfil para elegir otra')}
                 </p>
                 <dl>
                   <div>
-                    <dt>Velocidad</dt>
-                    <dd>{profile.settings.speed}×</dd>
+                    <dt>{t('Velocidad')}</dt>
+                    <dd>{formatNumber(profile.settings.speed)}×</dd>
                   </div>
                   <div>
-                    <dt>Tono</dt>
+                    <dt>{t('Tono')}</dt>
                     <dd>
                       {profile.settings.pitch > 0 ? '+' : ''}
                       {profile.settings.pitch} Hz
                     </dd>
                   </div>
                   <div>
-                    <dt>Volumen</dt>
+                    <dt>{t('Volumen')}</dt>
                     <dd>{Math.round(profile.settings.volume * 100)} %</dd>
                   </div>
                   <div>
-                    <dt>Pausa</dt>
-                    <dd>{(profile.pauseMs / 1000).toLocaleString('es')} s</dd>
+                    <dt>{t('Pausa')}</dt>
+                    <dd>{(profile.pauseMs / 1000).toLocaleString(getLanguage())} s</dd>
                   </div>
                 </dl>
                 <div className="button-row">
@@ -330,11 +350,11 @@ export default function VoiceProfiles({
                     disabled={pending || !available}
                     onClick={() => apply(profile)}
                   >
-                    Usar en el estudio
+                    {t('Usar en el estudio')}
                   </button>
                   <button
                     className="text-button"
-                    aria-label={`Editar perfil ${profile.name}`}
+                    aria-label={t('Editar perfil {0}', profile.name)}
                     disabled={pending}
                     onClick={() => {
                       setEditor({ ...profile, settings: { ...profile.settings } })
@@ -343,11 +363,11 @@ export default function VoiceProfiles({
                     }}
                   >
                     <Pencil size={13} />
-                    Editar
+                    {t('Editar')}
                   </button>
                   <button
                     className="icon-button"
-                    aria-label={`Eliminar perfil ${profile.name}`}
+                    aria-label={t('Eliminar perfil {0}', profile.name)}
                     disabled={pending}
                     onClick={() => void remove(profile)}
                   >

@@ -1,4 +1,21 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode, type CSSProperties } from 'react'
+import { APP_VERSION } from '../shared/version'
+import {
+  t,
+  getLanguage,
+  setLanguage,
+  subscribeLanguage,
+  localizeMessage,
+  formatNumber
+} from '../shared/i18n'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+  type CSSProperties
+} from 'react'
 import {
   AudioLines,
   BookOpen,
@@ -48,7 +65,7 @@ import LegalDialog from './components/LegalDialog'
 import PreferencesPage from './components/PreferencesPage'
 import VoicesPage from './components/VoicesPage'
 import PdfImportDialog from './components/PdfImportDialog'
-import { voiceInfo } from '../shared/voice-catalogue'
+import { voiceInfo, localizeVoice } from '../shared/voice-catalogue'
 import type { VoiceInfo, ImportResult } from '../shared/types'
 import LibraryPage from './components/LibraryPage'
 import VoiceArt from './components/VoiceArt'
@@ -60,22 +77,24 @@ import { useReadingState } from './hooks/useReadingState'
 import { useDialogFocus } from './hooks/useDialogFocus'
 
 type Page = 'studio' | 'library' | 'voices' | 'preferences' | 'transcribe'
-const SAMPLE =
-  'Aquella noche, el joven abrió los ojos y descubrió un mundo diferente. Su hermano lo esperaba junto a la puerta. No sabía qué les deparaba el destino, pero estaba decidido a proteger a su familia.'
-const initialDraft: Draft = {
-  title: 'Mi nueva historia',
+const sample = () =>
+  t(
+    'Aquella noche, el joven abrió los ojos y descubrió un mundo diferente. Su hermano lo esperaba junto a la puerta. No sabía qué les deparaba el destino, pero estaba decidido a proteger a su familia.'
+  )
+const initialDraft = (): Draft => ({
+  title: t('Mi nueva historia'),
   text: '',
   settings: { ...DEFAULT_SETTINGS }
-}
-const stateLabels = {
-  generating: 'Narrando',
-  merging: 'Preparando MP3',
-  completed: 'Lista para escuchar',
-  cancelled: 'Cancelada',
-  failed: 'No se pudo completar',
-  interrupted: 'Lista para reanudar'
-}
-const number = new Intl.NumberFormat('es')
+})
+const stateLabels = () => ({
+  generating: t('Narrando'),
+  merging: t('Preparando MP3'),
+  completed: t('Lista para escuchar'),
+  cancelled: t('Cancelada'),
+  failed: t('No se pudo completar'),
+  interrupted: t('Lista para reanudar')
+})
+const number = { format: formatNumber }
 function time(seconds: number) {
   if (!Number.isFinite(seconds)) return '0:00'
   const value = Math.floor(seconds),
@@ -94,6 +113,12 @@ function IconButton({
   )
 }
 export default function App() {
+  const language = useSyncExternalStore(subscribeLanguage, getLanguage)
+  useEffect(() => {
+    document.documentElement.lang = language
+    document.title = t('Fábula — Estudio de narración')
+  }, [language])
+
   const [page, setPage] = useState<Page>('studio')
   const [catalogue, setCatalogue] = useState<VoiceInfo[]>(VOICES)
   const [pdfPreview, setPdfPreview] = useState<ImportResult | null>(null)
@@ -131,7 +156,8 @@ export default function App() {
   const autoPlay = useRef(false)
   const startedIds = useRef(new Set<string>())
   const saveVersion = useRef(0)
-  const selectedVoice = voiceInfo(draft.settings.voice, catalogue)
+  const localizedCatalogue = catalogue.map(localizeVoice)
+  const selectedVoice = voiceInfo(draft.settings.voice, localizedCatalogue)
   const draftProfile = preferences.profiles.find(
     (profile) =>
       profile.settings.voice === draft.settings.voice &&
@@ -141,7 +167,7 @@ export default function App() {
       profile.pauseMs === (draft.pauseMs ?? 350)
   )
   const current = jobs.find((job) => job.id === currentId)
-  const currentVoice = current ? voiceInfo(current.settings.voice, catalogue) : undefined
+  const currentVoice = current ? voiceInfo(current.settings.voice, localizedCatalogue) : undefined
   const active = jobs.find((job) => job.status === 'generating' || job.status === 'merging')
   const library = jobs.filter((job) => !job.preview)
   const words = useMemo(
@@ -157,13 +183,25 @@ export default function App() {
   const notifyError = (error: unknown) =>
     setToast(
       error instanceof Error
-        ? error.message.replace(/^Error invoking remote method '[^']+': (Error: )?/, '')
+        ? localizeMessage(
+            error.message.replace(/^Error invoking remote method '[^']+': (Error: )?/, '')
+          )
         : String(error)
     )
   const reading = useReadingState(notifyError)
+  const preferenceVersion = useRef(0)
   function updatePreferences(value: Preferences) {
+    const previous = preferences
+    const version = ++preferenceVersion.current
     setPreferences(value)
-    window.fabula?.savePreferences(value).catch(notifyError)
+    setLanguage(value.language)
+    window.fabula?.savePreferences(value).catch((error) => {
+      if (version === preferenceVersion.current) {
+        setPreferences(previous)
+        setLanguage(previous.language)
+      }
+      notifyError(error)
+    })
   }
   async function saveProfiles(profiles: Preferences['profiles']) {
     const value = { ...preferences, profiles }
@@ -177,10 +215,10 @@ export default function App() {
       pauseMs: profile.pauseMs
     }))
     setPage('studio')
-    setToast(`Perfil «${profile.name}» listo para la próxima narración.`)
+    setToast(t('Perfil «{0}» listo para la próxima narración.', profile.name))
   }
   function updateTranscript(value: Transcript) {
-    const next = { ...value, title: value.title.trim() || 'Mi transcripción' }
+    const next = { ...value, title: value.title.trim() || t('Mi transcripción') }
     setTranscript(value)
     setTranscripts((previous) => [next, ...previous.filter((item) => item.id !== value.id)])
     window.fabula?.saveTranscript(next).catch(notifyError)
@@ -188,7 +226,9 @@ export default function App() {
   function api() {
     if (!window.fabula)
       throw new Error(
-        'Esta es la vista del diseño. Abre la aplicación de escritorio Fábula para narrar e importar documentos.'
+        t(
+          'Esta es la vista del diseño. Abre la aplicación de escritorio Fábula para narrar e importar documentos.'
+        )
       )
     return window.fabula
   }
@@ -216,13 +256,13 @@ export default function App() {
         setCurrentId(job.id)
         setToast(
           job.preview
-            ? 'Tu muestra está lista.'
-            : 'Tu historia ya tiene voz. Dale al play y disfrútala.'
+            ? t('Tu muestra está lista.')
+            : t('Tu historia ya tiene voz. Dale al play y disfrútala.')
         )
       }
       if (job.status === 'failed') {
         startedIds.current.delete(job.id)
-        setToast(job.error || 'No se pudo generar el audio.')
+        setToast(job.error || t('No se pudo generar el audio.'))
       }
     })
     const offModules = window.fabula.onModule((value) =>
@@ -263,6 +303,7 @@ export default function App() {
         if (cancelled) return
         setDraft(state.draft)
         setJobs(state.jobs)
+        setLanguage(state.preferences.language)
         setPreferences(state.preferences)
         setModules(state.modules)
         setCollections(state.library)
@@ -302,7 +343,7 @@ export default function App() {
     const version = ++saveVersion.current
     setSaving(true)
     window
-      .fabula!.saveDraft({ ...draft, title: draft.title.trim() || 'Sin título' })
+      .fabula!.saveDraft({ ...draft, title: draft.title.trim() || t('Sin título') })
       .then(() => {
         if (saveVersion.current === version) setSaving(false)
       })
@@ -349,12 +390,12 @@ export default function App() {
   async function start(preview = false, voiceId = draft.settings.voice, snapshot = draft) {
     try {
       setStarting(true)
-      const text = preview ? snapshot.text.trim().slice(0, 350) || SAMPLE : snapshot.text
+      const text = preview ? snapshot.text.trim().slice(0, 350) || sample() : snapshot.text
       const job = await api().start({
         ...snapshot,
         title: preview
-          ? `Muestra de ${voiceInfo(voiceId, catalogue).name}`
-          : snapshot.title.trim() || 'Sin título',
+          ? t('Muestra de {0}', voiceInfo(voiceId, catalogue).name)
+          : snapshot.title.trim() || t('Sin título'),
         text,
         settings: { ...snapshot.settings, voice: voiceId },
         blockOverrides: preview ? {} : snapshot.blockOverrides,
@@ -372,9 +413,11 @@ export default function App() {
     try {
       if (
         draft.text.trim() &&
-        !window.confirm(
-          'Importar reemplazará el texto del editor. Las narraciones de la biblioteca se conservarán. ¿Continuar?'
-        )
+        !(await api().confirm(
+          t(
+            'Importar reemplazará el texto del editor. Las narraciones de la biblioteca se conservarán. ¿Continuar?'
+          )
+        ))
       )
         return
       setImporting(true)
@@ -393,8 +436,11 @@ export default function App() {
         }))
         setToast(
           result.pages
-            ? `Importadas ${result.pages} páginas. Revisa el orden y los saltos del texto antes de narrar.`
-            : 'Texto importado. Ya puedes darle voz.'
+            ? t(
+                'Importadas {0} páginas. Revisa el orden y los saltos del texto antes de narrar.',
+                result.pages
+              )
+            : t('Texto importado. Ya puedes darle voz.')
         )
         setPage('studio')
       }
@@ -408,7 +454,7 @@ export default function App() {
     if (!id) return
     try {
       const path = await api().exportMp3(id)
-      if (path) setToast(`MP3 guardado en ${path}`)
+      if (path) setToast(t('MP3 guardado en {0}', path))
     } catch (error) {
       notifyError(error)
     }
@@ -432,17 +478,19 @@ export default function App() {
       setPosition(audio.current.currentTime)
     }
   }
-  function newStory() {
+  async function newStory() {
     if (
       draft.text.trim() &&
-      !window.confirm(
-        '¿Crear una nueva historia? El texto del editor se reemplazará. Las narraciones generadas seguirán en tu biblioteca.'
-      )
+      !(await api().confirm(
+        t(
+          '¿Crear una nueva historia? El texto del editor se reemplazará. Las narraciones generadas seguirán en tu biblioteca.'
+        )
+      ))
     )
       return
     setLastPdf(null)
     setDraft({
-      ...initialDraft,
+      ...initialDraft(),
       settings: { ...draft.settings },
       projectId: collections.projects.some((project) => project.id === projectFilter)
         ? projectFilter
@@ -464,7 +512,7 @@ export default function App() {
     const wasPlaying = currentId === job.id && !!audio.current && !audio.current.paused
     if (currentId === job.id) audio.current?.pause()
     try {
-      if (await api().deleteJob(job.id)) setToast('Narración movida a la Papelera de Windows.')
+      if (await api().deleteJob(job.id)) setToast(t('Narración movida a la Papelera de Windows.'))
       else if (wasPlaying) audio.current?.play().catch(notifyError)
     } catch (error) {
       notifyError(error)
@@ -474,7 +522,9 @@ export default function App() {
     try {
       if (
         draft.text.trim() &&
-        !window.confirm('¿Abrir esta historia en el editor y reemplazar el borrador actual?')
+        !(await api().confirm(
+          t('¿Abrir esta historia en el editor y reemplazar el borrador actual?')
+        ))
       )
         return
       setDraft(await api().openJob(job.id))
@@ -483,6 +533,13 @@ export default function App() {
       notifyError(error)
     }
   }
+
+  if (!loaded)
+    return (
+      <div className="app-loading" aria-busy="true">
+        Fábula
+      </div>
+    )
 
   return (
     <div
@@ -506,21 +563,21 @@ export default function App() {
             event.preventDefault()
             setPage('studio')
           }}
-          aria-label="Fábula, inicio"
+          aria-label={t('Fábula, inicio')}
         >
           <span className="brand-symbol">
             <AudioLines size={25} />
           </span>
           fábula<span className="brand-dot">.</span>
         </a>
-        <div className="sidebar-caption">TU ESPACIO CREATIVO</div>
-        <nav aria-label="Navegación principal">
+        <div className="sidebar-caption">{t('TU ESPACIO CREATIVO')}</div>
+        <nav aria-label={t('Navegación principal')}>
           <button
             className={page === 'studio' ? 'nav-item active' : 'nav-item'}
             onClick={() => setPage('studio')}
           >
             <AudioLines size={19} />
-            Estudio de narración
+            {t('Estudio de narración')}
             <span className="nav-dot" />
           </button>
           <button
@@ -528,34 +585,35 @@ export default function App() {
             onClick={() => setPage('library')}
           >
             <LibraryBig size={19} />
-            Tu biblioteca<span className="nav-count">{library.length}</span>
+            {t('Tu biblioteca')}
+            <span className="nav-count">{library.length}</span>
           </button>
           <button
             className={page === 'voices' ? 'nav-item active' : 'nav-item'}
             onClick={() => setPage('voices')}
           >
             <Mic2 size={19} />
-            Explorar voces
+            {t('Explorar voces')}
           </button>
           <button
             className={page === 'transcribe' ? 'nav-item active' : 'nav-item'}
             onClick={() => setPage('transcribe')}
           >
             <MessageSquareText size={19} />
-            Voz a texto
+            {t('Voz a texto')}
           </button>
           <button
             className={page === 'preferences' ? 'nav-item active' : 'nav-item'}
             onClick={() => setPage('preferences')}
           >
             <Settings2 size={19} />
-            Preferencias
+            {t('Preferencias')}
           </button>
         </nav>
         <div className="side-divider" />
         <div className="sidebar-row">
-          <span className="sidebar-caption">TUS NARRACIONES</span>
-          <IconButton label="Nueva historia" onClick={newStory}>
+          <span className="sidebar-caption">{t('TUS NARRACIONES')}</span>
+          <IconButton label={t('Nueva historia')} onClick={newStory}>
             <Plus size={16} />
           </IconButton>
         </div>
@@ -574,7 +632,7 @@ export default function App() {
               </span>
               <span>
                 <b>{job.title}</b>
-                <small>{stateLabels[job.status]}</small>
+                <small>{stateLabels()[job.status]}</small>
               </span>
             </button>
           ))}
@@ -582,28 +640,28 @@ export default function App() {
             <div className="side-empty">
               <BookOpen size={24} />
               <p>
-                Una buena historia
+                {t('Una buena historia')}
                 <br />
-                merece ser escuchada.
+                {t('merece ser escuchada.')}
               </p>
-              <span>Las tuyas aparecerán aquí.</span>
+              <span>{t('Las tuyas aparecerán aquí.')}</span>
             </div>
           )}
         </div>
         <div className="sidebar-bottom">
           <div className="local-note">
             <span className="live-dot" />
-            <span>Tu biblioteca, en tu equipo</span>
+            <span>{t('Tu biblioteca, en tu equipo')}</span>
           </div>
           <button className="nav-item" onClick={() => setModal(true)}>
             <Settings2 size={18} />
-            Acerca de Fábula
+            {t('Acerca de Fábula')}
           </button>
           <div className="profile">
             <span className="profile-avatar">T</span>
             <div>
-              <b>Tu espacio personal</b>
-              <small>Hecho para contar historias</small>
+              <b>{t('Tu espacio personal')}</b>
+              <small>{t('Hecho para contar historias')}</small>
             </div>
             <Headphones size={17} />
           </div>
@@ -613,49 +671,49 @@ export default function App() {
       <div className="workspace">
         <header className="topbar">
           <div className="breadcrumbs">
-            Tu espacio <ChevronRight size={14} />
+            {t('Tu espacio')} <ChevronRight size={14} />
             <strong>
               {page === 'studio'
-                ? 'Estudio de narración'
+                ? t('Estudio de narración')
                 : page === 'library'
-                  ? 'Tu biblioteca'
+                  ? t('Tu biblioteca')
                   : page === 'preferences'
-                    ? 'Preferencias'
+                    ? t('Preferencias')
                     : page === 'transcribe'
-                      ? 'Voz a texto'
-                      : 'Explorar voces'}
+                      ? t('Voz a texto')
+                      : t('Explorar voces')}
             </strong>
           </div>
           <div className="topbar-actions">
             <span className="cloud-badge">
               <Cloud size={14} />
-              Voces sin suscripción
+              {t('Voces sin suscripción')}
             </span>
             <button className="small-new" onClick={newStory}>
               <Plus size={15} />
-              Nueva historia
+              {t('Nueva historia')}
             </button>
           </div>
         </header>
         {task?.status === 'running' && page !== 'transcribe' && (
           <div className="global-task" role="status">
             <LoaderCircle size={14} className="spin" />
-            <span>{task.phase}</span>
+            <span>{localizeMessage(task.phase)}</span>
             <progress max="1" value={task.progress} />
-            <button onClick={() => api().cancelTask().catch(notifyError)}>Cancelar</button>
+            <button onClick={() => api().cancelTask().catch(notifyError)}>{t('Cancelar')}</button>
           </div>
         )}
         <main className={`main-content ${page === 'studio' ? 'studio-main' : ''}`}>
           {page === 'preferences' && (
             <PreferencesPage
-              voices={catalogue}
+              voices={localizedCatalogue}
               busy={busy}
               saveProfiles={saveProfiles}
               applyProfile={applyProfile}
               previewProfile={(profile) =>
                 start(true, profile.settings.voice, {
                   ...draft,
-                  text: SAMPLE,
+                  text: sample(),
                   settings: { ...profile.settings },
                   pauseMs: profile.pauseMs
                 })
@@ -685,10 +743,10 @@ export default function App() {
               }}
               notify={setToast}
               error={notifyError}
-              useText={(value) => {
+              useText={async (value) => {
                 if (
                   draft.text.trim() &&
-                  !window.confirm('¿Reemplazar el borrador por esta transcripción?')
+                  !(await api().confirm(t('¿Reemplazar el borrador por esta transcripción?')))
                 )
                   return
                 setDraft({ ...draft, title: value.title, text: value.text, blockOverrides: {} })
@@ -702,26 +760,26 @@ export default function App() {
                 <div className="hero-copy">
                   <div className="eyebrow">
                     <span />
-                    UN NUEVO CAPÍTULO EMPIEZA AQUÍ
+                    {t('UN NUEVO CAPÍTULO EMPIEZA AQUÍ')}
                   </div>
                   <h1>
-                    Tus historias.
+                    {t('Tus historias.')}
                     <br />
-                    <em>Ahora, con voz.</em>
+                    <em>{t('Ahora, con voz.')}</em>
                   </h1>
-                  <p>Deja que tus palabras se conviertan en algo que puedas escuchar.</p>
+                  <p>{t('Deja que tus palabras se conviertan en algo que puedas escuchar.')}</p>
                   <div className="hero-tags">
                     <span>
                       <FileText size={13} />
-                      Texto o PDF
+                      {t('Texto o PDF')}
                     </span>
                     <span>
                       <Mic2 size={13} />
-                      Voces en español
+                      {t('Voces en español')}
                     </span>
                     <span>
                       <Download size={13} />
-                      Exporta a MP3
+                      {t('Exporta a MP3')}
                     </span>
                   </div>
                 </div>
@@ -731,9 +789,9 @@ export default function App() {
                   <div className="floating-tile">
                     <AudioLines size={65} strokeWidth={1.4} />
                     <span>
-                      CADA HISTORIA
+                      {t('CADA HISTORIA')}
                       <br />
-                      TIENE SU VOZ
+                      {t('TIENE SU VOZ')}
                     </span>
                     <div className="tile-lines">
                       <i />
@@ -752,29 +810,29 @@ export default function App() {
                     </div>
                   </div>
                   <span className="floating-spark">✦</span>
-                  <span className="art-label">DALE PLAY A TU IMAGINACIÓN</span>
+                  <span className="art-label">{t('DALE PLAY A TU IMAGINACIÓN')}</span>
                 </div>
               </section>
               <div className="section-heading">
                 <div>
                   <span className="step-number">01</span>
-                  <h2>Prepara tu narración</h2>
+                  <h2>{t('Prepara tu narración')}</h2>
                 </div>
                 <span className="autosave">
                   <Check size={12} />
                   {!window.fabula
-                    ? 'Vista del diseño'
+                    ? t('Vista del diseño')
                     : saving
-                      ? 'Guardando borrador…'
-                      : 'Borrador guardado'}
+                      ? t('Guardando borrador…')
+                      : t('Borrador guardado')}
                 </span>
               </div>
               <div className="draft-project-row">
                 <label>
                   <LibraryBig size={14} />
-                  Proyecto
+                  {t('Proyecto')}
                   <select
-                    aria-label="Proyecto de la nueva narración"
+                    aria-label={t('Proyecto de la nueva narración')}
                     value={draft.projectId ?? ''}
                     onChange={(event) =>
                       setDraft((previous) => ({
@@ -783,7 +841,7 @@ export default function App() {
                       }))
                     }
                   >
-                    <option value="">Sin proyecto</option>
+                    <option value="">{t('Sin proyecto')}</option>
                     {collections.projects.map((project) => (
                       <option value={project.id} key={project.id}>
                         {project.name}
@@ -792,23 +850,23 @@ export default function App() {
                   </select>
                 </label>
                 <button className="text-button" onClick={() => setPage('library')}>
-                  Gestionar proyectos
+                  {t('Gestionar proyectos')}
                   <ChevronRight size={13} />
                 </button>
               </div>
               <div className="studio-tool-row">
                 {lastPdf && (
                   <button className="secondary-button" onClick={() => setPdfPreview(lastPdf)}>
-                    Ajustar encabezados y pies del PDF
+                    {t('Ajustar encabezados y pies del PDF')}
                   </button>
                 )}
                 <span>
                   <BookOpen size={13} />
-                  {chapterCount} capítulos detectados
+                  {chapterCount} {t('capítulos detectados')}
                 </span>
                 <button className="secondary-button" onClick={() => setToolsOpen(true)}>
                   <WandSparkles size={14} />
-                  Capítulos, personajes y limpieza
+                  {t('Capítulos, personajes y limpieza')}
                 </button>
               </div>
               <div className="studio-grid">
@@ -816,7 +874,7 @@ export default function App() {
                   <div className="panel-toolbar">
                     <div className="panel-label">
                       <FileText size={17} />
-                      Tu historia
+                      {t('Tu historia')}
                     </div>
                     <button
                       className="import-button"
@@ -828,14 +886,14 @@ export default function App() {
                       ) : (
                         <Upload size={14} />
                       )}
-                      {importing ? 'Leyendo documento…' : 'Importar archivo'}
-                      <span>PDF, EPUB, WORD</span>
+                      {importing ? t('Leyendo documento…') : t('Importar archivo')}
+                      <span>{t('PDF, EPUB, WORD')}</span>
                     </button>
                     <button
                       className="ocr-import-button"
                       disabled={importing}
                       onClick={() => importDocument(true)}
-                      title="Importar imágenes o PDF escaneado con OCR"
+                      title={t('Importar imágenes o PDF escaneado con OCR')}
                     >
                       OCR
                     </button>
@@ -843,7 +901,7 @@ export default function App() {
                   <div className="document-body">
                     <input
                       className="title-input"
-                      aria-label="Título de la historia"
+                      aria-label={t('Título de la historia')}
                       maxLength={160}
                       value={draft.title}
                       onChange={(event) =>
@@ -852,10 +910,10 @@ export default function App() {
                     />
                     <div className="document-rule" />
                     <textarea
-                      aria-label="Texto para narrar"
-                      placeholder={
+                      aria-label={t('Texto para narrar')}
+                      placeholder={t(
                         'Toda gran historia comienza con unas palabras…\n\nPega tu texto aquí o importa un documento. Nosotros nos encargamos de darle voz.'
-                      }
+                      )}
                       value={draft.text}
                       spellCheck
                       onChange={(event) =>
@@ -864,38 +922,42 @@ export default function App() {
                     />
                     <div className="document-footer">
                       <span>
-                        {number.format(draft.text.length)} caracteres
+                        {number.format(draft.text.length)} {t('caracteres')}
                         <span className="counter-dot">·</span>
-                        {number.format(words)} palabras
+                        {number.format(words)} {t('palabras')}
                       </span>
                       <span>
                         <Clock3 size={12} />
-                        {words ? `~${minutes} min de audio` : 'Tu próxima historia'}
+                        {words ? t('~{0} min de audio', minutes) : t('Tu próxima historia')}
                       </span>
                     </div>
                   </div>
                   <div className="editor-note">
                     <BookOpen size={14} />
-                    <span>De un párrafo a una novela. Tu historia se procesa por partes.</span>
+                    <span>
+                      {t('De un párrafo a una novela. Tu historia se procesa por partes.')}
+                    </span>
                   </div>
                 </section>
                 <aside className="voice-panel panel">
                   <div className="panel-toolbar">
                     <div className="panel-label">
                       <Settings2 size={16} />
-                      Dale tu estilo
+                      {t('Dale tu estilo')}
                     </div>
-                    <span className="mini-label">VOZ Y RITMO</span>
+                    <span className="mini-label">{t('VOZ Y RITMO')}</span>
                   </div>
                   <div className="voice-panel-body">
                     <label className="field-label" htmlFor="voice-select">
-                      VOZ NARRADORA
+                      {t('VOZ NARRADORA')}
                     </label>
                     <div className="selected-voice">
                       <VoiceArt voice={selectedVoice} small />
                       <div>
                         <b>{selectedVoice.name}</b>
-                        <span>Español · {selectedVoice.country}</span>
+                        <span>
+                          {t('Español ·')} {selectedVoice.country}
+                        </span>
                       </div>
                       <span className="selected-check">
                         <Check size={13} />
@@ -903,23 +965,23 @@ export default function App() {
                     </div>
                     <select
                       id="voice-select"
-                      aria-label="Elegir voz"
+                      aria-label={t('Elegir voz')}
                       value={draft.settings.voice}
                       onChange={(event) =>
                         settings({ voice: event.target.value as VoiceSettings['voice'] })
                       }
                     >
-                      {catalogue.map((voice) => (
+                      {localizedCatalogue.map((voice) => (
                         <option value={voice.id} key={voice.id}>
                           {voice.name} · {voice.country}
                         </option>
                       ))}
                     </select>
                     <label className="pause-control profile-select-label">
-                      Perfil de voz
+                      {t('Perfil de voz')}
                       <select
                         className="profile-select"
-                        aria-label="Aplicar perfil guardado"
+                        aria-label={t('Aplicar perfil guardado')}
                         value={draftProfile?.id ?? ''}
                         onChange={(event) => {
                           const profile = preferences.profiles.find(
@@ -928,7 +990,7 @@ export default function App() {
                           if (profile) applyProfile(profile)
                         }}
                       >
-                        <option value="">Ajustes personalizados</option>
+                        <option value="">{t('Ajustes personalizados')}</option>
                         {preferences.profiles.map((profile) => (
                           <option
                             key={profile.id}
@@ -943,16 +1005,23 @@ export default function App() {
                       </select>
                     </label>
                     <button className="text-button" onClick={() => setPage('preferences')}>
-                      Crear o editar perfiles
+                      {t('Crear o editar perfiles')}
                     </button>
                     <button className="sample-button" onClick={() => start(true)} disabled={busy}>
                       <Play size={13} fill="currentColor" />
-                      Escuchar una muestra<span>~15 s</span>
+                      {t('Escuchar una muestra')}
+                      <span>~15 s</span>
                     </button>
                     <div className="controls-divider" />
                     <div className="slider-heading">
-                      <label htmlFor="speed">Velocidad de lectura</label>
-                      <strong>{draft.settings.speed.toFixed(2).replace(/0$/, '')}×</strong>
+                      <label htmlFor="speed">{t('Velocidad de lectura')}</label>
+                      <strong>
+                        {formatNumber(draft.settings.speed, {
+                          minimumFractionDigits: 1,
+                          maximumFractionDigits: 2
+                        })}
+                        ×
+                      </strong>
                     </div>
                     <input
                       className="range mint-range"
@@ -965,11 +1034,11 @@ export default function App() {
                       onChange={(event) => settings({ speed: Number(event.target.value) })}
                     />
                     <div className="range-labels">
-                      <span>Más pausada</span>
-                      <span>Más ágil</span>
+                      <span>{t('Más pausada')}</span>
+                      <span>{t('Más ágil')}</span>
                     </div>
                     <div className="slider-heading tone-heading">
-                      <label htmlFor="pitch">Tono de voz</label>
+                      <label htmlFor="pitch">{t('Tono de voz')}</label>
                       <strong>
                         {draft.settings.pitch > 0 ? '+' : ''}
                         {draft.settings.pitch} Hz
@@ -986,8 +1055,8 @@ export default function App() {
                       onChange={(event) => settings({ pitch: Number(event.target.value) })}
                     />
                     <div className="range-labels">
-                      <span>Más grave</span>
-                      <span>Más agudo</span>
+                      <span>{t('Más grave')}</span>
+                      <span>{t('Más agudo')}</span>
                     </div>
                     <div className="preset-row">
                       <button
@@ -996,7 +1065,7 @@ export default function App() {
                         }
                         onClick={() => settings({ speed: 1, pitch: 0 })}
                       >
-                        Natural
+                        {t('Natural')}
                       </button>
                       <button
                         className={
@@ -1006,38 +1075,41 @@ export default function App() {
                         }
                         onClick={() => settings({ speed: 1.2, pitch: 0 })}
                       >
-                        Ágil
+                        {t('Ágil')}
                       </button>
                       <button
                         className={draft.settings.pitch === -15 ? 'selected' : ''}
                         onClick={() => settings({ speed: 1.05, pitch: -15 })}
                       >
-                        Grave
+                        {t('Grave')}
                       </button>
                     </div>
                     <label className="pause-control">
-                      Pausa entre párrafos
+                      {t('Pausa entre párrafos')}
                       <select
-                        aria-label="Pausa general entre párrafos"
+                        aria-label={t('Pausa general entre párrafos')}
                         value={draft.pauseMs ?? 350}
                         onChange={(event) => setDraft({ ...draft, pauseMs: +event.target.value })}
                       >
                         {![0, 350, 750, 1500].includes(draft.pauseMs ?? 350) && (
                           <option value={draft.pauseMs}>
-                            {((draft.pauseMs ?? 350) / 1000).toLocaleString('es')} s · personalizada
+                            {((draft.pauseMs ?? 350) / 1000).toLocaleString(language)}{' '}
+                            {t('s · personalizada')}
                           </option>
                         )}
-                        <option value="0">Sin pausa adicional</option>
-                        <option value="350">Breve · 350 ms</option>
-                        <option value="750">Media · 750 ms</option>
-                        <option value="1500">Larga · 1.5 s</option>
+                        <option value="0">{t('Sin pausa adicional')}</option>
+                        <option value="350">{t('Breve · 350 ms')}</option>
+                        <option value="750">{t('Media · 750 ms')}</option>
+                        <option value="1500">{t('Larga · 1.5 s')}</option>
                       </select>
                     </label>
                     <p className="connection-note">
                       <Cloud size={12} />
                       {selectedVoice.provider === 'edge'
-                        ? 'Esta voz neural necesita Internet.'
-                        : 'Esta voz se procesa en tu equipo. El tono local usa un efecto de audio.'}
+                        ? t('Esta voz neural necesita Internet.')
+                        : t(
+                            'Esta voz se procesa en tu equipo. El tono local usa un efecto de audio.'
+                          )}
                     </p>
                   </div>
                 </aside>
@@ -1047,16 +1119,23 @@ export default function App() {
                   <div>
                     <LoaderCircle size={17} className="spin" />
                     <span>
-                      <b>{active.preview ? 'Preparando tu muestra' : stateLabels[active.status]}</b>
+                      <b>
+                        {active.preview ? t('Preparando tu muestra') : stateLabels()[active.status]}
+                      </b>
                       <small>
                         {active.status === 'merging'
-                          ? 'Uniendo los fragmentos en un MP3…'
-                          : `${active.completedChunks} de ${active.totalChunks} fragmentos · ${active.title}`}
+                          ? t('Uniendo los fragmentos en un MP3…')
+                          : t(
+                              '{0} de {1} fragmentos · {2}',
+                              active.completedChunks,
+                              active.totalChunks,
+                              active.title
+                            )}
                       </small>
                     </span>
                     <button onClick={() => api().cancel(active.id).catch(notifyError)}>
                       <Square size={12} />
-                      Cancelar
+                      {t('Cancelar')}
                     </button>
                   </div>
                   <progress max={active.totalChunks || 1} value={active.completedChunks} />
@@ -1068,8 +1147,8 @@ export default function App() {
                     <Sparkles size={18} />
                   </span>
                   <span>
-                    <b>El siguiente paso es escuchar.</b>
-                    <small>Elige tu voz, ajusta el ritmo y dale vida a tu historia.</small>
+                    <b>{t('El siguiente paso es escuchar.')}</b>
+                    <small>{t('Elige tu voz, ajusta el ritmo y dale vida a tu historia.')}</small>
                   </span>
                 </div>
                 <button
@@ -1078,25 +1157,26 @@ export default function App() {
                   disabled={busy || !draft.text.trim()}
                 >
                   {busy ? <LoaderCircle size={17} className="spin" /> : <AudioLines size={18} />}
-                  {busy ? 'Creando audio…' : 'Generar narración'}
+                  {busy ? t('Creando audio…') : t('Generar narración')}
                   <ArrowUpRight size={17} />
                 </button>
               </div>
               <div className="bottom-note">
                 <Headphones size={13} />
-                Tu texto se envía al servicio de voz de Microsoft para generar el audio. La
-                biblioteca se guarda en tu equipo.
+                {t(
+                  'Tu texto se envía al servicio de voz de Microsoft para generar el audio. La biblioteca se guarda en tu equipo.'
+                )}
               </div>
             </>
           )}
           {page === 'voices' && (
             <VoicesPage
-              voices={catalogue}
+              voices={localizedCatalogue}
               selected={draft.settings.voice}
               busy={busy}
               choose={(id) => {
                 settings({ voice: id })
-                setToast(voiceInfo(id, catalogue).name + ' es ahora tu voz narradora.')
+                setToast(t('{0} es ahora tu voz narradora.', voiceInfo(id, catalogue).name))
               }}
               preview={(id) => start(true, id)}
               api={api}
@@ -1107,7 +1187,7 @@ export default function App() {
           )}{' '}
           {page === 'library' && (
             <LibraryPage
-              voices={catalogue}
+              voices={localizedCatalogue}
               jobs={library}
               library={collections}
               filter={projectFilter}
@@ -1139,11 +1219,11 @@ export default function App() {
             </div>
           )}
           <div>
-            <b>{current?.title || 'Tu historia está por sonar'}</b>
+            <b>{current?.title || t('Tu historia está por sonar')}</b>
             <span>
               {currentVoice
-                ? `${currentVoice.name} · ${current?.preview ? 'Muestra de voz' : 'Narración generada'}`
-                : 'Crea tu primera narración'}
+                ? `${currentVoice.name} · ${current?.preview ? t('Muestra de voz') : t('Narración generada')}`
+                : t('Crea tu primera narración')}
             </span>
           </div>
           {current && (
@@ -1155,7 +1235,7 @@ export default function App() {
         <div className="playback">
           <div className="transport">
             <IconButton
-              label="Retroceder 15 segundos"
+              label={t('Retroceder 15 segundos')}
               disabled={!source}
               onClick={() => seek(position - 15)}
             >
@@ -1163,7 +1243,7 @@ export default function App() {
             </IconButton>
             <button
               className="play-toggle"
-              aria-label={playing ? 'Pausar' : 'Reproducir'}
+              aria-label={playing ? t('Pausar') : t('Reproducir')}
               disabled={!source}
               onClick={togglePlay}
             >
@@ -1174,7 +1254,7 @@ export default function App() {
               )}
             </button>
             <IconButton
-              label="Adelantar 15 segundos"
+              label={t('Adelantar 15 segundos')}
               disabled={!source}
               onClick={() => seek(position + 15)}
             >
@@ -1184,7 +1264,7 @@ export default function App() {
           <div className="timeline">
             <span>{time(position)}</span>
             <input
-              aria-label="Posición del audio"
+              aria-label={t('Posición del audio')}
               type="range"
               min="0"
               max={duration || 1}
@@ -1198,7 +1278,7 @@ export default function App() {
         </div>
         <div className="player-actions">
           <IconButton
-            label="Capítulos y marcadores"
+            label={t('Capítulos y marcadores')}
             disabled={!source}
             onClick={() => setReadingOpen((previous) => !previous)}
           >
@@ -1206,7 +1286,7 @@ export default function App() {
           </IconButton>
           <select
             className="playback-speed"
-            aria-label="Velocidad del reproductor"
+            aria-label={t('Velocidad del reproductor')}
             value={playbackRate}
             onChange={(event) => setPlaybackRate(Number(event.target.value))}
           >
@@ -1218,7 +1298,7 @@ export default function App() {
           </select>
           <Volume2 size={16} />
           <input
-            aria-label="Volumen del reproductor"
+            aria-label={t('Volumen del reproductor')}
             type="range"
             min="0"
             max="1"
@@ -1229,7 +1309,7 @@ export default function App() {
           <span className="player-divider" />
           <button className="export-button" onClick={() => exportAudio()} disabled={!source}>
             <Download size={15} />
-            <span>Exportar MP3</span>
+            <span>{t('Exportar MP3')}</span>
           </button>
         </div>
       </footer>
@@ -1262,7 +1342,9 @@ export default function App() {
         onError={() => {
           if (source)
             setToast(
-              'No se pudo reproducir el archivo. Prueba a exportarlo o a generar la narración nuevamente.'
+              t(
+                'No se pudo reproducir el archivo. Prueba a exportarlo o a generar la narración nuevamente.'
+              )
             )
         }}
         onCanPlay={() => {
@@ -1289,14 +1371,14 @@ export default function App() {
             setPdfPreview(null)
             setPage('studio')
             setToast(
-              'PDF importado con los márgenes seleccionados. Revisa el texto antes de narrar.'
+              t('PDF importado con los márgenes seleccionados. Revisa el texto antes de narrar.')
             )
           }}
         />
       )}
       {toolsOpen && (
         <StoryTools
-          voices={catalogue}
+          voices={localizedCatalogue}
           draft={draft}
           update={setDraft}
           close={() => setToolsOpen(false)}
@@ -1305,24 +1387,26 @@ export default function App() {
         />
       )}
       {readingOpen && current && (
-        <section className="reading-panel" aria-label="Capítulos y marcadores">
+        <section className="reading-panel" aria-label={t('Capítulos y marcadores')}>
           <div className="reading-heading">
-            <b>Continúa tu historia</b>
-            <IconButton label="Cerrar marcadores" onClick={() => setReadingOpen(false)}>
+            <b>{t('Continúa tu historia')}</b>
+            <IconButton label={t('Cerrar marcadores')} onClick={() => setReadingOpen(false)}>
               <X size={16} />
             </IconButton>
           </div>
           <p>{current.title}</p>
-          <h3>Capítulos</h3>
+          <h3>{t('Capítulos')}</h3>
           {current.chapters?.map((chapter, index) => (
             <button className="chapter-seek" key={index} onClick={() => seek(chapter.startSeconds)}>
               <BookOpen size={13} />
-              <span>{chapter.title}</span>
+              <span>{chapter.synthetic ? localizeMessage(chapter.title) : chapter.title}</span>
               <small>{time(chapter.startSeconds)}</small>
             </button>
           ))}
           {!current.chapters?.length && (
-            <p className="feature-note">Esta narración anterior no tiene un índice de capítulos.</p>
+            <p className="feature-note">
+              {t('Esta narración anterior no tiene un índice de capítulos.')}
+            </p>
           )}
           {!!current.chapters?.length && (
             <button
@@ -1330,29 +1414,31 @@ export default function App() {
               onClick={async () => {
                 try {
                   const folder = await api().exportChapters(current.id)
-                  if (folder) setToast(`Capítulos exportados a ${folder}`)
+                  if (folder) setToast(t('Capítulos exportados a {0}', folder))
                 } catch (error) {
                   notifyError(error)
                 }
               }}
             >
               <Download size={13} />
-              Exportar MP3 por capítulos
+              {t('Exportar MP3 por capítulos')}
             </button>
           )}
-          <h3>Mis marcadores</h3>
+          <h3>{t('Mis marcadores')}</h3>
           <button
             className="secondary-button"
-            onClick={() => reading.add(current.id, `Marcador · ${time(position)}`, position)}
+            onClick={() => reading.add(current.id, t('Marcador · {0}', time(position)), position)}
           >
             <Plus size={13} />
-            Guardar posición {time(position)}
+            {t('Guardar posición')} {time(position)}
           </button>
           {(reading.bookmarks[current.id] ?? []).map((bookmark) => (
             <div className="bookmark-entry" key={bookmark.id}>
-              <button onClick={() => seek(bookmark.seconds)}>{bookmark.label}</button>
+              <button onClick={() => seek(bookmark.seconds)}>
+                {localizeMessage(bookmark.label)}
+              </button>
               <IconButton
-                label="Eliminar marcador"
+                label={t('Eliminar marcador')}
                 onClick={() => reading.remove(current.id, bookmark.id)}
               >
                 <X size={13} />
@@ -1363,8 +1449,8 @@ export default function App() {
       )}
       {toast && (
         <div className="toast" role="status">
-          <span>{toast}</span>
-          <IconButton label="Cerrar aviso" onClick={() => setToast('')}>
+          <span>{localizeMessage(toast)}</span>
+          <IconButton label={t('Cerrar aviso')} onClick={() => setToast('')}>
             <X size={16} />
           </IconButton>
         </div>
@@ -1380,29 +1466,33 @@ export default function App() {
             aria-labelledby="about-title"
             onClick={(event) => event.stopPropagation()}
           >
-            <IconButton label="Cerrar información" onClick={() => setModal(false)}>
+            <IconButton label={t('Cerrar información')} onClick={() => setModal(false)}>
               <X size={19} />
             </IconButton>
             <span className="brand-symbol">
               <AudioLines size={26} />
             </span>
-            <h2 id="about-title">Historias que se escuchan.</h2>
-            <p>Fábula 0.5.0 · Tus textos, con voz.</p>
+            <h2 id="about-title">{t('Historias que se escuchan.')}</h2>
+            <p>{t('Fábula {0} · Tus textos, con voz.', APP_VERSION)}</p>
             <p>
-              Las voces en línea se generan mediante Microsoft Edge, sin clave de API de pago.
-              Necesitan Internet y su disponibilidad puede cambiar. Tu texto se envía a Microsoft
-              para sintetizarlo.
+              {t(
+                'Las voces en línea se generan mediante Microsoft Edge, sin clave de API de pago. Necesitan Internet y su disponibilidad puede cambiar. Tu texto se envía a Microsoft para sintetizarlo.'
+              )}
             </p>
             <p>
-              Las narraciones y el borrador se guardan en este equipo. Si una generación falla,
-              puedes reanudarla desde tu biblioteca.
+              {t(
+                'Las narraciones y el borrador se guardan en este equipo. Si una generación falla, puedes reanudarla desde tu biblioteca.'
+              )}
             </p>
             <p>
-              Importa Word, EPUB, ODT, RTF, HTML y texto. Los PDF escaneados e imágenes pueden
-              reconocerse con el módulo OCR opcional.
+              {t(
+                'Importa Word, EPUB, ODT, RTF, HTML y texto. Los PDF escaneados e imágenes pueden reconocerse con el módulo OCR opcional.'
+              )}
             </p>
             <p className="about-reference">
-              Elige entre voces en línea y voces locales para adaptar cada lectura a tu gusto.
+              {t(
+                'Elige entre voces en línea y voces locales para adaptar cada lectura a tu gusto.'
+              )}
             </p>
             <button
               className="secondary-button"
@@ -1411,10 +1501,10 @@ export default function App() {
                 setLegalOpen(true)
               }}
             >
-              Privacidad y licencias
+              {t('Privacidad y licencias')}
             </button>
             <button className="primary-button" onClick={() => setModal(false)}>
-              Volver a mis historias
+              {t('Volver a mis historias')}
               <ArrowUpRight size={16} />
             </button>
           </section>

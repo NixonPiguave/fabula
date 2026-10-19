@@ -1,5 +1,5 @@
 FÁBULA — LICENCIA Y AVISOS DE USO
-Versión 0.5.0 · 17 de octubre de 2026
+Versión 0.6.0 · 17 de octubre de 2026
 
 LICENCIA DEL PROGRAMA
 El código propio de Fábula se ofrece bajo GNU GPL, versión 3 o cualquier versión

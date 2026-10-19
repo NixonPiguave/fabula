@@ -1,0 +1,43 @@
+FÁBULA — LICENSE AND USAGE NOTICES
+Version 0.6.0 · 17 October 2026
+
+PROGRAM LICENSE
+Fábula's own code is available under the GNU General Public License, version 3
+or any later version (GPL-3.0-or-later). LICENSE.txt contains the full text.
+You may use, study, modify and redistribute the program, including commercially,
+under that license. This explanatory notice adds no restrictions to the GPL
+and does not require accepting an additional contract to exercise its rights.
+See THIRD_PARTY.txt for component and model notices.
+
+WARRANTY
+The GPL includes warranty disclaimers and liability limitations to the extent
+permitted by applicable law. This notice does not remove mandatory legal rights.
+Review document extraction and transcription: recognition, reading order and
+punctuation may contain errors.
+
+TEXT, VOICES AND AUDIO
+The program license does not grant rights to other people's books, documents,
+recordings, voice models, trademarks or content. Importing a file or generating
+an MP3 does not demonstrate permission to publish it. Check the rights and terms
+applicable to the material and chosen voice, especially when distributing output
+or using it commercially. Installed Windows voices and Piper models retain their
+own licenses. Keep the MODEL_CARD and notices supplied with each model.
+
+ONLINE SERVICES
+The Microsoft Edge reading voice integration is independent. It is not an API
+contracted by Fábula and does not imply Microsoft's endorsement. Working without
+a paid key does not guarantee authorization for every use, permanent access,
+unlimited quotas or commercial rights to voices. The connection library's MIT
+license does not replace service terms. Consult Microsoft's terms and privacy:
+https://www.microsoft.com/servicesagreement
+https://privacy.microsoft.com/en-us/privacystatement
+Availability and compatibility may change. Local voices are an alternative
+when you do not want to send text to an external service.
+
+REDISTRIBUTION
+When distributing a version, preserve licenses and notices and provide complete
+corresponding source, including for components requiring it, in the manner their
+licenses prescribe. Publishing only interface source does not automatically
+satisfy obligations for every included binary. See docs/DISTRIBUCION.txt.
+These notices describe behavior and licensing; they do not certify compliance
+for every jurisdiction or use. Original license texts are authoritative.

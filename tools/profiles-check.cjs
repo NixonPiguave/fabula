@@ -1,5 +1,7 @@
 // Real renderer and IPC integration with an isolated library. No personal data.
-const { app } = require('electron')
+const { app, dialog } = require('electron')
+let confirmResponse = 1
+dialog.showMessageBox = async () => ({ response: confirmResponse, checkboxChecked: false })
 const fs = require('node:fs/promises')
 const { mkdirSync, writeFileSync } = require('node:fs')
 const path = require('node:path')
@@ -189,10 +191,10 @@ app.once('browser-window-created', (_event, win) => {
       console.log(
         'PASS: applying and copying profiles works; preview uses the edited profile rather than hidden studio settings'
       )
-      await js('void(window.confirm=()=>false)')
+      confirmResponse = 0
       await click('[aria-label="Eliminar perfil Lectura pausada"]')
       assert.equal((await boot()).preferences.profiles.length, 4)
-      await js('void(window.confirm=()=>true)')
+      confirmResponse = 1
       await click('[aria-label="Eliminar perfil Lectura pausada"]')
       await until(
         async () => !(await boot()).preferences.profiles.some((item) => item.id === edited.id),
@@ -231,7 +233,7 @@ app.once('browser-window-created', (_event, win) => {
       win.setSize(1440, 960)
       await wait(100)
       await js(
-        `(()=>{const element=document.querySelector('.setting-line select');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(element,'light');element.dispatchEvent(new Event('change',{bubbles:true}))})()`
+        `(()=>{const element=document.querySelector('[aria-label=\"Tema\"]');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(element,'light');element.dispatchEvent(new Event('change',{bubbles:true}))})()`
       )
       await until(async () => (await boot()).preferences.theme === 'light', 'light theme')
       await wait(100)
@@ -240,7 +242,7 @@ app.once('browser-window-created', (_event, win) => {
         (await win.webContents.capturePage()).toPNG()
       )
       await js(
-        `(()=>{const element=document.querySelector('.setting-line select');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(element,'dark');element.dispatchEvent(new Event('change',{bubbles:true}))})()`
+        `(()=>{const element=document.querySelector('[aria-label=\"Tema\"]');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(element,'dark');element.dispatchEvent(new Event('change',{bubbles:true}))})()`
       )
       await until(async () => (await boot()).preferences.theme === 'dark', 'dark theme')
       const overflow = await js(

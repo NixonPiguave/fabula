@@ -14,6 +14,15 @@ Las pruebas unitarias cubren fragmentación Unicode, SSML, capítulos, proyectos
 contraste, documentos, descargas, márgenes PDF y encabezados/pies de página.
 La compilación incluye comprobación estricta de tipos TypeScript.
 
+IDIOMAS
+npm run test:languages
+
+Comprueba ES/EN en las pantallas principales, atributos accesibles, catálogo
+de voces, documentos legales, menús y confirmaciones nativas, validación de
+entradas y progreso real de workers. Recarga la ventana y comprueba persistencia
+y que el manuscrito permanezca idéntico. Las pruebas unitarias comprueban
+interpolación, migración de preferencias y ausencia de JSX sin catálogo.
+
 PERFILES DE VOZ E INTERFAZ
 npm run test:profiles
 
@@ -64,9 +73,13 @@ INSTALADOR
 tools/installer-check.ps1 es una comprobación para PowerShell 7. Cierra Fábula
 antes de ejecutarla. Se niega a continuar si encuentra una instalación o accesos
 directos existentes; en ese caso, utiliza una máquina virtual Windows limpia.
-Instala en .tools/installer-check/application, comprueba el registro y el arranque
+Ejecuta por separado: pwsh -File tools/installer-check.ps1 -Language es
+y pwsh -File tools/installer-check.ps1 -Language en. Instala en
+.tools/installer-check-es/application o .tools/installer-check-en/application, comprueba el registro y el arranque
 con un perfil aislado, y después desinstala esa copia de prueba. Contrasta los
-archivos de la biblioteca personal antes y después. No borra esa biblioteca.
+archivos de la biblioteca personal antes y después. Comprueba que cada idioma
+del instalador inicialice un perfil nuevo y que una preferencia existente
+prevalezca aunque difiera del instalador. No borra esa biblioteca.
 El asistente visual, actualizaciones del sistema y alertas de firma también deben
 revisarse en una máquina limpia antes de distribuir un lanzamiento público.
 

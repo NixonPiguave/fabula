@@ -1,6 +1,6 @@
 {
   "name": "fabula-desktop",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Tus textos, con voz: lecturas, novelas, documentos y audiolibros",
   "private": true,
   "license": "GPL-3.0-or-later",
@@ -30,7 +30,8 @@
     "test:profiles": "node tools/run-desktop-check.mjs tools/profiles-check.cjs",
     "licenses": "node tools/license-notices.mjs",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test:languages": "node tools/run-desktop-check.mjs tools/languages-check.cjs"
   },
   "build": {
     "appId": "com.fabula.desktop",
@@ -46,7 +47,8 @@
       "assets/**/*",
       "PRIVACIDAD.txt",
       "AVISOS_DE_USO.txt",
-      "LICENCIAS_DE_COMPONENTES.txt"
+      "LICENCIAS_DE_COMPONENTES.txt",
+      "docs/en/*.txt"
     ],
     "asarUnpack": [
       "node_modules/ffmpeg-static/**/*",
@@ -73,7 +75,13 @@
       "deleteAppDataOnUninstall": false,
       "runAfterFinish": false,
       "perMachine": false,
-      "allowElevation": false
+      "allowElevation": false,
+      "installerLanguages": [
+        "es_ES",
+        "en_US"
+      ],
+      "displayLanguageSelector": true,
+      "include": "assets/installer/language.nsh"
     }
   },
   "dependencies": {
@@ -93,6 +101,7 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@babel/parser": "7.29.9",
     "@types/html-to-text": "9.0.4",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

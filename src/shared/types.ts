@@ -222,6 +222,7 @@ export type ImportResult = {
 }
 export type StartInput = Draft & { preview?: boolean }
 export type DesktopApi = {
+  confirm: (message: string) => Promise<boolean>
   boot: () => Promise<BootState>
   refreshVoices: () => Promise<VoiceInfo[]>
   importVoice: (input: { name?: string; speaker?: number }) => Promise<VoiceInfo[] | null>

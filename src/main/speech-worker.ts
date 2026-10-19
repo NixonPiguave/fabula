@@ -1,3 +1,4 @@
+import { t, setLanguage, normalizeLanguage } from '../shared/i18n'
 import { parentPort, workerData } from 'node:worker_threads'
 import { createWriteStream } from 'node:fs'
 import { mkdir, stat, rename, writeFile } from 'node:fs/promises'
@@ -8,6 +9,8 @@ import { MsEdgeTTS, OUTPUT_FORMAT } from 'msedge-tts'
 import { splitText, escapeXml } from './core/text'
 import { atomicJson } from './core/files'
 import type { JobRecord } from '../shared/types'
+
+setLanguage(normalizeLanguage(workerData.uiLanguage) ?? 'es')
 
 const { job, dir, ffmpeg } = workerData as { job: JobRecord; dir: string; ffmpeg: string }
 const manifest = join(dir, 'job.json')
@@ -30,7 +33,7 @@ async function synthesize(text: string, path: string) {
       })
       await pipeline(audioStream, createWriteStream(`${path}.part`))
       if ((await stat(`${path}.part`)).size < 100)
-        throw new Error('El servicio devolvió audio vacío.')
+        throw new Error(t('El servicio devolvió audio vacío.'))
       await rename(`${path}.part`, path)
       return
     } catch (error) {
@@ -96,7 +99,7 @@ async function main() {
     })
     child.once('error', reject)
     child.once('exit', (code) =>
-      code === 0 ? resolve() : reject(new Error(`No se pudo ensamblar el MP3: ${error}`))
+      code === 0 ? resolve() : reject(new Error(t('No se pudo ensamblar el MP3: {0}', error)))
     )
     // Parent tracks this PID so cancellation and shutdown also stop the encoder.
     parentPort!.postMessage({ encoderPid: child.pid })
@@ -109,7 +112,10 @@ main().catch(async (error) => {
   const detail = error instanceof Error ? error.message : String(error)
   await update({
     status: 'failed',
-    error: `No se pudo completar la narración. Comprueba tu conexión e inténtalo de nuevo. Los fragmentos terminados se conservan. Detalle: ${detail}`
+    error: t(
+      'No se pudo completar la narración. Comprueba tu conexión e inténtalo de nuevo. Los fragmentos terminados se conservan. Detalle: {0}',
+      detail
+    )
   }).catch(() => {})
   process.exitCode = 1
 })

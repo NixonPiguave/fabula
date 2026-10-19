@@ -1,9 +1,12 @@
+import { t, setLanguage, normalizeLanguage } from '../shared/i18n'
 import { parentPort, workerData } from 'node:worker_threads'
 import { readFile } from 'node:fs/promises'
 import { join, basename, extname } from 'node:path'
 import { availableParallelism } from 'node:os'
 import { command } from './core/process'
 import type { Transcript } from '../shared/studio'
+
+setLanguage(normalizeLanguage(workerData.uiLanguage) ?? 'es')
 
 const { path, dir, modulePath, ffmpeg, language, id } = workerData as {
   path: string
@@ -20,7 +23,7 @@ function progress(phase: string, progress: number) {
 async function main() {
   const wav = join(dir, 'input.wav'),
     output = join(dir, 'transcript')
-  progress('Preparando el audio', 0.02)
+  progress(t('Preparando el audio'), 0.02)
   await command(
     ffmpeg,
     [
@@ -41,7 +44,7 @@ async function main() {
     ],
     { onPid }
   )
-  progress('Transcribiendo localmente', 0.08)
+  progress(t('Transcribiendo localmente'), 0.08)
   await command(
     join(modulePath, 'whisper-cli.exe'),
     [
@@ -64,7 +67,7 @@ async function main() {
       onPid,
       onStderr: (value) => {
         const match = /progress\s*=\s*(\d+)%/.exec(value)
-        if (match) progress('Transcribiendo localmente', 0.08 + (+match[1] / 100) * 0.9)
+        if (match) progress(t('Transcribiendo localmente'), 0.08 + (+match[1] / 100) * 0.9)
       }
     }
   )
@@ -79,7 +82,7 @@ async function main() {
       (entry: any) => entry.text && Number.isFinite(entry.start) && Number.isFinite(entry.end)
     )
   if (!segments.length)
-    throw new Error('No se detectó voz. Comprueba el archivo y el idioma elegido.')
+    throw new Error(t('No se detectó voz. Comprueba el archivo y el idioma elegido.'))
   const transcript: Transcript = {
     id,
     title: basename(path, extname(path)).slice(0, 160),

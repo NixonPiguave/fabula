@@ -1,11 +1,13 @@
 FÁBULA — PRIVACIDAD
-Versión del aviso: 0.5.0 · 17 de octubre de 2026
+Versión del aviso: 0.6.0 · 17 de octubre de 2026
 
 QUÉ SE GUARDA EN TU EQUIPO
 Fábula guarda el borrador, textos de narraciones, audio generado, proyectos,
 preferencias, perfiles de voz, diccionario, transcripciones, posición de escucha
 y modelos descargados en %APPDATA%/Fábula. Los archivos exportados se guardan
 en la ubicación que elijas. El portable también utiliza esa carpeta de datos.
+El idioma de la interfaz se guarda en las preferencias locales. El instalador
+solo establece un valor inicial para perfiles nuevos.
 No hay una cuenta de Fábula, publicidad ni telemetría propia implementada.
 
 CUÁNDO SALE INFORMACIÓN DEL EQUIPO

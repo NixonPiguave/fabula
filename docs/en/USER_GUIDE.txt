@@ -1,0 +1,67 @@
+FÁBULA — USER GUIDE
+
+GET STARTED
+Fábula is a Windows x64 narration studio. Paste text or import PDF, TXT,
+Markdown, DOCX, EPUB, HTML, ODT or RTF. Review the extracted text, select a voice
+and adjust speed, pitch, volume and pauses. Generate narration, listen within
+the app or export MP3 audio. Long texts are processed in parts; practical limits
+depend on disk space, memory and the voice provider.
+
+LANGUAGE
+Open Preferences → Application language and choose Español or English.
+The interface changes immediately and the preference is saved locally.
+The installer offers both languages and initializes the app with your choice.
+An existing preference wins on upgrades. A new portable profile follows a
+supported system language; existing profiles without a language field keep
+Spanish. Changing the interface does not translate manuscripts or rename
+projects, profiles or imported voices. Narrator voices and transcription
+language are independent choices. Windows-owned controls follow the operating
+system language. Original third-party license texts remain unmodified.
+
+VOICES AND PROFILES
+Online Edge reading voices need Internet access and send narration text to
+Microsoft through an independent integration. Availability and provider terms
+can change. Windows SAPI voices run locally. To use Piper offline, install its
+optional engine and import a compatible .onnx model with its .onnx.json file.
+Keep the model's license and MODEL_CARD. Audio recordings are not voice models.
+Voice profiles save reusable settings. Choose a voice and pace, preview them,
+save a named profile, then choose Use in studio for your next narration.
+The pronunciation dictionary changes speech-engine input, preserving your text.
+
+DOCUMENTS AND LIBRARY
+PDF preview lets you include or exclude headers and footers, adjust margin
+areas and remove repeated margin text and page numbers. Review before applying.
+Scans need the optional Spanish OCR module. Complex layouts may need correction.
+Story tools detect chapters, edit paragraph voices and pauses, and preview text
+cleanup. Original chapter headings are retained. Export a full MP3 or chapters.
+Organize narrations into projects, resume interrupted generation and save
+playback positions or bookmarks. Deleting a narration moves its saved text and
+audio to the Windows Recycle Bin; exported audio remains. Deleting a project
+keeps its narrations.
+
+SPEECH TO TEXT
+Download the optional multilingual Whisper Base module from Preferences.
+Import audio/video or record dictation. Select the audio language separately
+from the interface language. Dictation supports up to 15 minutes per recording;
+import files for longer audio. Recognition runs locally. Review recognition
+errors and export TXT, DOCX, SRT or WebVTT, or send the text to the studio.
+
+FILES, INSTALLATION AND DOWNLOADS
+Fabula.exe is portable. Fabula-Instalador.exe adds a Windows setup wizard and
+shortcuts. Both use %APPDATA%/Fábula for personal data; uninstallation preserves
+it. Neither requires the end user to install Node.js or development dependencies.
+Do not upload your personal data folder to GitHub or include it in bug reports.
+GitHub Releases can host installers and portable downloads directly; no external
+hosting is required. See https://github.com/NixonPiguave/fabula/releases.
+The current public release provides source code. Public binaries are pending
+the native-component and provider redistribution review in docs/DISTRIBUCION.txt.
+The automatic source-code ZIP is not an installer.
+
+BUILD AND VERIFY
+Use Windows x64 and Node.js 24 or later. Run npm ci, npm test and npm run build.
+Use npm run dev for development, npm run test:languages for real ES/EN checks,
+and npm run test:profiles for profile integration with a local Windows voice.
+npm run package:all creates both EXE files and SHA-256 sidecars in the project
+root. Intermediate output goes to .build; generated files stay outside Git.
+See docs/CALIDAD.txt for full integration and isolated installation checks.
+Read PRIVACY.txt, USAGE_NOTICES.txt and THIRD_PARTY.txt before distributing.

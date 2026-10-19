@@ -150,14 +150,29 @@ try {
   }
   await capture('studio.png')
   await nav('Preferencias')
+  await evaluate('document.querySelector(".main-content").scrollTop=0;true')
+  await capture('language-settings.png')
+  await evaluate(
+    `(()=>{const e=document.querySelector('.language-settings select');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(e,'en');e.dispatchEvent(new Event('change',{bubbles:true}));return true})()`
+  )
+  await until(() => evaluate('document.documentElement.lang === "en"'), 'English interface')
+  await nav('Narration studio')
+  await capture('studio-en.png')
+  await nav('Preferences')
+  await evaluate('document.querySelector(".main-content").scrollTop=0;true')
+  await capture('language-settings-en.png')
+  await evaluate(
+    `(()=>{const e=document.querySelector('.language-settings select');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(e,'es');e.dispatchEvent(new Event('change',{bubbles:true}));return true})()`
+  )
+  await until(() => evaluate('document.documentElement.lang === "es"'), 'Spanish interface')
   await evaluate('document.querySelector(".voice-profiles").scrollIntoView({block:"start"});true')
   await capture('profiles.png')
   await evaluate(
-    `(()=>{const select=document.querySelector('.setting-line select');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(select,'light');select.dispatchEvent(new Event('change',{bubbles:true}));return true})()`
+    `(()=>{const select=document.querySelector('[aria-label=\"Tema\"]');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(select,'light');select.dispatchEvent(new Event('change',{bubbles:true}));return true})()`
   )
   await capture('profiles-light.png')
   await evaluate(
-    `(()=>{const select=document.querySelector('.setting-line select');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(select,'dark');select.dispatchEvent(new Event('change',{bubbles:true}));return true})()`
+    `(()=>{const select=document.querySelector('[aria-label=\"Tema\"]');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(select,'dark');select.dispatchEvent(new Event('change',{bubbles:true}));return true})()`
   )
   await nav('Explorar voces')
   await evaluate('document.querySelector(".main-content").scrollTop=0;true')

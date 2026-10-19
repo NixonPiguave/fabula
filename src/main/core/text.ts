@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n'
 import { createHash } from 'node:crypto'
 import type { VoiceSettings } from '../../shared/types'
 
@@ -19,7 +20,7 @@ export function normalizeText(text: string): string {
 
 /** Bound escaped SSML bytes, not JS characters; preserve every normalized character. */
 export function splitText(input: string, maxBytes = 2400): string[] {
-  if (!Number.isInteger(maxBytes) || maxBytes < 12) throw new Error('Invalid chunk budget')
+  if (!Number.isInteger(maxBytes) || maxBytes < 12) throw new Error(t('Invalid chunk budget'))
   const chunks: string[] = []
   let buffer = '',
     bytes = 0,

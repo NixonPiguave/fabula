@@ -11,3 +11,17 @@ Los proveedores de narración son Edge, Windows SAPI y Piper. Las síntesis en l
 Los procesos se lanzan sin shell, con ventanas ocultas y seguimiento de PID para cancelar. El motor Piper usa rutas relativas dentro de los datos administrados para evitar problemas de su CLI C++ con caracteres Unicode. FFmpeg normaliza voces locales a MP3 mono de 24 kHz y une los capítulos. El protocolo local de reproducción valida IDs y admite peticiones por rangos.
 
 Las descargas opcionales fijan URL, tamaño y SHA-256. Los modelos de pruebas no se distribuyen con Fábula. Los datos de usuario se guardan aparte del código; los perfiles de pruebas permanecen dentro de .tools. Retirar una narración o voz usa la Papelera de Windows, previa confirmación y comprobación de ruta.
+
+IDIOMAS
+src/shared/i18n contiene un catálogo común con claves españolas tipadas y
+traducciones inglesas. React se suscribe al idioma activo; el proceso principal
+localiza sus menús, validaciones y diálogos. Los workers reciben uiLanguage,
+independiente del idioma de reconocimiento. Los mensajes guardados de trabajos
+anteriores se presentan en el idioma actual sin traducir nombres o manuscritos.
+preferences.json guarda language. El instalador escribe únicamente
+resources/default-language.json; no escribe preferencias ni datos de usuario.
+Los perfiles nuevos usan ese valor o el idioma compatible del sistema.
+La carga de preferencias antiguas sin language conserva español. Una preferencia
+existente prevalece frente a cambios posteriores del instalador.
+Los capítulos con títulos generados se marcan synthetic para localizarlos
+sin modificar títulos extraídos del documento.

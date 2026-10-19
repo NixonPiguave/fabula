@@ -1,6 +1,9 @@
+import { t, setLanguage, normalizeLanguage } from '../shared/i18n'
 import { parentPort, workerData } from 'node:worker_threads'
 import { readFile } from 'node:fs/promises'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
+
+setLanguage(normalizeLanguage(workerData.uiLanguage) ?? 'es')
 
 async function main() {
   const data = new Uint8Array(await readFile(workerData.path))
@@ -21,7 +24,9 @@ async function main() {
     const text = pages.join('\n\n').trim()
     if (!text)
       throw new Error(
-        'Este PDF no contiene texto extraíble. Si es un escaneo, primero necesita reconocimiento de texto (OCR).'
+        t(
+          'Este PDF no contiene texto extraíble. Si es un escaneo, primero necesita reconocimiento de texto (OCR).'
+        )
       )
     parentPort!.postMessage({ text, pages: document.numPages })
   } finally {

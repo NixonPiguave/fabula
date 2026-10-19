@@ -1,3 +1,4 @@
+import { t, setLanguage, normalizeLanguage } from '../shared/i18n'
 import { parentPort, workerData } from 'node:worker_threads'
 import { createWriteStream } from 'node:fs'
 import { mkdir, stat, rename, writeFile, link, copyFile } from 'node:fs/promises'
@@ -11,6 +12,8 @@ import { command } from './core/process'
 import type { JobRecord } from '../shared/types'
 import type { VoiceRuntime } from './voices'
 import { synthesizeLocal } from './core/external-speech'
+
+setLanguage(normalizeLanguage(workerData.uiLanguage) ?? 'es')
 
 const {
   job,
@@ -51,7 +54,7 @@ async function synthesize(unit: Unit, path: string) {
       })
       await pipeline(audioStream, createWriteStream(`${path}.part`))
       if (!(await exists(`${path}.part`)))
-        throw new Error('El servicio devolvió un fragmento vacío.')
+        throw new Error(t('El servicio devolvió un fragmento vacío.'))
       await rename(`${path}.part`, path)
       return
     } catch (error) {
@@ -67,7 +70,7 @@ async function main() {
   await mkdir(dir, { recursive: true })
   await mkdir(cache, { recursive: true })
   const plan = narrationPlan(job)
-  if (!plan.units.length) throw new Error('No hay texto que narrar.')
+  if (!plan.units.length) throw new Error(t('No hay texto que narrar.'))
   await update({
     status: 'generating',
     completedChunks: 0,
@@ -157,7 +160,12 @@ async function main() {
         if (match) duration = +match[1] * 3600 + +match[2] * 60 + +match[3]
       }
     })
-    chapters.push({ title: plan.chapters[index].title, file, startSeconds })
+    chapters.push({
+      title: plan.chapters[index].title,
+      synthetic: plan.chapters[index].synthetic,
+      file,
+      startSeconds
+    })
     startSeconds += duration
   }
   await writeFile(
@@ -192,7 +200,10 @@ async function main() {
 main().catch(async (error) => {
   await update({
     status: 'failed',
-    error: `La narración no terminó. Puedes reanudarla conservando el audio ya generado. ${error instanceof Error ? error.message : String(error)}`
+    error: t(
+      'La narración no terminó. Puedes reanudarla conservando el audio ya generado. {0}',
+      error instanceof Error ? error.message : String(error)
+    )
   }).catch(() => {})
   process.exitCode = 1
 })

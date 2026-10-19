@@ -1,3 +1,4 @@
+import { t } from '../shared/i18n'
 import { createHash, randomUUID } from 'node:crypto'
 import { createReadStream } from 'node:fs'
 import { readFile, writeFile, copyFile, mkdir, stat, rm, lstat } from 'node:fs/promises'
@@ -78,7 +79,7 @@ export class VoiceRegistry {
     private changed: (voices: VoiceInfo[]) => void
   ) {}
   private folder(id: string) {
-    if (!/^piper:[a-f0-9]{64}$/.test(id)) throw new Error('Voz importada inválida.')
+    if (!/^piper:[a-f0-9]{64}$/.test(id)) throw new Error(t('Voz importada inválida.'))
     return join(this.root, id.slice(6))
   }
   list(): VoiceInfo[] {
@@ -90,12 +91,15 @@ export class VoiceRegistry {
         name: voice.name,
         locale: voice.locale,
         country: voice.locale,
-        accent: 'Piper local',
-        gender: 'Voz importada',
+        accent: t('Piper local'),
+        gender: t('Voz importada'),
         color: 'teal',
         initials: voice.name.charAt(0).toUpperCase(),
         provider: 'piper' as const,
-        description: `Modelo Piper importado · hablante ${voice.speaker}. Se procesa en tu equipo, sin conexión.`
+        description: t(
+          'Modelo Piper importado · hablante {0}. Se procesa en tu equipo, sin conexión.',
+          voice.speaker
+        )
       }))
     ]
   }
@@ -106,7 +110,9 @@ export class VoiceRegistry {
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT')
         throw new Error(
-          'No se pudo leer el registro de voces externas. Conserva voices.json antes de repararlo.'
+          t(
+            'No se pudo leer el registro de voces externas. Conserva voices.json antes de repararlo.'
+          )
         )
     }
     await this.refresh()
@@ -149,21 +155,22 @@ export class VoiceRegistry {
                 .digest('hex')
             const info: VoiceInfo = {
               id,
-              name: entry.name + (architecture === 32 ? ' · 32 bits' : ''),
+              name: entry.name + (architecture === 32 ? t(' · 32 bits') : ''),
               locale: entry.locale,
               country: entry.locale,
-              accent: `Windows SAPI · ${architecture} bits`,
+              accent: t('Windows SAPI · {0} bits', architecture),
               gender:
                 entry.gender === 'Female'
-                  ? 'Femenina'
+                  ? t('Femenina')
                   : entry.gender === 'Male'
-                    ? 'Masculina'
-                    : 'Voz instalada',
+                    ? t('Masculina')
+                    : t('Voz instalada'),
               color: 'amber',
               initials: entry.name.replace(/^Microsoft\s+/i, '').charAt(0),
               provider: 'sapi',
-              description:
+              description: t(
                 'Voz instalada en Windows. Funciona sin conexión; su calidad depende del motor instalado.'
+              )
             }
             return {
               provider: 'sapi' as const,
@@ -207,7 +214,7 @@ export class VoiceRegistry {
       const imported = this.imported.find((voice) => voice.id === id)
       if (!imported)
         throw new Error(
-          'Una voz seleccionada ya no está disponible. Vuelve a importarla o elige otra voz.'
+          t('Una voz seleccionada ya no está disponible. Vuelve a importarla o elige otra voz.')
         )
       const folder = this.folder(id)
       return [
@@ -239,9 +246,10 @@ export class VoiceRegistry {
       .parse(raw)
     return this.exclusive(async () => {
       const chosen = await dialog.showOpenDialog(window, {
-        title: 'Importar una voz Piper (.onnx)',
+        buttonLabel: t('Abrir'),
+        title: t('Importar una voz Piper (.onnx)'),
         properties: ['openFile'],
-        filters: [{ name: 'Modelo Piper ONNX', extensions: ['onnx'] }]
+        filters: [{ name: t('Modelo Piper ONNX'), extensions: ['onnx'] }]
       })
       if (chosen.canceled) return null
       const model = chosen.filePaths[0],
@@ -252,33 +260,40 @@ export class VoiceRegistry {
         modelStat.size < 1000 ||
         modelStat.size > 500 * 1024 * 1024
       )
-        throw new Error('Selecciona un modelo Piper ONNX de hasta 500 MB.')
+        throw new Error(t('Selecciona un modelo Piper ONNX de hasta 500 MB.'))
       let configFile = model + '.json'
       try {
         await stat(configFile)
       } catch {
         const config = await dialog.showOpenDialog(window, {
-          title: 'Seleccionar la configuración .onnx.json de esta voz',
+          buttonLabel: t('Abrir'),
+          title: t('Seleccionar la configuración .onnx.json de esta voz'),
           properties: ['openFile'],
-          filters: [{ name: 'Configuración Piper', extensions: ['json'] }]
+          filters: [{ name: t('Configuración Piper'), extensions: ['json'] }]
         })
         if (config.canceled) return null
         configFile = config.filePaths[0]
       }
       if ((await stat(configFile)).size > 2 * 1024 * 1024)
-        throw new Error('El archivo de configuración es demasiado grande.')
+        throw new Error(t('El archivo de configuración es demasiado grande.'))
       const configBytes = await readFile(configFile)
       let config: z.infer<typeof piperConfigSchema>
       try {
         config = piperConfigSchema.parse(JSON.parse(configBytes.toString('utf8')))
       } catch {
         throw new Error(
-          'El JSON no es una configuración Piper compatible. Selecciona el archivo .onnx.json que acompaña a este modelo.'
+          t(
+            'El JSON no es una configuración Piper compatible. Selecciona el archivo .onnx.json que acompaña a este modelo.'
+          )
         )
       }
       if (input.speaker >= config.num_speakers)
         throw new Error(
-          `Esta voz tiene ${config.num_speakers} hablantes. Elige un índice desde 0 hasta ${config.num_speakers - 1}.`
+          t(
+            'Esta voz tiene {0} hablantes. Elige un índice desde 0 hasta {1}.',
+            config.num_speakers,
+            config.num_speakers - 1
+          )
         )
       const digest = createHash('sha256')
           .update(await sha256(model))
@@ -287,7 +302,7 @@ export class VoiceRegistry {
           .digest('hex'),
         id = `piper:${digest}`
       if (this.imported.some((voice) => voice.id === id))
-        throw new Error('Este modelo y hablante ya están importados.')
+        throw new Error(t('Este modelo y hablante ya están importados.'))
       const folder = this.folder(id)
       await mkdir(folder, { recursive: true })
       await copyFile(model, join(folder, 'model.onnx'))
@@ -313,21 +328,23 @@ export class VoiceRegistry {
   async remove(window: BrowserWindow, id: string) {
     return this.exclusive(async () => {
       const voice = this.imported.find((voice) => voice.id === id)
-      if (!voice) throw new Error('Solo se pueden retirar modelos Piper importados desde Fábula.')
+      if (!voice)
+        throw new Error(t('Solo se pueden retirar modelos Piper importados desde Fábula.'))
       const answer = await dialog.showMessageBox(window, {
         type: 'question',
-        title: 'Retirar voz importada',
-        message: `¿Retirar «${voice.name}»?`,
-        detail:
-          'Los audios generados se conservan. Para generar o reanudar con esta voz tendrás que importarla de nuevo. Su carpeta se moverá a la Papelera de Windows.',
-        buttons: ['Cancelar', 'Retirar voz'],
+        title: t('Retirar voz importada'),
+        message: t('¿Retirar «{0}»?', voice.name),
+        detail: t(
+          'Los audios generados se conservan. Para generar o reanudar con esta voz tendrás que importarla de nuevo. Su carpeta se moverá a la Papelera de Windows.'
+        ),
+        buttons: [t('Cancelar'), t('Retirar voz')],
         defaultId: 0,
         cancelId: 0
       })
       if (answer.response !== 1) return false
       const folder = resolve(this.folder(id))
       if (dirname(folder) !== resolve(this.root) || (await lstat(folder)).isSymbolicLink())
-        throw new Error('Ruta de voz no válida.')
+        throw new Error(t('Ruta de voz no válida.'))
       await shell.trashItem(folder)
       const next = this.imported.filter((voice) => voice.id !== id)
       await atomicJson(join(this.root, 'voices.json'), next)

@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n'
 import { readFile } from 'node:fs/promises'
 import { posix, extname } from 'node:path'
 import { unzipSync } from 'fflate'
@@ -20,7 +21,7 @@ export function decodeText(bytes: Uint8Array): string {
 
 function parseXml(value: string, preserveOrder = false): any {
   if (/<!DOCTYPE|<!ENTITY/i.test(value))
-    throw new Error('El documento XML contiene declaraciones no admitidas.')
+    throw new Error(t('El documento XML contiene declaraciones no admitidas.'))
   return new XMLParser({
     ignoreAttributes: false,
     preserveOrder,
@@ -35,11 +36,15 @@ function archive(data: Uint8Array) {
     filter: (file) => {
       if (!/\.(?:xml|opf|xhtml|html|htm)$/i.test(file.name)) return false
       if (file.originalSize > 64 * 1024 * 1024)
-        throw new Error('Una sección del documento supera el tamaño seguro de extracción (64 MB).')
+        throw new Error(
+          t('Una sección del documento supera el tamaño seguro de extracción (64 MB).')
+        )
       expanded += file.originalSize
       if (expanded > 128 * 1024 * 1024)
         throw new Error(
-          'El documento contiene demasiados datos de texto descomprimidos para importarlo de forma segura (128 MB).'
+          t(
+            'El documento contiene demasiados datos de texto descomprimidos para importarlo de forma segura (128 MB).'
+          )
         )
       return true
     }
@@ -98,7 +103,7 @@ export async function documentText(path: string): Promise<string> {
   const zip = archive(bytes)
   function entry(name: string) {
     const content = zip[name]
-    if (!content) throw new Error(`Falta una sección del documento: ${name}`)
+    if (!content) throw new Error(t('Falta una sección del documento: {0}', name))
     return decodeText(content)
   }
   if (extension === '.docx') return xmlParagraphs(parseXml(entry('word/document.xml'), true), ['p'])
@@ -108,12 +113,12 @@ export async function documentText(path: string): Promise<string> {
       zip['META-INF/encryption.xml'] &&
       /\.(?:xhtml|html|htm)(?:["'#?\s<]|$)/i.test(entry('META-INF/encryption.xml'))
     )
-      throw new Error('El texto del EPUB está cifrado o protegido y no se puede extraer.')
+      throw new Error(t('El texto del EPUB está cifrado o protegido y no se puede extraer.'))
     const container = parseXml(entry('META-INF/container.xml'))
     const rootfiles = container.container?.rootfiles?.rootfile
     const rootfile = (Array.isArray(rootfiles) ? rootfiles[0] : rootfiles)?.['@_full-path']
     if (typeof rootfile !== 'string')
-      throw new Error('El EPUB no contiene un índice de lectura válido.')
+      throw new Error(t('El EPUB no contiene un índice de lectura válido.'))
     const opf = parseXml(entry(rootfile)),
       pkg = opf.package
     const items = Array.isArray(pkg?.manifest?.item)
@@ -129,13 +134,13 @@ export async function documentText(path: string): Promise<string> {
       if (!item || !/xhtml|html/.test(item['@_media-type'] ?? '')) continue
       const href = decodeURIComponent(String(item['@_href']).split('#')[0])
       if (/^[a-z]+:/i.test(href))
-        throw new Error('El EPUB contiene una referencia externa no admitida.')
+        throw new Error(t('El EPUB contiene una referencia externa no admitida.'))
       const name = posix.normalize(posix.join(posix.dirname(rootfile), href))
-      if (name.startsWith('../')) throw new Error('El EPUB contiene una ruta inválida.')
+      if (name.startsWith('../')) throw new Error(t('El EPUB contiene una ruta inválida.'))
       sections.push(htmlText(entry(name)))
     }
-    if (!sections.length) throw new Error('No se encontraron capítulos de texto en el EPUB.')
+    if (!sections.length) throw new Error(t('No se encontraron capítulos de texto en el EPUB.'))
     return sections.join('\n\n')
   }
-  throw new Error('Formato de documento no admitido.')
+  throw new Error(t('Formato de documento no admitido.'))
 }

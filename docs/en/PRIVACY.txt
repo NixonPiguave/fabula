@@ -1,0 +1,46 @@
+FÁBULA — PRIVACY
+Notice version: 0.6.0 · 17 October 2026
+
+WHAT STAYS ON YOUR COMPUTER
+Fábula stores drafts, narration text, generated audio, projects, preferences,
+voice profiles, pronunciation dictionary, transcriptions, playback positions
+and downloaded models in %APPDATA%/Fábula. Exports go to your chosen location.
+The portable application uses that same data folder. There is no Fábula account,
+advertising or first-party telemetry implemented in this version.
+Your interface language is stored locally in your preferences. On a new
+installation it follows the installer choice, or a supported system language.
+
+WHEN INFORMATION LEAVES YOUR COMPUTER
+Voices marked as online send narration text, including samples, and synthesis
+parameters to Microsoft. The provider also receives normal network connection
+data such as your IP address. This is an independent integration with Edge's
+reading service, not a service operated by Fábula. Microsoft's documentation
+governs its data handling and retention:
+https://privacy.microsoft.com/en-us/privacystatement
+This notice does not claim Microsoft immediately deletes those texts.
+Profile previews use an example phrase. Studio previews may use the beginning
+of your editor text. Check the voice before synthesizing confidential content.
+Windows and Piper voices process text locally without sending it to Microsoft.
+
+EXTRACTION, RECOGNITION AND DOWNLOADS
+Document extraction, OCR and Whisper transcription run locally. Dictation asks
+for microphone permission and processes the recording on this computer. OCR,
+Whisper and Piper modules are downloaded only when requested. These downloads
+contact GitHub and Hugging Face servers, which receive network connection data.
+Documents, text and recordings are not attached to module download requests.
+
+DELETION AND RETENTION
+Narrations remain until you delete them. Deleting from the library moves their
+files to the Windows Recycle Bin; this is not secure deletion. Exported MP3 files
+remain in their chosen locations. Deleting a project keeps its narrations.
+Removing a voice model keeps audio already generated. Uninstalling preserves
+the data folder to protect your library. To remove all local data, close Fábula
+and delete %APPDATA%/Fábula, exports and, where applicable, the Recycle Bin.
+Do not upload this data folder to a public repository or attach it to issues.
+
+SCOPE
+This notice describes this local version. Distributors adding servers,
+analytics or synchronization must disclose those changes and meet applicable
+requirements. Online provider terms are separate from Fábula's code license.
+See also USAGE_NOTICES.txt. Original third-party licenses remain in their
+original language; translated explanations do not replace those texts.

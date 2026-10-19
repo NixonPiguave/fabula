@@ -114,3 +114,24 @@ Los perfiles se crean y editan en Preferencias: elige voz, velocidad, tono, volu
 Privacidad y licencias están disponibles también desde «Acerca de Fábula» dentro de la aplicación. Consulta PRIVACIDAD.txt, AVISOS_DE_USO.txt y docs/DISTRIBUCION.txt antes de distribuir una versión.
 
 Arquitectura: docs/ARQUITECTURA.txt. Contribuciones: CONTRIBUIR.txt. Licencias: LICENSE.txt, TERCEROS.txt y LICENCIAS_DE_COMPONENTES.txt. La compilación regenera los avisos de componentes a partir de las dependencias instaladas.
+
+IDIOMA DE LA APLICACIÓN
+En Preferencias, usa «Idioma de la aplicación» para elegir Español o English.
+Los menús, pantallas, ayudas, etiquetas accesibles, estados, avisos y diálogos
+propios cambian al instante. La preferencia se guarda en este equipo.
+El asistente de instalación permite elegir su idioma y lo utiliza como idioma
+inicial de la aplicación. En una actualización se conserva el idioma guardado.
+El portable usa el idioma compatible del sistema al crear un perfil nuevo.
+Las instalaciones anteriores mantienen español hasta que el usuario lo cambie.
+Tus textos, nombres de proyectos, perfiles y voces importadas se conservan.
+El idioma de transcripción y la voz narradora siguen siendo opciones separadas.
+Los controles propios de Windows y los nombres de voces del sistema siguen
+la configuración del sistema operativo. Las licencias originales se conservan
+sin traducciones que sustituyan su texto; los avisos de la app están en ES/EN.
+
+DESCARGAS EN GITHUB
+No se necesita un sitio externo: Releases permite adjuntar EXE y SHA-256
+directamente a una publicación. El código del repositorio no incluye los EXE.
+Consulta https://github.com/NixonPiguave/fabula/releases para ver disponibilidad.
+Los binarios públicos siguen pendientes de la revisión de redistribución
+descrita en docs/DISTRIBUCION.txt; no confundas el ZIP del código con el instalador.

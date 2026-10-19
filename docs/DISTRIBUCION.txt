@@ -47,7 +47,7 @@ ni servicios ajenos. Antes de distribuir binarios:
 
 PAQUETES Y DATOS
 Fabula.exe funciona sin instalación. Fabula-Instalador.exe ofrece un asistente
-para Windows x64, elección de carpeta y accesos directos. Ambos usan
+para Windows x64, elección de idioma, carpeta y accesos directos. Ambos usan
 %APPDATA%/Fábula y deben ejecutarse de uno en uno. Desinstalar conserva esa
 carpeta. Los archivos exportados permanecen donde los guarde cada usuario.
 Los paquetes de desarrollo no están firmados digitalmente; la firma requiere
@@ -64,6 +64,22 @@ El ZIP automático de GitHub contiene los archivos del repositorio, no las
 fuentes de todos los binarios externos. Mantén disponibles las fuentes y los
 avisos que deban acompañar a los paquetes. Marca como preliminares las
 publicaciones que todavía necesiten revisión o validación adicional.
+
+ALOJAR LAS DESCARGAS EN GITHUB
+No hace falta un servicio externo. En Releases se pueden adjuntar el instalador,
+el portable y sus SHA-256, junto con las fuentes y avisos correspondientes.
+No añadas EXE al historial Git. Una Release debe indicar claramente si ofrece
+solo código o también paquetes para usuarios; evita enlaces de descarga vacíos.
+La publicación actual ofrece código fuente mientras se completa la revisión
+de redistribución de componentes nativos y servicios descrita arriba.
+El empaquetado local no equivale a una certificación para distribución pública.
+
+IDIOMA DEL INSTALADOR
+El asistente admite español e inglés y muestra el selector de idioma al inicio.
+Guarda el valor inicial dentro de la instalación; la app solo lo utiliza cuando
+no existe una preferencia de usuario. En despliegues silenciosos se admite
+/APP_LANGUAGE=es o /APP_LANGUAGE=en. Comprueba ambos y la conservación de
+preferencias al actualizar antes de adjuntar los paquetes a una publicación.
 
 DOCUMENTACIÓN DE REFERENCIA
 https://www.gnu.org/licenses/gpl-3.0.html

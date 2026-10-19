@@ -1,7 +1,7 @@
 // Integration check of our own Electron app in an isolated workspace profile.
 const { app, BrowserWindow, dialog, net } = require('electron')
 const fs = require('node:fs/promises')
-const { mkdirSync } = require('node:fs')
+const { mkdirSync, writeFileSync } = require('node:fs')
 const path = require('node:path')
 const assert = require('node:assert/strict')
 const { pathToFileURL } = require('node:url')
@@ -13,9 +13,15 @@ mkdirSync(root, { recursive: true })
 process.env.FABULA_DATA_DIR = path.join(root, 'profile')
 process.env.FABULA_TEST_MODE = '1'
 mkdirSync(process.env.FABULA_DATA_DIR, { recursive: true })
+writeFileSync(
+  path.join(process.env.FABULA_DATA_DIR, 'preferences.json'),
+  JSON.stringify({ language: 'es' })
+)
 app.setPath('userData', process.env.FABULA_DATA_DIR)
 app.setPath('sessionData', process.env.FABULA_DATA_DIR)
 app.disableHardwareAcceleration()
+dialog.showMessageBox = async () => ({ response: 1, checkboxChecked: false })
+
 dialog.showSaveDialog = async () => ({ canceled: false, filePath: path.join(root, 'exported.mp3') })
 dialog.showOpenDialog = async () => ({
   canceled: false,
@@ -48,7 +54,6 @@ app.once('browser-window-created', (_event, win) => {
       assert.equal(await js(`typeof window.require`), 'undefined')
       assert.equal(await js(`typeof window.process`), 'undefined')
       console.log('PASS: sandboxed desktop renderer and preload bridge')
-      await js(`void (window.confirm = () => true)`)
       const title = 'El comienzo de una nueva historia'
       const text =
         'Capítulo 1. Un mundo por descubrir.\n\nAquella noche, el joven abrió los ojos y descubrió un mundo diferente. Desde la ventana podía ver las montañas, cubiertas por una niebla dorada. Su hermano lo esperaba junto a la puerta.\n\n—Es hora de partir —dijo, con una sonrisa.\n\nNo sabía qué les deparaba el destino, pero estaba decidido a proteger a su familia. Y así comenzó una aventura que ninguno de los dos olvidaría.'

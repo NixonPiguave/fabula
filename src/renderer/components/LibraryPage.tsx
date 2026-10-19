@@ -1,3 +1,4 @@
+import { t, getLanguage, localizeMessage, formatNumber } from '../../shared/i18n'
 import { useMemo, useRef, useState } from 'react'
 import {
   LibraryBig,
@@ -21,14 +22,14 @@ import { useDialogFocus } from '../hooks/useDialogFocus'
 import VoiceArt from './VoiceArt'
 import { voiceInfo } from '../../shared/voice-catalogue'
 
-const labels = {
-  generating: 'Narrando',
-  merging: 'Preparando MP3',
-  completed: 'Lista para escuchar',
-  cancelled: 'Cancelada',
-  failed: 'No se pudo completar',
-  interrupted: 'Lista para reanudar'
-}
+const labels = () => ({
+  generating: t('Narrando'),
+  merging: t('Preparando MP3'),
+  completed: t('Lista para escuchar'),
+  cancelled: t('Cancelada'),
+  failed: t('No se pudo completar'),
+  interrupted: t('Lista para reanudar')
+})
 type Props = {
   voices: VoiceInfo[]
   jobs: JobSummary[]
@@ -79,10 +80,10 @@ function ProjectDialog({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="feature-modal-heading">
-          <h2 id="project-dialog-title">{project ? 'Editar proyecto' : 'Nuevo proyecto'}</h2>
+          <h2 id="project-dialog-title">{project ? t('Editar proyecto') : t('Nuevo proyecto')}</h2>
           <button
             className="icon-button"
-            aria-label="Cerrar proyecto"
+            aria-label={t('Cerrar proyecto')}
             disabled={saving}
             onClick={close}
           >
@@ -109,10 +110,10 @@ function ProjectDialog({
           }}
         >
           <label>
-            Nombre del proyecto
+            {t('Nombre del proyecto')}
             <input
               autoFocus
-              aria-label="Nombre del proyecto"
+              aria-label={t('Nombre del proyecto')}
               maxLength={80}
               value={name}
               onChange={(event) => setName(event.target.value)}
@@ -120,9 +121,9 @@ function ProjectDialog({
             />
           </label>
           <label className="project-color">
-            Color del proyecto
+            {t('Color del proyecto')}
             <input
-              aria-label="Color del proyecto"
+              aria-label={t('Color del proyecto')}
               type="color"
               value={color}
               onChange={(event) => setColor(event.target.value)}
@@ -130,16 +131,16 @@ function ProjectDialog({
           </label>
           {error && (
             <p className="form-error" role="alert">
-              {error}
+              {localizeMessage(error)}
             </p>
           )}
           <div className="button-row">
             <button type="button" className="secondary-button" disabled={saving} onClick={close}>
-              Cancelar
+              {t('Cancelar')}
             </button>
             <button type="submit" className="primary-button" disabled={saving || !name.trim()}>
               {saving ? <LoaderCircle size={14} className="spin" /> : <Check size={14} />}
-              {project ? 'Guardar cambios' : 'Crear proyecto'}
+              {project ? t('Guardar cambios') : t('Crear proyecto')}
             </button>
           </div>
         </form>
@@ -190,41 +191,41 @@ export default function LibraryPage({
     <>
       <div className="page-heading library-heading">
         <div>
-          <span className="eyebrow">HISTORIAS QUE COMPARTEN UN MUNDO</span>
+          <span className="eyebrow">{t('HISTORIAS QUE COMPARTEN UN MUNDO')}</span>
           <h1>
-            {selected?.name ?? (filter === 'unassigned' ? 'Sin proyecto.' : 'Tu biblioteca.')}
+            {selected?.name ?? (filter === 'unassigned' ? t('Sin proyecto.') : t('Tu biblioteca.'))}
           </h1>
           <p>
             {selected
-              ? 'Las narraciones de este proyecto, juntas y listas para continuar.'
-              : 'Organiza tus historias por proyecto y encuentra tu próxima escucha.'}
+              ? t('Las narraciones de este proyecto, juntas y listas para continuar.')
+              : t('Organiza tus historias por proyecto y encuentra tu próxima escucha.')}
           </p>
         </div>
         <button className="primary-button" onClick={newStory}>
           <Plus size={16} />
-          Nueva narración
+          {t('Nueva narración')}
         </button>
       </div>
-      <section className="project-collection" aria-label="Proyectos">
+      <section className="project-collection" aria-label={t('Proyectos')}>
         <div className="project-section-heading">
           <h2>
             <FolderOpen size={16} />
-            Tus proyectos <span>{library.projects.length}</span>
+            {t('Tus proyectos')} <span>{library.projects.length}</span>
           </h2>
           <button className="secondary-button" onClick={() => setDialog({ project: null })}>
             <Plus size={14} />
-            Nuevo proyecto
+            {t('Nuevo proyecto')}
           </button>
         </div>
         <div className="project-filters">
           <button className={filter === 'all' ? 'selected' : ''} onClick={() => setFilter('all')}>
-            Todas <span>{jobs.length}</span>
+            {t('Todas')} <span>{jobs.length}</span>
           </button>
           <button
             className={filter === 'unassigned' ? 'selected' : ''}
             onClick={() => setFilter('unassigned')}
           >
-            Sin proyecto <span>{counts.unassigned ?? 0}</span>
+            {t('Sin proyecto')} <span>{counts.unassigned ?? 0}</span>
           </button>
         </div>
         <div className="project-grid">
@@ -236,7 +237,7 @@ export default function LibraryPage({
               <button
                 className="project-card-open"
                 onClick={() => setFilter(project.id)}
-                aria-label={`Abrir proyecto ${project.name}`}
+                aria-label={t('Abrir proyecto {0}', project.name)}
                 aria-pressed={filter === project.id}
               >
                 <span className="project-folder" style={{ color: project.color }}>
@@ -246,15 +247,15 @@ export default function LibraryPage({
                   <b>{project.name}</b>
                   <small>
                     {counts[project.id] ?? 0}{' '}
-                    {(counts[project.id] ?? 0) === 1 ? 'narración' : 'narraciones'}
+                    {(counts[project.id] ?? 0) === 1 ? t('narración') : t('narraciones')}
                   </small>
                 </span>
               </button>
               <div className="project-card-actions">
                 <button
                   className="icon-button"
-                  title="Editar proyecto"
-                  aria-label={`Editar proyecto ${project.name}`}
+                  title={t('Editar proyecto')}
+                  aria-label={t('Editar proyecto {0}', project.name)}
                   onClick={() => setDialog({ project })}
                 >
                   <Pencil size={13} />
@@ -262,14 +263,16 @@ export default function LibraryPage({
                 <button
                   className="icon-button danger-action"
                   disabled={pending !== null}
-                  title="Eliminar proyecto conservando sus narraciones"
-                  aria-label={`Eliminar proyecto ${project.name}`}
+                  title={t('Eliminar proyecto conservando sus narraciones')}
+                  aria-label={t('Eliminar proyecto {0}', project.name)}
                   onClick={async () => {
                     setPending(project.id)
                     try {
                       if (await api().deleteProject(project.id)) {
                         if (filter === project.id) setFilter('unassigned')
-                        notify('Proyecto eliminado. Sus narraciones se conservaron sin proyecto.')
+                        notify(
+                          t('Proyecto eliminado. Sus narraciones se conservaron sin proyecto.')
+                        )
                       }
                     } catch (reason) {
                       error(reason)
@@ -286,20 +289,20 @@ export default function LibraryPage({
         </div>
         {!library.projects.length && (
           <p className="project-empty-note">
-            Crea un proyecto para reunir capítulos, versiones o historias del mismo universo.
+            {t('Crea un proyecto para reunir capítulos, versiones o historias del mismo universo.')}
           </p>
         )}
       </section>
       <div className="library-tools">
         <span>
-          {filtered.length} {filtered.length === 1 ? 'narración' : 'narraciones'}
-          {selected ? ` en ${selected.name}` : ''}
+          {filtered.length} {filtered.length === 1 ? t('narración') : t('narraciones')}
+          {selected ? t(' en {0}', selected.name) : ''}
         </span>
         <label className="search-box">
           <Search size={15} />
           <input
-            aria-label="Buscar narraciones"
-            placeholder="Buscar una historia…"
+            aria-label={t('Buscar narraciones')}
+            placeholder={t('Buscar una historia…')}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
@@ -310,10 +313,10 @@ export default function LibraryPage({
           <span>
             <LibraryBig size={35} strokeWidth={1.3} />
           </span>
-          <h2>El comienzo de tu colección.</h2>
-          <p>Tu primera narración está a unas palabras de distancia.</p>
+          <h2>{t('El comienzo de tu colección.')}</h2>
+          <p>{t('Tu primera narración está a unas palabras de distancia.')}</p>
           <button className="secondary-button" onClick={newStory}>
-            Ir al estudio
+            {t('Ir al estudio')}
           </button>
         </div>
       ) : (
@@ -326,19 +329,20 @@ export default function LibraryPage({
                 <h3>{job.title}</h3>
                 <p>
                   {voiceInfo(job.settings.voice, voices).name} ·{' '}
-                  {new Intl.NumberFormat('es').format(job.words)} palabras · {job.settings.speed}×
+                  {new Intl.NumberFormat(getLanguage()).format(job.words)} {t('palabras ·')}{' '}
+                  {formatNumber(job.settings.speed)}×
                 </p>
-                <span className={`status-pill ${job.status}`}>{labels[job.status]}</span>
+                <span className={`status-pill ${job.status}`}>{labels()[job.status]}</span>
                 {job.error && (
                   <details className="job-error">
-                    <summary>Ver detalle</summary>
-                    {job.error}
+                    <summary>{t('Ver detalle')}</summary>
+                    {localizeMessage(job.error)}
                   </details>
                 )}
                 <label className="narration-project">
                   <FolderOpen size={12} />
                   <select
-                    aria-label={`Proyecto de ${job.title}`}
+                    aria-label={t('Proyecto de {0}', job.title)}
                     disabled={pending !== null}
                     value={library.assignments[job.id] ?? ''}
                     onChange={async (event) => {
@@ -353,7 +357,7 @@ export default function LibraryPage({
                       }
                     }}
                   >
-                    <option value="">Sin proyecto</option>
+                    <option value="">{t('Sin proyecto')}</option>
                     {library.projects.map((project) => (
                       <option value={project.id} key={project.id}>
                         {project.name}
@@ -363,7 +367,7 @@ export default function LibraryPage({
                 </label>
               </div>
               <time dateTime={job.createdAt}>
-                {new Date(job.createdAt).toLocaleString('es', {
+                {new Date(job.createdAt).toLocaleString(getLanguage(), {
                   day: 'numeric',
                   month: 'short',
                   hour: '2-digit',
@@ -375,16 +379,16 @@ export default function LibraryPage({
                   <>
                     <button
                       className="icon-button"
-                      aria-label={`Reproducir ${job.title}`}
-                      title="Reproducir"
+                      aria-label={t('Reproducir {0}', job.title)}
+                      title={t('Reproducir')}
                       onClick={() => play(job)}
                     >
                       {playing && currentId === job.id ? <Pause size={18} /> : <Play size={18} />}
                     </button>
                     <button
                       className="icon-button"
-                      aria-label={`Exportar ${job.title} como MP3`}
-                      title="Exportar MP3"
+                      aria-label={t('Exportar {0} como MP3', job.title)}
+                      title={t('Exportar MP3')}
                       onClick={() => exportAudio(job.id)}
                     >
                       <Download size={17} />
@@ -393,15 +397,15 @@ export default function LibraryPage({
                 ) : ['failed', 'interrupted', 'cancelled'].includes(job.status) ? (
                   <button className="secondary-button" disabled={busy} onClick={() => resume(job)}>
                     <RotateCcw size={14} />
-                    Reanudar
+                    {t('Reanudar')}
                   </button>
                 ) : (
                   <LoaderCircle size={18} className="spin" />
                 )}
                 <button
                   className="icon-button"
-                  aria-label={`Abrir texto de ${job.title}`}
-                  title="Abrir texto"
+                  aria-label={t('Abrir texto de {0}', job.title)}
+                  title={t('Abrir texto')}
                   onClick={() => open(job)}
                 >
                   <FileText size={17} />
@@ -410,10 +414,10 @@ export default function LibraryPage({
                   className="icon-button danger-action"
                   title={
                     ['generating', 'merging'].includes(job.status)
-                      ? 'Cancela la narración antes de borrarla'
-                      : 'Borrar narración'
+                      ? t('Cancela la narración antes de borrarla')
+                      : t('Borrar narración')
                   }
-                  aria-label={`Borrar narración ${job.title}`}
+                  aria-label={t('Borrar narración {0}', job.title)}
                   disabled={pending !== null || ['generating', 'merging'].includes(job.status)}
                   onClick={async () => {
                     setPending(job.id)
@@ -432,8 +436,10 @@ export default function LibraryPage({
           {!filtered.length && (
             <p className="no-results">
               {query
-                ? 'No hay historias que coincidan con tu búsqueda.'
-                : 'Este grupo todavía no tiene narraciones. Puedes moverlas aquí desde «Sin proyecto» o crear una nueva.'}
+                ? t('No hay historias que coincidan con tu búsqueda.')
+                : t(
+                    'Este grupo todavía no tiene narraciones. Puedes moverlas aquí desde «Sin proyecto» o crear una nueva.'
+                  )}
             </p>
           )}
         </div>
@@ -446,8 +452,8 @@ export default function LibraryPage({
             await api().saveProject({ id: dialog.project?.id, name, color })
             notify(
               dialog.project
-                ? 'Proyecto actualizado.'
-                : 'Proyecto creado. Ya puedes añadir narraciones.'
+                ? t('Proyecto actualizado.')
+                : t('Proyecto creado. Ya puedes añadir narraciones.')
             )
           }}
         />

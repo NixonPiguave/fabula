@@ -1,3 +1,4 @@
+import { t } from '../shared/i18n'
 import { randomUUID } from 'node:crypto'
 import { atomicJson, readJson } from './core/files'
 import {
@@ -27,7 +28,7 @@ export class ProjectStore {
   }
   requireProject(id: string | null | undefined) {
     if (id && !this.value.projects.some((project) => project.id === id))
-      throw new Error('El proyecto ya no existe. Elige otro proyecto.')
+      throw new Error(t('El proyecto ya no existe. Elige otro proyecto.'))
   }
   private commit(edit: (value: LibraryState) => void): Promise<LibraryState> {
     const operation = this.pending
@@ -54,10 +55,10 @@ export class ProjectStore {
             project.name.toLocaleLowerCase() === input.name.toLocaleLowerCase()
         )
       )
-        throw new Error('Ya existe un proyecto con ese nombre.')
+        throw new Error(t('Ya existe un proyecto con ese nombre.'))
       if (input.id) {
         const project = state.projects.find((project) => project.id === input.id)
-        if (!project) throw new Error('El proyecto ya no existe.')
+        if (!project) throw new Error(t('El proyecto ya no existe.'))
         Object.assign(project, input)
       } else
         state.projects.push({ ...input, id: randomUUID(), createdAt: new Date().toISOString() })
@@ -66,7 +67,7 @@ export class ProjectStore {
   remove(id: string) {
     return this.commit((state) => {
       if (!state.projects.some((project) => project.id === id))
-        throw new Error('El proyecto ya no existe.')
+        throw new Error(t('El proyecto ya no existe.'))
       state.projects = state.projects.filter((project) => project.id !== id)
       for (const [job, project] of Object.entries(state.assignments))
         if (project === id) delete state.assignments[job]
@@ -75,7 +76,7 @@ export class ProjectStore {
   assign(job: string, project: string | null) {
     return this.commit((state) => {
       if (project && !state.projects.some((item) => item.id === project))
-        throw new Error('El proyecto ya no existe.')
+        throw new Error(t('El proyecto ya no existe.'))
       if (project) state.assignments[job] = project
       else delete state.assignments[job]
     })

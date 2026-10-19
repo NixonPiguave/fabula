@@ -1,3 +1,4 @@
+import { t, setLanguage, normalizeLanguage, userError } from '../shared/i18n'
 import { parentPort, workerData } from 'node:worker_threads'
 import { readFile } from 'node:fs/promises'
 import { extname, dirname, join } from 'node:path'
@@ -7,6 +8,8 @@ import { createCanvas } from '@napi-rs/canvas'
 import { createWorker, type Worker as OcrWorker } from 'tesseract.js'
 import { documentText } from './import/formats'
 import { pdfLines, type PdfPage, type PdfLine } from '../shared/pdf'
+
+setLanguage(normalizeLanguage(workerData.uiLanguage) ?? 'es')
 
 const { path, ocrPath } = workerData as { path: string; ocrPath?: string }
 const ocrRequire = createRequire(import.meta.url)
@@ -19,7 +22,9 @@ function progress(phase: string, value: number) {
 async function recognize(bytes: Uint8Array) {
   if (!ocrPath)
     throw new Error(
-      'Este archivo necesita OCR. Instala el módulo OCR en Preferencias y usa «Importar con OCR».'
+      t(
+        'Este archivo necesita OCR. Instala el módulo OCR en Preferencias y usa «Importar con OCR».'
+      )
     )
   if (!ocr)
     ocr = await createWorker('spa', 1, {
@@ -32,7 +37,7 @@ async function recognize(bytes: Uint8Array) {
       logger: (event) => {
         if (event.status === 'recognizing text')
           progress(
-            `Reconociendo página ${pageIndex + 1} de ${pageCount}`,
+            t('Reconociendo página {0} de {1}', pageIndex + 1, pageCount),
             (pageIndex + event.progress) / pageCount
           )
       }
@@ -51,7 +56,7 @@ async function main() {
     if (['.png', '.jpg', '.jpeg', '.tif', '.tiff', '.webp', '.bmp'].includes(extension))
       text = (await recognize(await readFile(path))).text
     else if (extension !== '.pdf') {
-      progress('Extrayendo el texto del documento', 0.1)
+      progress(t('Extrayendo el texto del documento'), 0.1)
       text = await documentText(path)
     } else {
       const task = getDocument({ data: new Uint8Array(await readFile(path)), useSystemFonts: true })
@@ -91,7 +96,9 @@ async function main() {
               height = Math.ceil(viewport.height)
             if (!ocrPath)
               throw new Error(
-                'El PDF contiene páginas escaneadas. Usa «Importar con OCR» para extraerlas también.'
+                t(
+                  'El PDF contiene páginas escaneadas. Usa «Importar con OCR» para extraerlas también.'
+                )
               )
             if (
               !Number.isSafeInteger(width) ||
@@ -101,7 +108,9 @@ async function main() {
               width * height > 40_000_000
             )
               throw new Error(
-                'Una página es demasiado grande para OCR. Reduce su resolución y vuelve a intentarlo.'
+                t(
+                  'Una página es demasiado grande para OCR. Reduce su resolución y vuelve a intentarlo.'
+                )
               )
             const canvas = createCanvas(width, height)
             await page.render({
@@ -126,7 +135,7 @@ async function main() {
           })
           parts.push(pageText)
           page.cleanup()
-          progress(`Página ${pageIndex + 1} de ${pageCount}`, (pageIndex + 1) / pageCount)
+          progress(t('Página {0} de {1}', pageIndex + 1, pageCount), (pageIndex + 1) / pageCount)
         }
         text = parts.join('\n\n')
       } finally {
@@ -135,7 +144,7 @@ async function main() {
     }
     if (!text.trim())
       throw new Error(
-        'No se encontró texto en el documento. Revisa la calidad y la orientación del archivo.'
+        t('No se encontró texto en el documento. Revisa la calidad y la orientación del archivo.')
       )
     parentPort!.postMessage({
       kind: 'result',
@@ -150,7 +159,10 @@ async function main() {
 main().catch((error) => {
   parentPort!.postMessage({
     kind: 'error',
-    error: error instanceof Error ? error.message : String(error)
+    error: userError(
+      error,
+      'No se pudo leer el documento. Comprueba que el archivo sea válido, no esté protegido y tenga un formato compatible.'
+    )
   })
   process.exitCode = 1
 })

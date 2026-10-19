@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n'
 import { writeFile, rename, mkdir, readFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
 
@@ -16,7 +17,7 @@ export function safeName(value: string): string {
     value
       .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_')
       .slice(0, 120)
-      .replace(/[. ]+$/g, '') || 'Sin título'
+      .replace(/[. ]+$/g, '') || t('Sin título')
   if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(name)) name = `_${name}`
   return name
 }
