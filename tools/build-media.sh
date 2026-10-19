@@ -17,6 +17,8 @@ cd lame-3.100
 make -j2
 make install
 cp COPYING "$out/runtime/LAME-LICENSE.txt"
+cp /usr/share/doc/mingw-w64-common/copyright "$out/runtime/MINGW-NOTICES.txt"
+cp /usr/share/doc/gcc-mingw-w64-base/copyright "$out/runtime/GCC-RUNTIME-NOTICES.txt"
 cp config.log "$out/corresponding-source/LAME-config.log"
 cd "$work/sources"
 tar -xf ffmpeg-9.0.2.tar.xz
