@@ -1,7 +1,7 @@
 param([ValidateSet('es', 'en')][string]$Language = 'es')
 $ErrorActionPreference = 'Stop'
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
-$testRoot = Join-Path $projectRoot ".tools\installer-check-$Language"
+$testRoot = Join-Path $projectRoot ".tools\installer-public-check-$Language"
 $installRoot = [IO.Path]::GetFullPath((Join-Path $testRoot 'application'))
 if (-not $installRoot.StartsWith($projectRoot + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Test installation must stay inside the project.' }
 if (Test-Path -LiteralPath $installRoot) { throw 'A previous test folder exists. Inspect it before running again.' }
@@ -42,7 +42,7 @@ try {
   $entries = @(Find-FabulaInstallation)
   $expectedUninstaller = '"' + (Join-Path $installRoot 'Uninstall Fabula.exe') + '"'
   if ($entries.Count -ne 1 -or -not ([string]$entries[0].GetValue('UninstallString')).StartsWith($expectedUninstaller, [StringComparison]::OrdinalIgnoreCase)) { throw 'Unexpected installation registry location.' }
-  if ($entries[0].GetValue('DisplayVersion') -ne '0.6.0') { throw 'Incorrect installed version.' }
+  if ($entries[0].GetValue('DisplayVersion') -ne '0.7.0') { throw 'Incorrect installed version.' }
   $env:FABULA_EXECUTABLE = $executable
   $env:FABULA_EXPECT_LANGUAGE = $Language
   $env:FABULA_PORTABLE_CHECK_ROOT = Join-Path $testRoot 'runtime'
@@ -53,7 +53,7 @@ try {
   $env:FABULA_EXPECT_LANGUAGE = $otherLanguage
   Push-Location $projectRoot
   try { node tools/portable-check.mjs; if ($LASTEXITCODE -ne 0) { throw 'Existing language preference was not preserved.' } } finally { Pop-Location }
-  Write-Output 'PASS: installer registers version 0.6.0 in the selected folder; installed app starts with an isolated profile'
+  Write-Output 'PASS: installer registers version 0.7.0 in the selected folder; installed app starts with an isolated profile'
 } finally {
   Remove-Item Env:FABULA_EXPECT_LANGUAGE -ErrorAction SilentlyContinue
   Remove-Item Env:FABULA_SEED_LANGUAGE -ErrorAction SilentlyContinue
@@ -72,5 +72,5 @@ if (Test-Path -LiteralPath (Join-Path $installRoot 'Fabula.exe')) { throw 'Unins
 if (Find-FabulaInstallation) { throw 'Uninstaller left its registry entry.' }
 $after = Get-LibraryDigest
 if ($before -ne $after) { throw 'The personal library changed during the installer test.' }
-@{ ok = $true; installedVersion = '0.6.0'; installerLanguage = $Language; existingPreferencePreserved = $true; uninstalled = $true; personalLibraryUnchanged = $true } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $testRoot 'result.json') -Encoding utf8
+@{ ok = $true; installedVersion = '0.7.0'; installerLanguage = $Language; existingPreferencePreserved = $true; uninstalled = $true; personalLibraryUnchanged = $true } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $testRoot 'result.json') -Encoding utf8
 Write-Output 'PASS: uninstall removes the test installation and preserves the personal library unchanged'

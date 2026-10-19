@@ -1,24 +1,49 @@
-import { mkdir, stat } from 'node:fs/promises'
-import { createWriteStream } from 'node:fs'
-import { pipeline } from 'node:stream/promises'
-import { MsEdgeTTS, OUTPUT_FORMAT } from 'msedge-tts'
-const root = '.tools/fixtures'
+// Generate a fictional audio fixture using an installed Windows SAPI voice.
+import { mkdir, writeFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
+import { spawnSync } from 'node:child_process'
+const root = resolve('.tools/fixtures')
 await mkdir(root, { recursive: true })
-const target = `${root}/jorge.mp3`
-if (
-  await stat(target)
-    .then((info) => info.size > 1000)
-    .catch(() => false)
-)
-  process.exit(0)
-const tts = new MsEdgeTTS({ connectionTimeoutMs: 15000, synthesisTimeoutMs: 45000 })
-try {
-  await tts.setMetadata('es-MX-JorgeNeural', OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3)
-  const { audioStream } = tts.toStream(
-    'Aquella noche, el joven abrió los ojos y descubrió un mundo diferente. Su hermano lo esperaba junto a la puerta. No sabía qué les deparaba el destino, pero estaba decidido a proteger a su familia.'
-  )
-  await pipeline(audioStream, createWriteStream(target))
-  console.log('Fixture ficticio creado:', target)
-} finally {
-  tts.close()
+const script = resolve('assets/native/sapi.ps1')
+const run = (request) => {
+  const file = resolve(root, 'request.json')
+  return writeFile(file, JSON.stringify(request)).then(() => {
+    const result = spawnSync(
+      'powershell.exe',
+      [
+        '-NoLogo',
+        '-NoProfile',
+        '-NonInteractive',
+        '-ExecutionPolicy',
+        'Bypass',
+        '-File',
+        script,
+        '-RequestFile',
+        file
+      ],
+      { encoding: 'utf8', windowsHide: true }
+    )
+    if (result.status !== 0) throw Error(result.stderr)
+    return result.stdout.replace(/^\uFEFF/, '').trim()
+  })
 }
+const voices = JSON.parse(await run({ operation: 'list' }))
+const voice = voices.find((item) => item.locale.startsWith('es')) || voices[0]
+if (!voice) throw Error('Install a Windows SAPI voice to generate audio fixtures')
+const output = resolve(root, 'sample.wav')
+await run({
+  operation: 'speak',
+  name: voice.name,
+  output,
+  ssml:
+    '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="' +
+    voice.locale +
+    '">Aquella noche, Clara abrió la puerta del jardín. Su hermano la esperaba junto al camino. La historia acababa de comenzar.</speak>'
+})
+const result = spawnSync(
+  resolve('.tools/media-runtime/ffmpeg.exe'),
+  ['-v', 'error', '-y', '-i', output, '-c:a', 'libmp3lame', resolve(root, 'sample.mp3')],
+  { encoding: 'utf8', windowsHide: true }
+)
+if (result.status !== 0) throw Error(result.stderr)
+console.log('Local audio fixture created:', resolve(root, 'sample.mp3'))

@@ -13,7 +13,7 @@ const project = {
   color: '#a1ecc3',
   createdAt: new Date().toISOString()
 }
-const settings = { voice: 'es-MX-JorgeNeural', speed: 1, pitch: 0, volume: 1 }
+const settings = { voice: 'system-default', speed: 1, pitch: 0, volume: 1 }
 const text = `Capítulo 1 · El jardín de las estaciones
 
 Al llegar la primavera, Clara abrió la puerta del antiguo invernadero. La luz de la mañana atravesaba los cristales y dibujaba pequeñas islas doradas sobre las mesas de madera. Todo parecía esperar una primera palabra.
@@ -50,7 +50,7 @@ await writeFile(
       {
         id: randomUUID(),
         name: 'Lectura ágil',
-        settings: { ...settings, voice: 'es-MX-DaliaNeural', speed: 1.15 },
+        settings: { ...settings, voice: 'system-default', speed: 1.15 },
         pauseMs: 350
       }
     ]
@@ -125,6 +125,14 @@ try {
   await until(
     () => evaluate('document.querySelector(".autosave")?.textContent === "Borrador guardado"'),
     'renderer'
+  )
+  await evaluate(
+    `window.fabula.boot().then(async state => {const voice=state.voices[0]; if(voice){await window.fabula.savePreferences({...state.preferences,profiles:state.preferences.profiles.map(p=>({...p,settings:{...p.settings,voice:voice.id}}))})}return true})`
+  )
+  await call('Page.reload')
+  await until(
+    () => evaluate('document.querySelector(".autosave")?.textContent === "Borrador guardado"'),
+    'local voice profile reload'
   )
   await call('Emulation.setDeviceMetricsOverride', {
     width: 1440,

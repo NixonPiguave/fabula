@@ -6,14 +6,13 @@ Abrir la aplicación
 
 Ejecuta Fabula.exe, directamente en esta carpeta, o utiliza Fabula-Instalador.exe para instalarla. Cierra cualquier otra instancia de Fábula antes de abrirla. No necesita instalador, Node, Python ni FFmpeg instalados en el equipo.
 
-El ejecutable es portable en el sentido de que funciona sin instalación. La biblioteca, preferencias, modelos y borradores se guardan en %APPDATA%/Fábula, no dentro del EXE. Para llevar los datos a otro equipo, copia también esa carpeta con la aplicación cerrada. Esta distribución de desarrollo no está firmada digitalmente.
+El ejecutable es portable en el sentido de que funciona sin instalación. La biblioteca, preferencias, modelos y borradores se guardan en %APPDATA%/Fábula, no dentro del EXE. Para llevar los datos a otro equipo, copia también esa carpeta con la aplicación cerrada. Los ejecutables no están firmados digitalmente.
 
 Funciones
 
 - Texto pegado y documentos PDF, TXT, Markdown, DOCX, EPUB, HTML, ODT y RTF.
 - PDF con vista previa: incluir o excluir encabezados/pies, ajustar márgenes superior e inferior, quitar números de página y detectar títulos repetidos. Las opciones se guardan y se pueden revisar antes de importar. Un encabezado de capítulo que sí pertenece al cuerpo se conserva mientras quede dentro de la zona elegida.
 - OCR en español para imágenes y PDF escaneados, con las mismas opciones de márgenes sobre las líneas reconocidas.
-- Quince voces neurales en español, entre ellas Jorge, Dalia, Álvaro, Elvira, Tomás, Elena, Luis, Andrea, Gonzalo, Salomé, Alex, Camila, Lorenzo, Catalina y Ximena.
 - Voces Windows SAPI de 32 y 64 bits, detectadas desde Explorar voces.
 - Modelos Piper importados para síntesis local y sin conexión.
 - Velocidad, tono, volumen, pausas, perfiles guardados y diccionario de pronunciación.
@@ -25,9 +24,10 @@ Funciones
 
 Los textos largos se dividen automáticamente. La aplicación no impone un máximo fijo de caracteres: los límites prácticos dependen de memoria, disco y proveedor. La extracción de PDF con columnas o diseños complejos necesita revisión.
 
-Voces: Internet, Windows y Piper
+Voces: Windows y Piper
 
-Las voces neurales en línea usan Microsoft Edge mediante una integración independiente, sin clave de API de pago. Necesitan Internet y envían el texto a Microsoft. El acceso y las cuotas dependen del proveedor; la biblioteca generada se puede escuchar sin conexión.
+La síntesis se procesa localmente con las voces disponibles de Windows o con
+modelos Piper importados. No se necesita una cuenta de Fábula.
 
 Las voces compatibles instaladas en Windows pueden detectarse desde «Explorar voces → Buscar voces de Windows», también en 32 bits. Su disponibilidad y calidad dependen del motor y de su licencia.
 
@@ -41,7 +41,7 @@ Para importar una voz Piper:
 
 Fábula copia el modelo y configuración a sus datos locales y conserva MODEL_CARD cuando está junto al modelo. Cada voz tiene su licencia; importar una voz no concede derechos adicionales. Se admiten modelos Piper VITS/espeak con configuración compatible, hasta 500 MB; no cualquier archivo ONNX. Un MP3/WAV no es un modelo de síntesis y no se convierte automáticamente en una voz. Retirar un modelo conserva los audios ya generados.
 
-El motor opcional usa la distribución C++ oficial 2023.11.14-2, fijada por tamaño y SHA-256. El proyecto actual de Piper continúa en OHF-Voice; esta integración no requiere instalar Python. En voces locales, el tono se aplica como efecto de audio y no tiene exactamente la misma respuesta que el control del servicio en línea.
+El motor opcional usa la distribución C++ oficial 2023.11.14-2, fijada por tamaño y SHA-256. El proyecto actual de Piper continúa en OHF-Voice; esta integración no requiere instalar Python. El tono se aplica como efecto de audio; escucha una muestra para comprobar el resultado.
 
 OCR y transcripción
 
@@ -56,7 +56,9 @@ Requisitos: Windows x64, Node.js 24 o posterior y npm. Desde esta carpeta:
 npm ci
 npm run dev
 
-La instalación descarga los runtimes de Electron y FFmpeg. Si se omitieron scripts de instalación, ejecuta npm run setup:desktop para Electron y npm rebuild ffmpeg-static para FFmpeg.
+npm ci prepara las dependencias de desarrollo. npm run build descarga y verifica
+el runtime de audio fijado en assets/audio-runtime.json. Si se omitieron scripts
+de instalación de Electron, ejecuta npm run setup:desktop.
 
 npm test
 npm run build
@@ -86,7 +88,7 @@ npm run test:advanced
 node tools/fetch-voice-fixtures.mjs
 npm run test:voices-pdf
 
-Las pruebas de voz en línea necesitan Internet. La prueba avanzada utiliza un archivo como micrófono simulado; no captura el micrófono físico. Las pruebas de borrado envían únicamente sus carpetas ficticias a la Papelera real de Windows. Para cargar el código y dependencias del paquete:
+Las pruebas de síntesis requieren una voz Windows SAPI instalada. La prueba avanzada utiliza un archivo como micrófono simulado; no captura el micrófono físico. Las pruebas de borrado envían únicamente sus carpetas ficticias a la Papelera real de Windows. Para cargar el código y dependencias del paquete:
 
 $env:FABULA_CHECK_ASAR = (Join-Path (Get-Location) '.build/win-unpacked/resources/app.asar')
 npm run test:voices-pdf
@@ -101,7 +103,7 @@ Capturas
 
 Captura: Opciones y vista previa de PDF — docs/screenshots/pdf-preview.png
 
-Captura: Voces externas y neurales — docs/screenshots/external-voices.png
+Captura: Voces locales e importadas — docs/screenshots/external-voices.png
 
 Captura: Perfiles de voz — docs/screenshots/profiles.png
 
@@ -133,5 +135,5 @@ DESCARGAS EN GITHUB
 No se necesita un sitio externo: Releases permite adjuntar EXE y SHA-256
 directamente a una publicación. El código del repositorio no incluye los EXE.
 Consulta https://github.com/NixonPiguave/fabula/releases para ver disponibilidad.
-Los binarios públicos siguen pendientes de la revisión de redistribución
-descrita en docs/DISTRIBUCION.txt; no confundas el ZIP del código con el instalador.
+El instalador, portable, SHA-256 y fuentes correspondientes están en la Release.
+El ZIP del código no es el instalador.

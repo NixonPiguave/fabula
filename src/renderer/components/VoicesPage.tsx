@@ -81,7 +81,7 @@ export default function VoicesPage({
         <h1>{t('Una voz para cada historia.')}</h1>
         <p>
           {t(
-            'Compara voces neurales en español o usa voces locales para novelas, relatos, documentos y audiolibros.'
+            'Compara voces de Windows y modelos Piper para novelas, relatos, documentos y audiolibros.'
           )}
         </p>
       </div>
@@ -184,7 +184,6 @@ export default function VoicesPage({
         <div className="project-filters">
           {[
             ['all', t('Todas')],
-            ['edge', t('Neurales en línea')],
             ['sapi', t('Instaladas en Windows')],
             ['piper', t('Piper importadas')]
           ].map(([id, label]) => (
@@ -218,11 +217,9 @@ export default function VoicesPage({
               </div>
               <span className="voice-locale">
                 {voice.country} ·{' '}
-                {voice.provider === 'edge'
-                  ? t('Neural · Internet')
-                  : voice.provider === 'piper'
-                    ? t('Piper · sin conexión')
-                    : t('Windows · sin conexión')}
+                {voice.provider === 'piper'
+                  ? t('Piper · sin conexión')
+                  : t('Windows · sin conexión')}
               </span>
               <p>{voice.description}</p>
               <div className="voice-card-actions">
@@ -282,7 +279,7 @@ export default function VoicesPage({
       )}
       <p className="page-footnote">
         {t(
-          'Las voces neurales en línea envían el texto al servicio de Microsoft Edge. Las voces Windows y Piper se procesan en tu equipo. La disponibilidad y naturalidad dependen de cada voz.'
+          'Las voces Windows y Piper se procesan en tu equipo. La calidad y el idioma dependen de cada voz instalada.'
         )}
       </p>
     </>

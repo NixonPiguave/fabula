@@ -157,10 +157,7 @@ app.once('browser-window-created', (_event, win) => {
       await js(
         `[...document.querySelectorAll('nav button')].find(button => button.textContent.includes('Explorar voces')).click()`
       )
-      await until(
-        () => js(`document.querySelectorAll('.voice-card').length >= 15`),
-        'voice catalog'
-      )
+      await until(() => js(`document.querySelectorAll('.voice-card').length > 0`), 'voice catalog')
       await wait(400)
       await fs.writeFile(
         path.join(root, 'voices.png'),

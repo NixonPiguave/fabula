@@ -6,7 +6,7 @@ Los workers de narración, importación y transcripción realizan las tareas pes
 
 La importación PDF conserva líneas con coordenadas normalizadas de PDF.js o del OCR. La vista previa aplica márgenes, números de página y repetición en márgenes sin modificar el original hasta confirmar. Los documentos comprimidos tienen límites de expansión y las entradas XML no permiten entidades externas.
 
-Los proveedores de narración son Edge, Windows SAPI y Piper. Las síntesis en línea se conservan en una caché local. Windows se consulta mediante un script incluido de System.Speech, tanto en PowerShell de 64 como de 32 bits. Piper importa modelo/configuración con ID derivado de su contenido y hablante. El proceso principal resuelve todas las voces antes de iniciar un trabajo. Las rutas de modelos nunca llegan desde el renderer a un comando ejecutable.
+Los proveedores de narración son Windows SAPI y Piper. Las síntesis se conservan en una caché local. Windows se consulta mediante un script incluido de System.Speech, tanto en PowerShell de 64 como de 32 bits. Piper importa modelo/configuración con ID derivado de su contenido y hablante. El proceso principal resuelve todas las voces antes de iniciar un trabajo. Las rutas de modelos nunca llegan desde el renderer a un comando ejecutable.
 
 Los procesos se lanzan sin shell, con ventanas ocultas y seguimiento de PID para cancelar. El motor Piper usa rutas relativas dentro de los datos administrados para evitar problemas de su CLI C++ con caracteres Unicode. FFmpeg normaliza voces locales a MP3 mono de 24 kHz y une los capítulos. El protocolo local de reproducción valida IDs y admite peticiones por rangos.
 

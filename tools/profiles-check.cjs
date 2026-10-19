@@ -16,7 +16,7 @@ mkdirSync(data, { recursive: true })
 const legacy = {
   id: randomUUID(),
   name: 'Lectura diaria',
-  settings: { voice: 'es-MX-JorgeNeural', speed: 1.1, pitch: -3, volume: 0.8 },
+  settings: { voice: 'es-ES-RetiredNeural', speed: 1.1, pitch: -3, volume: 0.8 },
   pauseMs: 350
 }
 const missing = {
@@ -75,6 +75,21 @@ app.once('browser-window-created', (_event, win) => {
         () => js('document.querySelector(".autosave")?.textContent === "Borrador guardado"'),
         'initial load'
       )
+      const initial = await boot()
+      const installedVoice = initial.voices.find((voice) => voice.provider === 'sapi')
+      assert.ok(installedVoice, 'A Windows SAPI voice is required for this integration check')
+      legacy.settings.voice = installedVoice.id
+      await js(
+        `window.fabula.savePreferences(${JSON.stringify({ ...initial.preferences, profiles: [legacy, missing] })})`
+      )
+      await new Promise((resolve) => {
+        win.webContents.once('did-finish-load', resolve)
+        win.webContents.reload()
+      })
+      await until(
+        () => js('document.querySelector(".autosave")?.textContent === "Borrador guardado"'),
+        'profile migration reload'
+      )
       assert.deepEqual((await boot()).preferences.profiles, [legacy, missing])
       await nav('Preferencias')
       assert.equal(await js(`document.querySelectorAll('.saved-profile').length`), 2)
@@ -99,7 +114,7 @@ app.once('browser-window-created', (_event, win) => {
         /Ya hay/
       )
       await field('Nombre del perfil', 'Lectura tranquila')
-      await field('Voz del perfil', 'es-MX-DaliaNeural', true)
+      await field('Voz del perfil', installedVoice.id, true)
       await field('Velocidad del perfil', '.85')
       await field('Tono del perfil', '-5')
       await field('Volumen del perfil', '.7')
@@ -113,7 +128,7 @@ app.once('browser-window-created', (_event, win) => {
         'create profile'
       )
       assert.deepEqual(created.settings, {
-        voice: 'es-MX-DaliaNeural',
+        voice: installedVoice.id,
         speed: 0.85,
         pitch: -5,
         volume: 0.7

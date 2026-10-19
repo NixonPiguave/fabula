@@ -1,5 +1,5 @@
 FÁBULA — LICENSE AND USAGE NOTICES
-Version 0.6.0 · 17 October 2026
+19 October 2026
 
 PROGRAM LICENSE
 Fábula's own code is available under the GNU General Public License, version 3
@@ -22,17 +22,6 @@ an MP3 does not demonstrate permission to publish it. Check the rights and terms
 applicable to the material and chosen voice, especially when distributing output
 or using it commercially. Installed Windows voices and Piper models retain their
 own licenses. Keep the MODEL_CARD and notices supplied with each model.
-
-ONLINE SERVICES
-The Microsoft Edge reading voice integration is independent. It is not an API
-contracted by Fábula and does not imply Microsoft's endorsement. Working without
-a paid key does not guarantee authorization for every use, permanent access,
-unlimited quotas or commercial rights to voices. The connection library's MIT
-license does not replace service terms. Consult Microsoft's terms and privacy:
-https://www.microsoft.com/servicesagreement
-https://privacy.microsoft.com/en-us/privacystatement
-Availability and compatibility may change. Local voices are an alternative
-when you do not want to send text to an external service.
 
 REDISTRIBUTION
 When distributing a version, preserve licenses and notices and provide complete

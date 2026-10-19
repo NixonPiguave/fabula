@@ -77,15 +77,41 @@ try {
   assert.ok(ready)
   const response = await call('Runtime.evaluate', {
     expression:
-      'window.fabula.boot().then(state=>({voices:state.voices.length,preferences:!!state.preferences.pdfImport,version:document.title,language:state.preferences.language,htmlLanguage:document.documentElement.lang}))',
+      'window.fabula.boot().then(state=>({voices:state.voices.map(voice=>voice.provider),preferences:!!state.preferences.pdfImport,version:document.title,language:state.preferences.language,htmlLanguage:document.documentElement.lang}))',
     awaitPromise: true,
     returnByValue: true
   })
   const result = response.result.value
-  assert.ok(result.voices >= 15)
+  assert.ok(result.voices.every((provider) => ['sapi', 'piper'].includes(provider)))
   assert.equal(result.preferences, true)
   assert.equal(result.htmlLanguage, result.language)
   if (expectedLanguage) assert.equal(result.language, expectedLanguage)
+  if (process.env.FABULA_PORTABLE_NARRATION === '1') {
+    const generated = await call('Runtime.evaluate', {
+      expression: `window.fabula.boot().then(state=>{const voice=state.voices.find(voice=>voice.provider==='sapi');if(!voice)throw Error('A SAPI voice is required');return window.fabula.start({title:'Portable narration check',text:'Clara abrió la puerta del jardín. Una nueva historia comenzaba.',settings:{voice:voice.id,speed:1.1,pitch:-3,volume:0.8},pauseMs:200})})`,
+      awaitPromise: true,
+      returnByValue: true
+    })
+    assert.ok(generated.result?.value?.id, JSON.stringify(generated))
+    const id = generated.result.value.id
+    await until(
+      async () => {
+        const response = await call('Runtime.evaluate', {
+          expression: `window.fabula.boot().then(state=>state.jobs.find(job=>job.id===${JSON.stringify(id)}))`,
+          awaitPromise: true,
+          returnByValue: true
+        })
+        const job = response.result?.value
+        if (job?.status === 'failed') throw Error(job.error)
+        return job?.status === 'completed'
+      },
+      'packaged SAPI narration',
+      60000
+    )
+    const jobFolder = join(data, 'narrations', id)
+    assert.ok((await readFile(join(jobFolder, 'narration.mp3'))).length > 1000)
+    console.log('PASS: packaged local narration uses bundled FFmpeg and writes valid MP3 audio')
+  }
   const version = await call('Runtime.evaluate', {
     expression: `(()=>{[...document.querySelectorAll('button')].find(button=>['Acerca de Fábula','About Fábula'].some(text=>button.textContent.includes(text))).click();return true})()`,
     returnByValue: true

@@ -1,0 +1,11 @@
+{
+  "version": "1",
+  "ffmpegVersion": "9.0.2",
+  "lameVersion": "3.100",
+  "url": "https://github.com/NixonPiguave/fabula/releases/download/audio-v1/Fabula-Audio-Runtime.zip",
+  "sha256": "df725183f8f0227dd09a99d2f14818a01e37f00de8f8a259219c82f47054cfda",
+  "executableSha256": "f04e68a13d8d74fec178fda58b84db45554f0e3a11a10c687294bcdaaafd6dab",
+  "sourceUrl": "https://github.com/NixonPiguave/fabula/releases/download/audio-v1/Fabula-Audio-Sources.tar.gz",
+  "sourceSha256": "4ee5dde7329a4e66a591111cfa14e8e90ba85162d2996d4c21ff8a7078ba679d",
+  "buildRun": "https://github.com/NixonPiguave/fabula/actions/runs/39204477418"
+}

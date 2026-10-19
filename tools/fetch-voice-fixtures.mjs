@@ -29,7 +29,7 @@ for (const [name, url, expected] of files) {
   try {
     bytes = await readFile(`${root}/${name}`)
   } catch {
-    const response = await fetch(url)
+    const response = await fetch(url, { signal: AbortSignal.timeout(180000) })
     if (!response.ok) throw new Error(`${name}: HTTP ${response.status}`)
     bytes = Buffer.from(await response.arrayBuffer())
     await writeFile(`${root}/${name}`, bytes)

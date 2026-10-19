@@ -1,67 +1,53 @@
 FÁBULA — THIRD-PARTY COMPONENTS
 
-Electron (MIT), React (MIT), lucide-react (ISC), msedge-tts (MIT), PDF.js
-(Apache-2.0) and Zod (MIT) are used by this application. Original production
-package notices are preserved in LICENCIAS_DE_COMPONENTES.txt, including code
-bundled into the interface. Builds regenerate that file and reject packages
-without preserved notices. Microsoft owns its voices and online service;
-msedge-tts is an independent connection library.
+Fábula's own code is GPL-3.0-or-later. Components retain their original licenses.
+LICENCIAS_DE_COMPONENTES.txt preserves production package notices, including
+code bundled into the renderer: React (MIT), lucide-react (ISC), PDF.js
+(Apache-2.0), Zod (MIT), Tesseract.js/Core (Apache-2.0), canvas (MIT), docx
+(MIT), fflate (MIT), fast-xml-parser (MIT), html-to-text (MIT), rtf-parser (ISC).
+Electron is MIT licensed; Chromium includes components under other licenses
+identified in its original notices.
+FFmpeg 9.0.2 is built for audio without network support, GPL or nonfree
+components, using LAME 3.100. This configuration uses LGPL-2.1-or-later FFmpeg
+and LGPL-2.0-or-later LAME. The separate executable may be rebuilt and replaced;
+no additional restrictions apply to modification or reverse engineering
+permitted by those licenses. Sources, build scripts and configuration accompany
+the public download at no charge.
 
-FFMPEG
-ffmpeg-static 5.3.0 (GPL-3.0-or-later) supplies the separate FFmpeg executable.
-Its original notices are preserved under
-resources/app.asar.unpacked/node_modules/ffmpeg-static/, including
-ffmpeg.exe.LICENSE and ffmpeg.exe.README. The latter identifies the Windows
-6.1.1-essentials_build-www.gyan.dev build and FFmpeg commit e38092ef93:
-https://github.com/FFmpeg/FFmpeg/commit/e38092ef93
-That build links other libraries. Redistributors must also verify their sources,
-notices and conditions, along with applicable build scripts. This project does
-not yet include a complete archive of that corresponding source.
-https://github.com/eugeneware/ffmpeg-static
-https://github.com/eugeneware/ffmpeg-static/releases/tag/b6.1.1
-https://ffmpeg.org/legal.html
+SOURCES AND ORIGINAL NOTICES
+https://github.com/NixonPiguave/fabula/releases/tag/v0.7.0
+Fabula-Audio-Sources.tar.gz: FFmpeg 9.0.2, LAME 3.100, configuration, build
+scripts, toolchain versions and notices. The identical audio sources and
+runtime are also available in release audio-v1.
+Fabula-Canvas-Sources.tar.gz: exact Rust crate sources, including MPL-2.0
+components; native dependency revisions and original notices.
+Fabula-OCR-Sources.tar.gz: tesseract.js-core 7.0.0 and its pinned native sources.
+Chromium-152.0.7977.167-Sources.tar.gz: unmodified Chromium source archive.
+Fabula-Browser-Sources.tar.gz: Electron 44.8.0 sources and patches, Chromium
+DEPS, FFmpeg, Eigen and dictionary sources at the exact referenced revisions.
+SOURCE_AVAILABILITY.txt and SHA256SUMS.txt identify locations and checksums.
+Sources retain their original licenses. In particular, MPL source files remain
+available under MPL-2.0 without additional restrictions.
+Electron's LICENSE.electron.txt and LICENSES.chromium.html accompany the
+application. assets/licenses/ preserves the canvas SBOM, native canvas and
+OCR notices, and source availability information. resources/media/ preserves
+the FFmpeg, LAME, MinGW and GCC runtime notices.
 
-DOCUMENTS AND GRAPHICS
-PDF.js has optional font and graphics dependencies. Package notices are in
-LICENCIAS_DE_COMPONENTES.txt. assets/licenses/canvas-sbom.json preserves the
-native dependency inventory supplied by the Windows canvas package. That
-inventory does not replace component notices or source obligations; review
-these dependencies and preserve their notices before public binary distribution.
-Extraction and recognition use Tesseract.js and Tesseract.js Core (Apache-2.0),
-fflate (MIT), fast-xml-parser (MIT), html-to-text (MIT), rtf-parser (ISC),
-docx (MIT) and @napi-rs/canvas (MIT). Their packages preserve their licenses.
-
-OPTIONAL MODULES
-These are downloaded separately and are not included in Fábula's executable:
-- Spanish OCR: spa.traineddata, tessdata_fast 4.1.0, Apache-2.0
-  https://github.com/tesseract-ocr/tessdata_fast/tree/4.1.0
-- Windows x64 CPU Whisper engine: whisper.cpp b5454, MIT
-  https://github.com/ggml-org/whisper.cpp/releases/tag/b5454
-- Multilingual Whisper Base model, MIT
-  https://huggingface.co/ggerganov/whisper.cpp
-src/main/modules.ts pins download versions, sizes and SHA-256 hashes. Models
-are stored in the user's data folder. The online TTS implementation needs no
-paid API key; this does not guarantee permanent access, unlimited quotas or
-a license to another party's voices. Availability depends on the provider.
-
-LOCAL VOICES
-The optional Piper engine comes from official C++ release 2023.11.14-2, pinned
-by size and SHA-256. Its code is MIT; components include ONNX Runtime (MIT),
-piper-phonemize (MIT) and eSpeak NG (GPL-3.0-or-later), with their own notices.
-Neither the engine nor voice models are bundled in Fábula's executable.
-Corresponding sources and notices:
+OPTIONAL COMPONENTS
+Piper C++ 2023.11.14-2 (MIT) is downloaded separately on request. Its components
+include piper-phonemize (MIT), ONNX Runtime (MIT), and eSpeak NG (GPL-3.0-or-later).
 https://github.com/rhasspy/piper/tree/2023.11.14-2
 https://github.com/rhasspy/piper/releases/tag/2023.11.14-2
 https://github.com/rhasspy/piper-phonemize
 https://github.com/espeak-ng/espeak-ng
 https://github.com/microsoft/onnxruntime
-Current development: https://github.com/OHF-Voice/piper1-gpl
-Imported Piper voices have independent licenses described in their MODEL_CARD.
-Terms may differ between models.
-The SAPI bridge uses Windows System.Speech. Fábula does not distribute or install
-proprietary voice packages or grant licenses to them. It enumerates compatible
-installed voices and invokes their local speech synthesis.
-
-Fábula's own code is GPL-3.0-or-later. That license does not replace model,
-service or third-party component licenses. Original notices are preserved
-in their original language and are not replaced by translated explanations.
+Piper models are separate works with individual MODEL_CARD licenses. No voice
+model or Piper runtime is embedded in the Fábula EXE.
+Whisper CPU b5454 and the multilingual Base model (MIT) and Spanish OCR
+tessdata_fast 4.1.0 (Apache-2.0) are also downloaded separately on request.
+https://github.com/ggml-org/whisper.cpp/releases/tag/b5454
+https://huggingface.co/ggerganov/whisper.cpp
+https://github.com/tesseract-ocr/tessdata_fast/tree/4.1.0
+src/main/modules.ts pins download versions, sizes and SHA-256 checksums.
+Windows voices are installed and licensed separately; Fábula invokes compatible
+SAPI voices through System.Speech and does not redistribute voice packages.

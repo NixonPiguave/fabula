@@ -1,50 +1,35 @@
 FÁBULA — PRIVACIDAD
-Versión del aviso: 0.6.0 · 17 de octubre de 2026
+19 de octubre de 2026
 
-QUÉ SE GUARDA EN TU EQUIPO
-Fábula guarda el borrador, textos de narraciones, audio generado, proyectos,
-preferencias, perfiles de voz, diccionario, transcripciones, posición de escucha
-y modelos descargados en %APPDATA%/Fábula. Los archivos exportados se guardan
-en la ubicación que elijas. El portable también utiliza esa carpeta de datos.
-El idioma de la interfaz se guarda en las preferencias locales. El instalador
-solo establece un valor inicial para perfiles nuevos.
-No hay una cuenta de Fábula, publicidad ni telemetría propia implementada.
+DATOS LOCALES
+Fábula guarda textos, borradores, audio, proyectos, perfiles de voz, preferencias,
+transcripciones, marcadores y modelos en %APPDATA%/Fábula. El portable utiliza
+la misma carpeta. Las exportaciones se guardan donde elijas. El idioma se guarda
+en las preferencias; el instalador solo fija el valor inicial de perfiles nuevos.
+No hay cuentas de Fábula, publicidad ni telemetría propia implementada.
 
-CUÁNDO SALE INFORMACIÓN DEL EQUIPO
-Las voces marcadas «en línea» envían a Microsoft el texto que se va a narrar,
-incluidas las muestras, y los parámetros necesarios para sintetizarlo. El
-proveedor recibe además los datos técnicos normales de una conexión de red,
-como la dirección IP. Se usa una integración independiente del servicio de
-lectura de Edge; no es un servicio operado por Fábula. Sus prácticas de
-tratamiento y conservación se rigen por la documentación de Microsoft:
-https://privacy.microsoft.com/es-es/privacystatement
-Este aviso no afirma que Microsoft elimine inmediatamente esos textos.
+PROCESAMIENTO Y CONEXIONES
+La narración con Windows SAPI o Piper, la extracción de documentos, el OCR y la
+transcripción con Whisper se procesan en tu equipo. Fábula no envía los textos
+ni las grabaciones a un servicio de síntesis o reconocimiento. Las muestras
+del estudio pueden utilizar el comienzo del borrador; las de perfiles usan una
+frase de ejemplo y se sintetizan también localmente.
+El dictado solicita permiso para el micrófono y procesa la grabación localmente.
+OCR, Whisper y Piper se descargan al solicitarlos. Las descargas contactan
+servidores de GitHub y Hugging Face, que reciben datos técnicos de conexión,
+como tu dirección IP. Los documentos y grabaciones no se adjuntan a estas
+solicitudes. Abrir un enlace externo utiliza el navegador y sus políticas.
 
-Las muestras de los perfiles utilizan una frase de ejemplo. Las muestras del
-estudio pueden utilizar el comienzo del texto del editor. Revisa la voz antes
-de sintetizar contenido confidencial. Para procesamiento local, selecciona una
-voz de Windows o un modelo Piper. No necesitan enviar el texto a Microsoft.
-
-EXTRACCIÓN, RECONOCIMIENTO Y DESCARGAS
-La extracción de documentos, OCR y transcripción con Whisper se realizan
-localmente. El dictado pide permiso para el micrófono y procesa la grabación
-en este equipo. Los módulos OCR, Whisper y Piper se descargan únicamente al
-solicitarlos. Estas descargas contactan servidores de GitHub y Hugging Face;
-los proveedores reciben los datos técnicos de conexión. Los documentos,
-textos y grabaciones no se adjuntan a las solicitudes de descarga de módulos.
-
-BORRADO Y CONSERVACIÓN
-Las narraciones se conservan hasta que decidas borrarlas. Borrarlas desde la
-biblioteca mueve sus archivos a la Papelera de Windows: no es borrado seguro.
-Los MP3 exportados siguen en su ubicación. Eliminar un proyecto conserva sus
-narraciones. Retirar un modelo no elimina los audios ya generados.
-Desinstalar conserva la carpeta de datos para evitar perder tu biblioteca.
-Para eliminar todos los datos locales, cierra Fábula y elimina
-%APPDATA%/Fábula, las exportaciones y, si corresponde, la Papelera de Windows.
-No envíes esa carpeta a un repositorio público ni la adjuntes a incidencias.
+CONSERVACIÓN Y BORRADO
+Las narraciones se conservan hasta borrarlas. El borrado desde la biblioteca
+mueve los archivos a la Papelera de Windows: no es un borrado seguro. Los MP3
+exportados permanecen en su ubicación. Borrar un proyecto conserva sus
+narraciones; retirar una voz conserva el audio generado. Desinstalar conserva
+la biblioteca. Para eliminar todos los datos, cierra Fábula y elimina
+%APPDATA%/Fábula, tus exportaciones y, si corresponde, la Papelera.
+No publiques la carpeta de datos ni la adjuntes a incidencias.
 
 ALCANCE
-Este aviso describe esta versión local. Un distribuidor que añada servidores,
-analítica o sincronización debe informar de esos cambios y cumplir las normas
-que le correspondan. Las condiciones del proveedor en línea son independientes
-de la licencia del código de Fábula. Consulta también AVISOS_DE_USO.txt.
+Este aviso describe la distribución oficial. Un distribuidor que añada
+servidores, analítica o sincronización debe informar de esos cambios y cumplir
+las obligaciones aplicables. Consulta también AVISOS_DE_USO.txt.

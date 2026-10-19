@@ -1,0 +1,48 @@
+FÁBULA — CORRESPONDING COMPONENT SOURCES
+
+SOURCES AND ORIGINAL NOTICES
+https://github.com/NixonPiguave/fabula/releases/tag/v0.7.0
+Fabula-Audio-Sources.tar.gz: FFmpeg 9.0.2, LAME 3.100, configuration, build
+scripts, toolchain versions and notices. The identical audio sources and
+runtime are also available in release audio-v1.
+Fabula-Canvas-Sources.tar.gz: exact Rust crate sources, including MPL-2.0
+components; native dependency revisions and original notices.
+Fabula-OCR-Sources.tar.gz: tesseract.js-core 7.0.0 and its pinned native sources.
+Chromium-152.0.7977.167-Sources.tar.gz: unmodified Chromium source archive.
+Fabula-Browser-Sources.tar.gz: Electron 44.8.0 sources and patches, Chromium
+DEPS, FFmpeg, Eigen and dictionary sources at the exact referenced revisions.
+SOURCE_AVAILABILITY.txt and SHA256SUMS.txt identify locations and checksums.
+Sources retain their original licenses. In particular, MPL source files remain
+available under MPL-2.0 without additional restrictions.
+Electron's LICENSE.electron.txt and LICENSES.chromium.html accompany the
+application. assets/licenses/ preserves the canvas SBOM, native canvas and
+OCR notices, and source availability information. resources/media/ preserves
+the FFmpeg, LAME, MinGW and GCC runtime notices.
+
+OPTIONAL COMPONENTS
+Piper C++ 2023.11.14-2 (MIT) is downloaded separately on request. Its components
+include piper-phonemize (MIT), ONNX Runtime (MIT), and eSpeak NG (GPL-3.0-or-later).
+https://github.com/rhasspy/piper/tree/2023.11.14-2
+https://github.com/rhasspy/piper/releases/tag/2023.11.14-2
+https://github.com/rhasspy/piper-phonemize
+https://github.com/espeak-ng/espeak-ng
+https://github.com/microsoft/onnxruntime
+Piper models are separate works with individual MODEL_CARD licenses. No voice
+model or Piper runtime is embedded in the Fábula EXE.
+Whisper CPU b5454 and the multilingual Base model (MIT) and Spanish OCR
+tessdata_fast 4.1.0 (Apache-2.0) are also downloaded separately on request.
+https://github.com/ggml-org/whisper.cpp/releases/tag/b5454
+https://huggingface.co/ggerganov/whisper.cpp
+https://github.com/tesseract-ocr/tessdata_fast/tree/4.1.0
+src/main/modules.ts pins download versions, sizes and SHA-256 checksums.
+Windows voices are installed and licensed separately; Fábula invokes compatible
+SAPI voices through System.Speech and does not redistribute voice packages.
+
+To rebuild the application, use the GitHub source archive for tag v0.7.0,
+Node.js 24 or later, npm ci and npm run package:all on Windows x64. The lockfile
+pins dependencies. tools/build-media.sh and .github/workflows/media-runtime.yml
+rebuild FFmpeg and LAME from verified original sources.
+For Electron/Chromium, use the included Electron DEPS, patches and scripts with
+the official Electron build instructions: https://www.electronjs.org/docs/latest/development/build-instructions-gn
+The Chromium DEPS file pins the full dependency graph; gclient sync retrieves
+external build dependencies. Retain the original licenses on redistribution.

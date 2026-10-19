@@ -1,15 +1,14 @@
 import { z } from 'zod'
-import { VOICES } from './types'
 
 export const settingsSchema = z.object({
-  voice: z
-    .string()
-    .refine(
-      (value) =>
-        VOICES.some((voice) => voice.id === value) ||
-        /^(?:piper|sapi32|sapi64):[a-f0-9]{64}$/.test(value),
-      'Voz no válida.'
-    ),
+  voice: z.string().refine(
+    (value) =>
+      value === 'system-default' ||
+      // Preserve existing manuscripts and audio manifests; availability is validated before synthesis.
+      /^[a-z]{2}-[A-Z]{2}-[A-Za-z0-9]+Neural$/.test(value) ||
+      /^(?:piper|sapi32|sapi64):[a-f0-9]{64}$/.test(value),
+    'Voz no válida.'
+  ),
   speed: z.number().min(0.5).max(1.75),
   pitch: z.number().int().min(-30).max(30),
   volume: z.number().min(0.3).max(1)

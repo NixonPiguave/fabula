@@ -201,7 +201,7 @@ export const english = {
   'Tu espacio personal': 'Your personal space',
   'Hecho para contar historias': 'Made for telling stories',
   'Tu espacio': 'Your space',
-  'Voces sin suscripción': 'Voices without subscriptions',
+
   '¿Reemplazar el borrador por esta transcripción?': 'Replace the draft with this transcription?',
   'UN NUEVO CAPÍTULO EMPIEZA AQUÍ': 'A NEW CHAPTER STARTS HERE',
   'Tus historias.': 'Your stories.',
@@ -266,7 +266,7 @@ export const english = {
   'Breve · 350 ms': 'Short · 350 ms',
   'Media · 750 ms': 'Medium · 750 ms',
   'Larga · 1.5 s': 'Long · 1.5 s',
-  'Esta voz neural necesita Internet.': 'This neural voice needs an Internet connection.',
+
   'Esta voz se procesa en tu equipo. El tono local usa un efecto de audio.':
     'This voice runs on your computer. Local pitch uses an audio effect.',
   'Preparando tu muestra': 'Preparing your sample',
@@ -277,8 +277,7 @@ export const english = {
     'Choose your voice, set the pace and bring your story to life.',
   'Creando audio…': 'Creating audio…',
   'Generar narración': 'Generate narration',
-  'Tu texto se envía al servicio de voz de Microsoft para generar el audio. La biblioteca se guarda en tu equipo.':
-    "Your text is sent to Microsoft's speech service to generate audio. The library is stored on your computer.",
+
   ' es ahora tu voz narradora.': ' is now your narrator voice.',
   'Tu historia está por sonar': 'Your story is about to be heard',
   'Muestra de voz': 'Voice sample',
@@ -311,14 +310,12 @@ export const english = {
   'Cerrar aviso': 'Dismiss notification',
   'Cerrar información': 'Close information',
   'Historias que se escuchan.': 'Stories you can hear.',
-  'Las voces en línea se generan mediante Microsoft Edge, sin clave de API de pago. Necesitan Internet y su disponibilidad puede cambiar. Tu texto se envía a Microsoft para sintetizarlo.':
-    'Online voices are generated through Microsoft Edge, without a paid API key. They need Internet access and their availability may change. Your text is sent to Microsoft for speech synthesis.',
+
   'Las narraciones y el borrador se guardan en este equipo. Si una generación falla, puedes reanudarla desde tu biblioteca.':
     'Narrations and drafts are stored on this computer. If generation fails, you can resume it from your library.',
   'Importa Word, EPUB, ODT, RTF, HTML y texto. Los PDF escaneados e imágenes pueden reconocerse con el módulo OCR opcional.':
     'Import Word, EPUB, ODT, RTF, HTML and plain text. Scanned PDFs and images can be recognized using the optional OCR module.',
-  'Elige entre voces en línea y voces locales para adaptar cada lectura a tu gusto.':
-    'Choose between online and local voices to suit each reading.',
+
   'Privacidad y licencias': 'Privacy and licenses',
   'Volver a mis historias': 'Back to my stories',
   Bosque: 'Forest',
@@ -645,7 +642,7 @@ export const english = {
   Voz: 'Voice',
   'Voz del perfil': 'Profile voice',
   'Voz no disponible · elige otra': 'Voice unavailable · choose another',
-  'en línea': 'online',
+
   Velocidad: 'Speed',
   'Velocidad del perfil': 'Profile speed',
   'Más lenta ← → Más rápida': 'Slower ← → Faster',
@@ -655,8 +652,7 @@ export const english = {
   Volumen: 'Volume',
   'Volumen del perfil': 'Profile volume',
   'Pausa del perfil': 'Profile pause',
-  'La muestra usa una voz en línea: el texto se envía a Microsoft.':
-    'This sample uses an online voice: the text is sent to Microsoft.',
+
   'Esta voz se procesa en tu equipo. El tono se ajusta mediante un efecto de audio.':
     'This voice runs on your computer. Pitch is adjusted using an audio effect.',
   'Escuchar muestra': 'Listen to sample',
@@ -684,8 +680,7 @@ export const english = {
     'Piper voice imported. You can select it to narrate now.',
   'UNA BIBLIOTECA DE VOCES PARA TUS LECTURAS': 'A VOICE LIBRARY FOR YOUR READING',
   'Una voz para cada historia.': 'A voice for every story.',
-  'Compara voces neurales en español o usa voces locales para novelas, relatos, documentos y audiolibros.':
-    'Compare Spanish neural voices or use local voices for novels, stories, documents and audiobooks.',
+
   'Trae tus propias voces': 'Bring your own voices',
   'Importa modelos Piper con sus archivos': 'Import Piper models with their',
   y: 'and',
@@ -708,12 +703,12 @@ export const english = {
   'Motor Piper instalado · funciona sin conexión': 'Piper engine installed · works offline',
   'Cada modelo de voz tiene su propia licencia. Conserva la ficha MODEL_CARD que lo acompaña.':
     'Each voice model has its own license. Keep its accompanying MODEL_CARD.',
-  'Neurales en línea': 'Online neural voices',
+
   'Instaladas en Windows': 'Installed in Windows',
   'Piper importadas': 'Imported Piper voices',
   'Buscar voces': 'Search voices',
   'Nombre, país o tipo de voz…': 'Name, country or voice type…',
-  'Neural · Internet': 'Neural · Internet',
+
   'Piper · sin conexión': 'Piper · offline',
   'Windows · sin conexión': 'Windows · offline',
   Escuchar: 'Listen',
@@ -724,8 +719,7 @@ export const english = {
     'Voice removed. Your generated audio has been kept.',
   'No hay voces en este filtro. Importa un modelo o actualiza las voces de Windows.':
     'No voices match this filter. Import a model or refresh the Windows voices.',
-  'Las voces neurales en línea envían el texto al servicio de Microsoft Edge. Las voces Windows y Piper se procesan en tu equipo. La disponibilidad y naturalidad dependen de cada voz.':
-    'Online neural voices send text to the Microsoft Edge service. Windows and Piper voices run on your computer. Availability and naturalness depend on each voice.',
+
   'Preparando…': 'Preparing…',
   'Guardando…': 'Saving…',
   Reproductor: 'Player',
@@ -769,6 +763,20 @@ export const english = {
   Cancelado: 'Cancelled',
   'capítulo detectado': 'chapter detected',
   palabra: 'word',
-  carácter: 'character'
+  carácter: 'character',
+  'Compara voces de Windows y modelos Piper para novelas, relatos, documentos y audiolibros.':
+    'Compare Windows voices and Piper models for novels, stories, documents and audiobooks.',
+  'Las voces Windows y Piper se procesan en tu equipo. La calidad y el idioma dependen de cada voz instalada.':
+    'Windows and Piper voices run on your computer. Quality and language depend on each installed voice.',
+  'Voces locales': 'Local voices',
+  'Windows y Piper': 'Windows and Piper',
+  'Tu texto y el audio se procesan y guardan en tu equipo.':
+    'Your text and audio are processed and stored on your computer.',
+  'Las voces de Windows y los modelos Piper procesan tu texto en este equipo. Los modelos se importan por separado.':
+    'Windows voices and Piper models process your text on this computer. Models are imported separately.',
+  'Elige entre voces de Windows y modelos Piper para adaptar cada lectura a tu gusto.':
+    'Choose Windows voices or Piper models to suit each reading.',
+  'Elige una voz de Windows o importa un modelo Piper para empezar.':
+    'Choose a Windows voice or import a Piper model to get started.'
 } as const
 export type MessageKey = keyof typeof english

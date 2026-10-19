@@ -41,7 +41,7 @@ npm run test:library
 
 Las pruebas generan textos ficticios y verifican narración, reproducción,
 exportación, organización por proyectos y conservación de la biblioteca.
-Las pruebas del proveedor en línea necesitan Internet. El borrado de prueba
+Las pruebas de síntesis requieren una voz Windows SAPI instalada. El borrado de prueba
 envía exclusivamente carpetas ficticias a la Papelera de Windows.
 
 OCR, TRANSCRIPCIÓN Y VOCES EXTERNAS
@@ -51,7 +51,7 @@ node tools/fetch-voice-fixtures.mjs
 npm run test:voices-pdf
 
 Estas pruebas descargan módulos y modelos de fuentes oficiales. Comprueban
-OCR, importación de documentos y PDF, Whisper, voces locales y en línea.
+OCR, importación de documentos y PDF, Whisper, voces Windows y Piper.
 El micrófono se simula con un archivo de audio: no se captura el micrófono físico.
 Las voces y sus modelos de prueba no se incluyen en los ejecutables de Fábula.
 
@@ -75,7 +75,7 @@ antes de ejecutarla. Se niega a continuar si encuentra una instalación o acceso
 directos existentes; en ese caso, utiliza una máquina virtual Windows limpia.
 Ejecuta por separado: pwsh -File tools/installer-check.ps1 -Language es
 y pwsh -File tools/installer-check.ps1 -Language en. Instala en
-.tools/installer-check-es/application o .tools/installer-check-en/application, comprueba el registro y el arranque
+.tools/installer-public-check-es/application o .tools/installer-public-check-en/application, comprueba el registro y el arranque
 con un perfil aislado, y después desinstala esa copia de prueba. Contrasta los
 archivos de la biblioteca personal antes y después. Comprueba que cada idioma
 del instalador inicialice un perfil nuevo y que una preferencia existente

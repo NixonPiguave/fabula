@@ -16,7 +16,6 @@ import {
 } from '../src/shared/i18n'
 import { preferencesSchema, chaptersOf, paragraphsOf } from '../src/shared/studio'
 import { localizeVoice } from '../src/shared/voice-catalogue'
-import { VOICES } from '../src/shared/types'
 
 afterEach(() => setLanguage('es'))
 describe('complete interface localization', () => {
@@ -71,9 +70,20 @@ describe('complete interface localization', () => {
   })
   it('keeps voice identifiers, imported names and manuscript headings intact', () => {
     setLanguage('en')
-    const voice = localizeVoice(VOICES[0])
-    expect(voice.name).toBe(VOICES[0].name)
-    expect(voice.id).toBe(VOICES[0].id)
+    const voice = localizeVoice({
+      id: 'sapi64:' + 'a'.repeat(64),
+      name: 'Narrador',
+      country: 'México',
+      accent: 'Local',
+      gender: 'Masculina',
+      description:
+        'Voz instalada en Windows. Funciona sin conexión; su calidad depende del motor instalado.',
+      provider: 'sapi',
+      color: 'mint',
+      initials: 'N'
+    } as const)
+    expect(voice.name).toBe('Narrador')
+    expect(voice.id).toBe('sapi64:' + 'a'.repeat(64))
     expect(voice.country).toBe('Mexico')
     const text = 'Capítulo 1: Mi novela\n\nMi historia en español.'
     const paragraphs = paragraphsOf(text)

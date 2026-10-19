@@ -52,8 +52,14 @@ describe('story structure and safe regeneration', () => {
     expect(initial.units[1].key).not.toBe(edited.units[1].key)
     const block = paragraphsOf(original.text)[1]
     expect(
-      narrationPlan({ ...original, blockOverrides: { [block.id]: { voice: 'es-MX-DaliaNeural' } } })
-        .units[1].key
+      narrationPlan({
+        ...original,
+        blockOverrides: {
+          [block.id]: {
+            voice: 'sapi64:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+          }
+        }
+      }).units[1].key
     ).not.toBe(initial.units[1].key)
     const dictionary = [{ id: randomUUID(), written: 'Beethoven', spoken: 'Betoven' }]
     expect(narrationPlan({ ...original, pronunciations: dictionary }).units[1].text).toBe(

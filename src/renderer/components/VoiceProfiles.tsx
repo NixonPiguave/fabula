@@ -166,8 +166,7 @@ export default function VoiceProfiles({
                 )}
                 {voices.map((item) => (
                   <option key={item.id} value={item.id}>
-                    {item.name} · {item.country} ·{' '}
-                    {item.provider === 'edge' ? t('en línea') : 'local'}
+                    {item.name} · {item.country} · {t('Local')}
                   </option>
                 ))}
               </select>
@@ -241,11 +240,9 @@ export default function VoiceProfiles({
               </label>
             </div>
             <p className="profile-help">
-              {voice?.provider === 'edge'
-                ? t('La muestra usa una voz en línea: el texto se envía a Microsoft.')
-                : t(
-                    'Esta voz se procesa en tu equipo. El tono se ajusta mediante un efecto de audio.'
-                  )}
+              {t(
+                'Esta voz se procesa en tu equipo. El tono se ajusta mediante un efecto de audio.'
+              )}
             </p>
             {message && (
               <p role="alert" className="form-error">

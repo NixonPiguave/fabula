@@ -19,14 +19,13 @@ language are independent choices. Windows-owned controls follow the operating
 system language. Original third-party license texts remain unmodified.
 
 VOICES AND PROFILES
-Online Edge reading voices need Internet access and send narration text to
-Microsoft through an independent integration. Availability and provider terms
-can change. Windows SAPI voices run locally. To use Piper offline, install its
-optional engine and import a compatible .onnx model with its .onnx.json file.
-Keep the model's license and MODEL_CARD. Audio recordings are not voice models.
-Voice profiles save reusable settings. Choose a voice and pace, preview them,
-save a named profile, then choose Use in studio for your next narration.
-The pronunciation dictionary changes speech-engine input, preserving your text.
+Windows SAPI and imported Piper models synthesize narration locally.
+No narration text is sent to a synthesis service.
+Install the optional Piper engine in Explore voices, then import a compatible
+.onnx model with its .onnx.json configuration. Keep its license and MODEL_CARD.
+Audio recordings are not synthesis models. Voice profiles save reusable voice,
+pace, pitch, volume and pause settings: preview, save a name, then select Use in
+studio. The pronunciation dictionary preserves the original document.
 
 DOCUMENTS AND LIBRARY
 PDF preview lets you include or exclude headers and footers, adjust margin
@@ -53,9 +52,9 @@ it. Neither requires the end user to install Node.js or development dependencies
 Do not upload your personal data folder to GitHub or include it in bug reports.
 GitHub Releases can host installers and portable downloads directly; no external
 hosting is required. See https://github.com/NixonPiguave/fabula/releases.
-The current public release provides source code. Public binaries are pending
-the native-component and provider redistribution review in docs/DISTRIBUCION.txt.
-The automatic source-code ZIP is not an installer.
+Download the installer, portable application, checksums and corresponding
+component sources directly from https://github.com/NixonPiguave/fabula/releases/tag/v0.7.0.
+The executables are unsigned. GitHub's source ZIP is not an installer.
 
 BUILD AND VERIFY
 Use Windows x64 and Node.js 24 or later. Run npm ci, npm test and npm run build.

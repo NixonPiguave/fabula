@@ -687,7 +687,7 @@ export default function App() {
           <div className="topbar-actions">
             <span className="cloud-badge">
               <Cloud size={14} />
-              {t('Voces sin suscripción')}
+              {t('Voces locales')}
             </span>
             <button className="small-new" onClick={newStory}>
               <Plus size={15} />
@@ -775,7 +775,7 @@ export default function App() {
                     </span>
                     <span>
                       <Mic2 size={13} />
-                      {t('Voces en español')}
+                      {t('Windows y Piper')}
                     </span>
                     <span>
                       <Download size={13} />
@@ -870,6 +870,11 @@ export default function App() {
                   {t('Capítulos, personajes y limpieza')}
                 </button>
               </div>
+              {!catalogue.some((voice) => voice.id === draft.settings.voice) && (
+                <p className="feature-note" role="status">
+                  {t('Elige una voz de Windows o importa un modelo Piper para empezar.')}
+                </p>
+              )}
               <div className="studio-grid">
                 <section className="editor-panel panel">
                   <div className="panel-toolbar">
@@ -957,9 +962,7 @@ export default function App() {
                       <VoiceArt voice={selectedVoice} small />
                       <div>
                         <b>{selectedVoice.name}</b>
-                        <span>
-                          {t('Español ·')} {selectedVoice.country}
-                        </span>
+                        <span>{selectedVoice.country}</span>
                       </div>
                       <span className="selected-check">
                         <Check size={13} />
@@ -1009,7 +1012,13 @@ export default function App() {
                     <button className="text-button" onClick={() => setPage('preferences')}>
                       {t('Crear o editar perfiles')}
                     </button>
-                    <button className="sample-button" onClick={() => start(true)} disabled={busy}>
+                    <button
+                      className="sample-button"
+                      onClick={() => start(true)}
+                      disabled={
+                        busy || !catalogue.some((voice) => voice.id === draft.settings.voice)
+                      }
+                    >
                       <Play size={13} fill="currentColor" />
                       {t('Escuchar una muestra')}
                       <span>~15 s</span>
@@ -1107,11 +1116,7 @@ export default function App() {
                     </label>
                     <p className="connection-note">
                       <Cloud size={12} />
-                      {selectedVoice.provider === 'edge'
-                        ? t('Esta voz neural necesita Internet.')
-                        : t(
-                            'Esta voz se procesa en tu equipo. El tono local usa un efecto de audio.'
-                          )}
+                      {t('Esta voz se procesa en tu equipo. El tono local usa un efecto de audio.')}
                     </p>
                   </div>
                 </aside>
@@ -1156,7 +1161,11 @@ export default function App() {
                 <button
                   className="primary-button"
                   onClick={() => start()}
-                  disabled={busy || !draft.text.trim()}
+                  disabled={
+                    busy ||
+                    !draft.text.trim() ||
+                    !catalogue.some((voice) => voice.id === draft.settings.voice)
+                  }
                 >
                   {busy ? <LoaderCircle size={17} className="spin" /> : <AudioLines size={18} />}
                   {busy ? t('Creando audio…') : t('Generar narración')}
@@ -1165,9 +1174,7 @@ export default function App() {
               </div>
               <div className="bottom-note">
                 <Headphones size={13} />
-                {t(
-                  'Tu texto se envía al servicio de voz de Microsoft para generar el audio. La biblioteca se guarda en tu equipo.'
-                )}
+                {t('Tu texto y el audio se procesan y guardan en tu equipo.')}
               </div>
             </>
           )}
@@ -1478,7 +1485,7 @@ export default function App() {
             <p>{t('Fábula {0} · Tus textos, con voz.', APP_VERSION)}</p>
             <p>
               {t(
-                'Las voces en línea se generan mediante Microsoft Edge, sin clave de API de pago. Necesitan Internet y su disponibilidad puede cambiar. Tu texto se envía a Microsoft para sintetizarlo.'
+                'Las voces de Windows y los modelos Piper procesan tu texto en este equipo. Los modelos se importan por separado.'
               )}
             </p>
             <p>
@@ -1493,7 +1500,7 @@ export default function App() {
             </p>
             <p className="about-reference">
               {t(
-                'Elige entre voces en línea y voces locales para adaptar cada lectura a tu gusto.'
+                'Elige entre voces de Windows y modelos Piper para adaptar cada lectura a tu gusto.'
               )}
             </p>
             <button

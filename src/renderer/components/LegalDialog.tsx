@@ -9,6 +9,8 @@ import notices from '../../../AVISOS_DE_USO.txt?raw'
 import license from '../../../LICENSE.txt?raw'
 import thirdParty from '../../../TERCEROS.txt?raw'
 import componentLicenses from '../../../LICENCIAS_DE_COMPONENTES.txt?raw'
+import canvasLicenses from '../../../assets/licenses/CANVAS-NATIVE-NOTICES.txt?raw'
+import ocrLicenses from '../../../assets/licenses/OCR-NATIVE-NOTICES.txt?raw'
 import { useDialogFocus } from '../hooks/useDialogFocus'
 
 type DocumentId = 'privacy' | 'notices' | 'license' | 'thirdParty'
@@ -20,7 +22,12 @@ export default function LegalDialog({ close }: { close: () => void }) {
     license: { title: t('Licencia GPL'), text: license },
     thirdParty: {
       title: t('Terceros'),
-      text: (english ? thirdPartyEnglish : thirdParty) + '\n\n' + componentLicenses
+      text: [
+        english ? thirdPartyEnglish : thirdParty,
+        componentLicenses,
+        canvasLicenses,
+        ocrLicenses
+      ].join('\n\n')
     }
   }
   const [selected, setSelected] = useState<DocumentId>('privacy')

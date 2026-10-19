@@ -17,7 +17,7 @@ writeFileSync(
   JSON.stringify({
     title: 'Mi novela',
     text: manuscript,
-    settings: { voice: 'es-MX-JorgeNeural', speed: 1, pitch: 0, volume: 1 }
+    settings: { voice: 'es-ES-RetiredNeural', speed: 1, pitch: 0, volume: 1 }
   })
 )
 const unsupportedFile = path.join(root, 'example.unknown')
@@ -95,9 +95,11 @@ app.once('browser-window-created', (_event, win) => {
       assert.ok(await js(`document.querySelector('[aria-label="Profile name"]')!==null`))
       await nav(2)
       const voices = await js('document.querySelector(".voice-gallery").textContent')
-      assert.match(voices, /Mexico/)
-      assert.match(voices, /Female/)
-      assert.doesNotMatch(voices, /Masculina|Femenina|México|Clara y cálida/)
+      assert.doesNotMatch(voices, /Microsoft Edge|Neural · Internet/)
+      assert.match(
+        await js('document.querySelector(".external-voice-panel").textContent'),
+        /Find Windows voices/
+      )
       await nav(1)
       assert.match(await js('document.querySelector("main").textContent'), /Your projects/)
       await nav(3)
@@ -121,15 +123,12 @@ app.once('browser-window-created', (_event, win) => {
         "[...document.querySelectorAll('button')].find(e=>e.textContent.includes('About Fábula')).click()"
       )
       await wait(100)
-      assert.match(await js('document.querySelector(".modal").textContent'), /Fábula 0\.6\.0/)
+      assert.match(await js('document.querySelector(".modal").textContent'), /Fábula 0\.7\.0/)
       await js(
         "[...document.querySelectorAll('.modal button')].find(e=>e.textContent.includes('Privacy and licenses')).click()"
       )
       await wait(100)
-      assert.match(
-        await js('document.querySelector(".legal-text").textContent'),
-        /WHAT STAYS ON YOUR COMPUTER/
-      )
+      assert.match(await js('document.querySelector(".legal-text").textContent'), /LOCAL DATA/)
       await js(
         "[...document.querySelectorAll('.legal-tabs button')].find(e=>e.textContent==='Usage notices').click()"
       )

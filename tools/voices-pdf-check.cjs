@@ -128,7 +128,7 @@ app.once('browser-window-created', (_event, win) => {
         'PASS: real three-page PDF preview, independently include/exclude headers, footers and page numbers, original retained until Apply'
       )
       await nav('Explorar voces')
-      assert.ok((await boot()).voices.filter((voice) => voice.provider === 'edge').length >= 15)
+      assert.ok((await boot()).voices.every((voice) => ['sapi', 'piper'].includes(voice.provider)))
       await js(`window.fabula.installModule('piper')`)
       nextFile = path.resolve('.tools/voice-fixtures/es_ES-davefx-medium.onnx')
       const previous = (await boot()).voices
@@ -151,12 +151,6 @@ app.once('browser-window-created', (_event, win) => {
         'A quiet evening. The young traveler returned home and found his family waiting.'
       )
       console.log('PASS: actual Windows SAPI voice synthesis through the bundled 32/64-bit bridge')
-      for (const id of ['es-EC-LuisNeural', 'es-CO-SalomeNeural'])
-        await synthesize(
-          (await boot()).voices.find((voice) => voice.id === id),
-          'Una nueva historia comienza esta noche.'
-        )
-      console.log('PASS: real synthesis with newly added Ecuadorian and Colombian neural voices')
       await js('document.querySelector(".toast .icon-button")?.click(); void 0')
       await wait(250)
       await fs.writeFile(
@@ -186,7 +180,7 @@ app.once('browser-window-created', (_event, win) => {
       await fs.writeFile(
         path.join(root, 'result.json'),
         JSON.stringify(
-          { ok: true, pdfPages: 3, localVoice: local.id, sapiVoice: sapi.name, edgeVoices: 15 },
+          { ok: true, pdfPages: 3, localVoice: local.id, sapiVoice: sapi.name, localOnly: true },
           null,
           2
         )

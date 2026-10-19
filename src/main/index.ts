@@ -24,7 +24,6 @@ import { createReadStream } from 'node:fs'
 import { Readable } from 'node:stream'
 import { Worker } from 'node:worker_threads'
 import { randomUUID } from 'node:crypto'
-import ffmpegPath from 'ffmpeg-static'
 import { atomicJson, readJson } from './core/files'
 import { normalizeText } from './core/text'
 import { parseRange } from './core/range'
@@ -36,6 +35,9 @@ import { ProjectStore } from './projects'
 import { VoiceRegistry } from './voices'
 
 const here = dirname(fileURLToPath(import.meta.url))
+const ffmpegPath = app.isPackaged
+  ? join(process.resourcesPath, 'media', 'ffmpeg.exe')
+  : join(here, '../../.tools/media-runtime/ffmpeg.exe')
 app.setName('Fábula')
 if (process.env.FABULA_DATA_DIR) app.setPath('userData', process.env.FABULA_DATA_DIR)
 const root = app.getPath('userData')
@@ -164,6 +166,15 @@ async function load() {
   } catch {
     /* First launch has no draft. */
   }
+  const availableVoices = voices.list()
+  if (
+    !availableVoices.some((voice) => voice.id === draft.settings.voice) &&
+    availableVoices.length
+  ) {
+    const preferred =
+      availableVoices.find((voice) => voice.locale?.startsWith(getLanguage())) ?? availableVoices[0]
+    draft = { ...draft, settings: { ...draft.settings, voice: preferred.id } }
+  }
   for (const id of await readdir(jobsRoot)) {
     if (!idSchema.safeParse(id).success) continue
     try {
@@ -214,19 +225,16 @@ function voiceSources(job: Pick<JobRecord, 'settings' | 'blockOverrides'>) {
 function run(job: JobRecord) {
   if (active) throw new Error(t('Ya hay una narración en curso. Espera a que termine o cancélala.'))
   if (!ffmpegPath) throw new Error(t('No se encontró el codificador MP3.'))
-  const worker = new Worker(
-    join(here, job.chunkVersion === 2 ? 'narration-worker.js' : 'speech-worker.js'),
-    {
-      workerData: {
-        job,
-        uiLanguage: getLanguage(),
-        dir: join(jobsRoot, job.id),
-        cache: join(root, 'audio-cache'),
-        voices: voiceSources(job),
-        ffmpeg: ffmpegPath.replace('app.asar', 'app.asar.unpacked')
-      }
+  const worker = new Worker(join(here, 'narration-worker.js'), {
+    workerData: {
+      job,
+      uiLanguage: getLanguage(),
+      dir: join(jobsRoot, job.id),
+      cache: join(root, 'audio-cache'),
+      voices: voiceSources(job),
+      ffmpeg: ffmpegPath.replace('app.asar', 'app.asar.unpacked')
     }
-  )
+  })
   active = { id: job.id, worker }
   worker.on('message', (message: JobRecord | { encoderPid: number }) => {
     if ('encoderPid' in message) {

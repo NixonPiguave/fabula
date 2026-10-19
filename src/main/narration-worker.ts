@@ -1,12 +1,8 @@
 import { t, setLanguage, normalizeLanguage } from '../shared/i18n'
 import { parentPort, workerData } from 'node:worker_threads'
-import { createWriteStream } from 'node:fs'
 import { mkdir, stat, rename, writeFile, link, copyFile } from 'node:fs/promises'
-import { pipeline } from 'node:stream/promises'
 import { join, basename } from 'node:path'
-import { MsEdgeTTS, OUTPUT_FORMAT } from 'msedge-tts'
 import { atomicJson } from './core/files'
-import { escapeXml } from './core/text'
 import { narrationPlan, type Unit } from './core/plan'
 import { command } from './core/process'
 import type { JobRecord } from '../shared/types'
@@ -41,29 +37,12 @@ async function exists(path: string) {
     .catch(() => false)
 }
 async function synthesize(unit: Unit, path: string) {
-  const external = voices.find((voice) => voice.id === unit.settings.voice)
-  if (external) return synthesizeLocal(unit, external, path, ffmpeg, onPid)
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const tts = new MsEdgeTTS({ connectionTimeoutMs: 15000, synthesisTimeoutMs: 45000 })
-    try {
-      await tts.setMetadata(unit.settings.voice, OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3)
-      const { audioStream } = tts.toStream(escapeXml(unit.text), {
-        rate: unit.settings.speed,
-        pitch: `${unit.settings.pitch >= 0 ? '+' : ''}${unit.settings.pitch}Hz`,
-        volume: Math.round(unit.settings.volume * 100)
-      })
-      await pipeline(audioStream, createWriteStream(`${path}.part`))
-      if (!(await exists(`${path}.part`)))
-        throw new Error(t('El servicio devolvió un fragmento vacío.'))
-      await rename(`${path}.part`, path)
-      return
-    } catch (error) {
-      if (attempt === 2) throw error
-      await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)))
-    } finally {
-      tts.close()
-    }
-  }
+  const voice = voices.find((voice) => voice.id === unit.settings.voice)
+  if (!voice)
+    throw new Error(
+      t('Una voz seleccionada ya no está disponible. Vuelve a importarla o elige otra voz.')
+    )
+  await synthesizeLocal(unit, voice, path, ffmpeg, onPid)
 }
 
 async function main() {

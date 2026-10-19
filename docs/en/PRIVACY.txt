@@ -1,46 +1,35 @@
 FÁBULA — PRIVACY
-Notice version: 0.6.0 · 17 October 2026
+19 October 2026
 
-WHAT STAYS ON YOUR COMPUTER
-Fábula stores drafts, narration text, generated audio, projects, preferences,
-voice profiles, pronunciation dictionary, transcriptions, playback positions
-and downloaded models in %APPDATA%/Fábula. Exports go to your chosen location.
-The portable application uses that same data folder. There is no Fábula account,
-advertising or first-party telemetry implemented in this version.
-Your interface language is stored locally in your preferences. On a new
-installation it follows the installer choice, or a supported system language.
+LOCAL DATA
+Fábula stores manuscripts, drafts, audio, projects, voice profiles, preferences,
+transcripts, bookmarks and downloaded models in %APPDATA%/Fábula. The portable
+uses the same folder. Exports are saved to your chosen location. The installer
+sets the initial interface language only for new profiles. Fábula has no user
+accounts, advertising or implemented first-party telemetry.
 
-WHEN INFORMATION LEAVES YOUR COMPUTER
-Voices marked as online send narration text, including samples, and synthesis
-parameters to Microsoft. The provider also receives normal network connection
-data such as your IP address. This is an independent integration with Edge's
-reading service, not a service operated by Fábula. Microsoft's documentation
-governs its data handling and retention:
-https://privacy.microsoft.com/en-us/privacystatement
-This notice does not claim Microsoft immediately deletes those texts.
-Profile previews use an example phrase. Studio previews may use the beginning
-of your editor text. Check the voice before synthesizing confidential content.
-Windows and Piper voices process text locally without sending it to Microsoft.
+PROCESSING AND CONNECTIONS
+Windows SAPI and Piper narration, document extraction, OCR and Whisper speech
+recognition run on your computer. Fábula does not send manuscripts or recordings
+to a synthesis or recognition service. Studio previews can use the beginning
+of your draft; profile previews use a sample sentence. Both run locally.
+Dictation requests microphone permission and processes the recording locally.
+Optional OCR, Whisper and Piper components are downloaded when requested.
+Downloads contact GitHub and Hugging Face servers, which receive ordinary
+connection information such as your IP address. Manuscripts and recordings
+are not attached to these download requests. External links open in your
+browser, subject to its policies.
 
-EXTRACTION, RECOGNITION AND DOWNLOADS
-Document extraction, OCR and Whisper transcription run locally. Dictation asks
-for microphone permission and processes the recording on this computer. OCR,
-Whisper and Piper modules are downloaded only when requested. These downloads
-contact GitHub and Hugging Face servers, which receive network connection data.
-Documents, text and recordings are not attached to module download requests.
-
-DELETION AND RETENTION
-Narrations remain until you delete them. Deleting from the library moves their
-files to the Windows Recycle Bin; this is not secure deletion. Exported MP3 files
-remain in their chosen locations. Deleting a project keeps its narrations.
-Removing a voice model keeps audio already generated. Uninstalling preserves
-the data folder to protect your library. To remove all local data, close Fábula
-and delete %APPDATA%/Fábula, exports and, where applicable, the Recycle Bin.
-Do not upload this data folder to a public repository or attach it to issues.
+RETENTION AND DELETION
+Narrations remain until you delete them. Library deletion moves files to the
+Windows Recycle Bin; this is not secure erasure. Exported MP3 files remain in
+their chosen location. Removing a project preserves its narrations. Removing
+a voice preserves generated audio. Uninstalling preserves your library. To
+remove all local data, close Fábula and delete %APPDATA%/Fábula, your exports
+and, where applicable, the Recycle Bin contents. Do not publish your data
+folder or attach it to public issues.
 
 SCOPE
-This notice describes this local version. Distributors adding servers,
+This notice describes the official distribution. Distributors adding servers,
 analytics or synchronization must disclose those changes and meet applicable
-requirements. Online provider terms are separate from Fábula's code license.
-See also USAGE_NOTICES.txt. Original third-party licenses remain in their
-original language; translated explanations do not replace those texts.
+obligations. See USAGE_NOTICES.txt.

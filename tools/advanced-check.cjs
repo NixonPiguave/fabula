@@ -108,14 +108,14 @@ function rasterPdf(jpeg, width, height) {
 async function prepare() {
   const { spawnSync } = require('node:child_process')
   const converted = spawnSync(
-    require('ffmpeg-static'),
+    path.resolve('.tools/media-runtime/ffmpeg.exe'),
     [
       '-hide_banner',
       '-loglevel',
       'error',
       '-y',
       '-i',
-      path.resolve('.tools/fixtures/jorge.mp3'),
+      path.resolve('.tools/fixtures/sample.mp3'),
       '-ar',
       '48000',
       '-ac',
@@ -167,6 +167,8 @@ app.once('browser-window-created', (_event, win) => {
       )
     try {
       await prepare()
+      const localVoice = (await boot()).voices.find((voice) => voice.provider === 'sapi')
+      assert.ok(localVoice)
       await until(
         () =>
           js(
@@ -186,7 +188,7 @@ app.once('browser-window-created', (_event, win) => {
       }
       await clickNav('Preferencias')
       await js(
-        `(() => { const element = document.querySelector('.setting-line select'); Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set.call(element, 'light'); element.dispatchEvent(new Event('change', { bubbles: true })); })()`
+        `(() => { const element = document.querySelector('select[aria-label="Tema"]'); Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set.call(element, 'light'); element.dispatchEvent(new Event('change', { bubbles: true })); })()`
       )
       await until(async () => (await boot()).preferences.theme === 'light', 'theme persistence')
       await field('Nombre del perfil', 'Lectura de prueba')
@@ -246,19 +248,17 @@ app.once('browser-window-created', (_event, win) => {
         `[...document.querySelectorAll('.feature-tabs button')].find(button=>button.textContent.includes('Párrafos')).click()`
       )
       await js(`document.querySelectorAll('.paragraph-list>button')[1].click()`)
-      await field('Voz del personaje o fragmento', 'es-MX-DaliaNeural', true)
+      await field('Voz del personaje o fragmento', localVoice.id, true)
       await js(`document.querySelector('[aria-label="Cerrar herramientas"]').click()`)
       await until(
         async () =>
           Object.values((await boot()).draft.blockOverrides ?? {}).some(
-            (value) => value.voice === 'es-MX-DaliaNeural'
+            (value) => value.voice === localVoice.id
           ),
         'paragraph voice persistence'
       )
       const draft = (await boot()).draft
-      assert.ok(
-        Object.values(draft.blockOverrides).some((value) => value.voice === 'es-MX-DaliaNeural')
-      )
+      assert.ok(Object.values(draft.blockOverrides).some((value) => value.voice === localVoice.id))
       const job = await js(`window.fabula.start(${JSON.stringify(draft)})`)
       const finished = await until(async () => {
         const item = (await boot()).jobs.find((item) => item.id === job.id)
@@ -280,7 +280,7 @@ app.once('browser-window-created', (_event, win) => {
         'PASS: characters, dictionary, two chapters, separate MP3s and full audio-cache reuse'
       )
       await clickNav('Voz a texto')
-      nextFile = path.resolve('.tools/fixtures/jorge.mp3')
+      nextFile = path.resolve('.tools/fixtures/sample.mp3')
       const beforeFileTranscription = (await boot()).transcripts.length
       await js(
         `[...document.querySelectorAll('.transcription-controls button')].find(button=>button.textContent.includes('Importar')).click()`
