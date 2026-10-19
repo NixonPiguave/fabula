@@ -52,8 +52,10 @@ it. Neither requires the end user to install Node.js or development dependencies
 Do not upload your personal data folder to GitHub or include it in bug reports.
 GitHub Releases can host installers and portable downloads directly; no external
 hosting is required. See https://github.com/NixonPiguave/fabula/releases.
-Download the installer, portable application, checksums and corresponding
-component sources directly from https://github.com/NixonPiguave/fabula/releases/tag/v0.7.0.
+Download the Windows installer directly from
+https://github.com/NixonPiguave/fabula/releases/tag/v0.7.0.
+Its release notes link to the separate technical archive containing component
+sources, original licenses and checksums.
 The executables are unsigned. GitHub's source ZIP is not an installer.
 
 BUILD AND VERIFY

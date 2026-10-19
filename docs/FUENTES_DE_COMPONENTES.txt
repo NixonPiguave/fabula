@@ -1,0 +1,24 @@
+FUENTES DE COMPONENTES Y ARCHIVO DE DISTRIBUCIÓN
+
+La descarga para usuarios es el instalador de Windows:
+https://github.com/NixonPiguave/fabula/releases/tag/v0.7.0
+
+Las fuentes correspondientes de los componentes nativos, avisos originales,
+SHA-256 y manifiesto de esa compilación se conservan gratuitamente en:
+https://github.com/NixonPiguave/fabula/releases/tag/v0.7.0-resources
+
+Chromium-152.0.7977.167-Sources.tar.gz: Chromium.
+Fabula-Browser-Sources.tar.gz: Electron, parches y dependencias referenciadas.
+Fabula-Audio-Sources.tar.gz: FFmpeg, LAME, configuración y construcción.
+Fabula-Canvas-Sources.tar.gz: fuentes Rust y avisos de componentes gráficos.
+Fabula-OCR-Sources.tar.gz: fuentes y avisos de los componentes de OCR.
+Fabula-Licenses.zip: avisos originales y licencias.
+SHA256SUMS.txt y release-manifest.json: integridad y procedencia.
+
+SOURCE_AVAILABILITY.txt conserva el inventario original de la compilación.
+Las referencias a la página principal de la versión conducen a un enlace claro
+a este archivo técnico. Las licencias originales permanecen incluidas también
+en la aplicación. El código de Fábula está identificado por la etiqueta v0.7.0
+y el commit 69d38ed2c8978d64f7f952eabdd623b9183e661d.
+
+No necesitas descargar los archivos de fuentes para instalar Fábula.

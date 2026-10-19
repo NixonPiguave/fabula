@@ -14,6 +14,7 @@
 </p>
 
 <p align="center">
+  <a href="#descargar">Descargar</a> ·
   <a href="#qué-puedes-hacer">Funciones</a> ·
   <a href="#empezar">Empezar</a> ·
   <a href="#voces-y-privacidad">Voces y privacidad</a> ·
@@ -67,18 +68,16 @@ El idioma de los libros, las voces y la transcripción se seleccionan por separa
 
 **Plataforma:** Windows 10/11 de 64 bits. **Idiomas de la interfaz:** español e inglés.
 
-### Descargas
+### Descargar
 
-| Windows x64                                  | Descarga                                                                                                       |
-| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| Instalador con selección de idioma y carpeta | [Fabula-Instalador.exe](https://github.com/NixonPiguave/fabula/releases/download/v0.7.0/Fabula-Instalador.exe) |
-| Portable, sin instalación                    | [Fabula.exe](https://github.com/NixonPiguave/fabula/releases/download/v0.7.0/Fabula.exe)                       |
-| Integridad, fuentes y notas de la versión    | [Todos los archivos](https://github.com/NixonPiguave/fabula/releases/tag/v0.7.0)                               |
+**[Descargar Fábula para Windows](https://github.com/NixonPiguave/fabula/releases/download/v0.7.0/Fabula-Instalador.exe)**
 
-Ambos paquetes incluyen sus dependencias y no requieren Node.js ni Python.
-El portable guarda los datos en `%APPDATA%/Fábula`. Los ejecutables no están
-firmados digitalmente; Windows puede mostrar una advertencia de editor desconocido.
-Comprueba los SHA-256 publicados antes de ejecutarlos.
+Abre el instalador y elige el idioma y la carpeta. Incluye las dependencias
+necesarias; no requiere Node.js ni Python. La biblioteca se guarda en
+`%APPDATA%/Fábula` y se conserva al desinstalar.
+
+El instalador no está firmado digitalmente; Windows puede mostrar una
+advertencia de editor desconocido.
 
 Para ejecutar desde el código, instala **Node.js 24 o posterior** y Git:
 
@@ -168,7 +167,8 @@ Consulta el [texto íntegro de la licencia](LICENSE.txt).
 
 Las licencias del programa no sustituyen las condiciones de los textos, voces,
 servicios o modelos que utilices. Los avisos originales de los paquetes se
-conservan en [Licencias de componentes](LICENCIAS_DE_COMPONENTES.txt).
+conservan en [Licencias de componentes](LICENCIAS_DE_COMPONENTES.txt). Las fuentes
+y archivos de redistribución están documentados en [Fuentes de componentes](docs/FUENTES_DE_COMPONENTES.txt).
 
 ## English
 
@@ -181,10 +181,9 @@ on your computer. Narration text is processed locally. Switch the interface lang
 The installer language initializes new profiles; existing preferences are kept.
 Changing the interface does not translate your manuscript or change your voice.
 
-Download the [Windows installer](https://github.com/NixonPiguave/fabula/releases/download/v0.7.0/Fabula-Instalador.exe) or
-[portable application](https://github.com/NixonPiguave/fabula/releases/download/v0.7.0/Fabula.exe) directly from GitHub Releases.
-The release includes checksums, corresponding component sources and original notices.
-The executables are unsigned. Source code is licensed under GPL-3.0-or-later.
+**[Download Fábula for Windows](https://github.com/NixonPiguave/fabula/releases/download/v0.7.0/Fabula-Instalador.exe).**
+Run the installer and choose the interface language and folder. Node.js and
+Python are not required. The installer is unsigned.
 Read the [English user guide](docs/en/USER_GUIDE.txt),
 [privacy notice](docs/en/PRIVACY.txt), [usage notices](docs/en/USAGE_NOTICES.txt)
 and [third-party notices](docs/en/THIRD_PARTY.txt).

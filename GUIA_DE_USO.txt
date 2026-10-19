@@ -135,5 +135,6 @@ DESCARGAS EN GITHUB
 No se necesita un sitio externo: Releases permite adjuntar EXE y SHA-256
 directamente a una publicación. El código del repositorio no incluye los EXE.
 Consulta https://github.com/NixonPiguave/fabula/releases para ver disponibilidad.
-El instalador, portable, SHA-256 y fuentes correspondientes están en la Release.
+La publicación principal ofrece el instalador. Sus notas enlazan un archivo
+técnico separado con las fuentes correspondientes, licencias y SHA-256.
 El ZIP del código no es el instalador.

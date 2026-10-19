@@ -2,7 +2,8 @@ DISTRIBUCIÓN DE FÁBULA
 
 El repositorio contiene código, recursos, pruebas, lockfile y avisos. Los EXE,
 modelos y datos de usuarios no se añaden al historial Git. GitHub Releases aloja
-el instalador, portable, sus SHA-256 y las fuentes correspondientes.
+el instalador como única descarga principal. Una publicación técnica separada
+conserva las fuentes correspondientes, licencias, hashes y archivos de referencia.
 
 PREPARAR LOS PAQUETES
 1. Usa Windows x64 y Node.js 24 o posterior. Ejecuta npm ci, npm run build,
@@ -12,8 +13,12 @@ PREPARAR LOS PAQUETES
    en la raíz. Los archivos intermedios se guardan en .build.
 4. Comprueba el portable, instalación ES/EN, idioma inicial y persistencia de
    preferencias y biblioteca al desinstalar. No uses datos personales.
-5. Etiqueta el commit exacto. Adjunta EXE, SHA-256 y fuentes/notices a la misma
-   Release. Verifica los archivos públicos antes de anunciar las descargas.
+5. Etiqueta el commit exacto. Adjunta solamente Fabula-Instalador.exe a la
+   publicación principal. Coloca la integridad en sus notas y enlaza claramente
+   las fuentes y licencias de la publicación técnica. Conserva el acceso gratuito
+   al código correspondiente antes de retirar adjuntos de otra ubicación.
+   Verifica los archivos públicos antes de anunciar las descargas.
+   GitHub añade automáticamente los ZIP/TAR del código del repositorio.
 
 LICENCIAS Y FUENTES
 Conserva LICENSE.txt, PRIVACIDAD.txt, AVISOS_DE_USO.txt, TERCEROS.txt,
